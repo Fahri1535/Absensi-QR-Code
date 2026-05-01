@@ -28,13 +28,27 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        $remember = $request->boolean('remember');
+
+        if (! Auth::attempt($credentials, $remember)) {
             return back()
                 ->withInput($request->only('username'))
                 ->withErrors(['username' => 'Username atau password salah.']);
         }
 
         $request->session()->regenerate();
+
+        /*
+         * Jika TIDAK centang "Ingat saya":
+         * set cookie_lifetime = 0 agar session mati saat browser ditutup.
+         *
+         * Jika centang "Ingat saya":
+         * Laravel otomatis buat remember_token cookie yang tahan 5 tahun,
+         * dan SESSION_LIFETIME di .env mengontrol berapa lama sesi aktif.
+         */
+        if (! $remember) {
+            config(['session.expire_on_close' => true]);
+        }
 
         return redirect()->intended($this->redirectTo());
     }
