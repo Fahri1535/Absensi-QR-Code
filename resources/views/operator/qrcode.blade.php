@@ -34,7 +34,7 @@
 <div class="page-header">
   <div class="breadcrumb">Beranda / <span>Kelola QR Code</span></div>
   <h1>Kelola QR Code Presensi</h1>
-  <p class="text-muted">QR Code bersifat permanen dan ditempel di kantor. Atur waktu aktif presensi sesuai kebijakan.</p>
+  <p class="text-muted">QR berisi tautan ke aplikasi (bukan teks mentah) agar bisa dibuka dari Google Lens — pengguna yang belum login akan diarahkan ke halaman masuk terlebih dahulu. Pastikan <strong>APP_URL</strong> di file .env sesuai domain akses (mis. http://127.0.0.1:8000).</p>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;" class="stagger">
@@ -180,6 +180,30 @@
                    value="{{ $jadwal?->hari_kerja ?? 'Senin - Jumat' }}"
                    placeholder="contoh: Senin - Jumat">
           </div>
+        </div>
+        <hr class="divider" style="margin:16px 0;">
+        <p class="text-muted text-sm" style="margin-bottom:12px;">
+          <strong>Radius kantor (opsional):</strong> jika diisi, karyawan harus mengizinkan lokasi dan berada dalam jarak tertentu dari titik kantor untuk presensi. Kosongkan ketiga field untuk menonaktifkan.
+        </p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Lintang kantor</label>
+            <input type="number" step="any" name="kantor_latitude" class="form-control"
+                   value="{{ old('kantor_latitude', $jadwal?->kantor_latitude) }}"
+                   placeholder="-6.XXXXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bujur kantor</label>
+            <input type="number" step="any" name="kantor_longitude" class="form-control"
+                   value="{{ old('kantor_longitude', $jadwal?->kantor_longitude) }}"
+                   placeholder="106.XXXXXX">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Radius izin (meter)</label>
+          <input type="number" name="radius_meter" class="form-control" min="10" max="50000"
+                 value="{{ old('radius_meter', $jadwal?->radius_meter) }}"
+                 placeholder="mis. 150">
         </div>
         <button type="submit" class="btn btn-primary">
           <i class="fa-solid fa-floppy-disk"></i> Simpan Jadwal

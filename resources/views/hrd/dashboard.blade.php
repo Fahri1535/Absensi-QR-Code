@@ -143,7 +143,7 @@
           <a href="{{ route('hrd.laporan') }}" class="btn btn-primary" style="width:100%; text-align:center;">
             <i class="fa-solid fa-file-chart-column"></i> Buat Laporan
           </a>
-          <a href="#" class="btn btn-outline" style="width:100%; text-align:center;" onclick="alert('Fitur sedang dalam pengembangan')">
+          <a href="{{ route('hrd.karyawan') }}" class="btn btn-outline" style="width:100%; text-align:center;">
             <i class="fa-solid fa-users"></i> Data Karyawan
           </a>
         </div>

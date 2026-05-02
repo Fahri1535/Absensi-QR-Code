@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\PresensiQrEntryController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\Karyawan\{
     DashboardController as KaryawanDashboard,
@@ -21,6 +22,7 @@ use App\Http\Controllers\Operator\{
 use App\Http\Controllers\Hrd\{
     DashboardController as HrdDashboard,
     IzinController as HrdIzin,
+    KaryawanController as HrdKaryawan,
     LaporanController as HrdLaporan,
 };
 
@@ -47,6 +49,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+/* ═══════════════════════════════════════════
+   PRESENSI QR — tautan publik (Google Lens / browser)
+═══════════════════════════════════════════ */
+Route::get('/presensi/scan', PresensiQrEntryController::class)->name('presensi.qr.entry');
 
 /* ═══════════════════════════════════════════
    KARYAWAN
@@ -122,6 +129,10 @@ Route::middleware(['auth', 'role:hrd'])
     ->group(function () {
 
         Route::get('/dashboard',              [HrdDashboard::class, 'index'])->name('dashboard');
+
+        // Data karyawan (baca + detail)
+        Route::get('/karyawan',               [HrdKaryawan::class, 'index'])->name('karyawan');
+        Route::get('/karyawan/{id}',          [HrdKaryawan::class, 'show'])->name('karyawan.show');
 
         // Izin
         Route::get('/izin',                   [HrdIzin::class, 'index'])->name('izin');

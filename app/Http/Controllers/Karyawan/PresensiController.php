@@ -9,46 +9,62 @@ use Illuminate\Http\{JsonResponse, Request};
 
 class PresensiController extends Controller
 {
-    /* ─── Halaman scan ───────────────────────────────────────── */
-
     public function index()
     {
         $karyawan        = auth()->user()->karyawan;
-        // FIXED: ::getSetting() bukan ::get()
         $jadwal          = JadwalKerja::getSetting();
         $presensiHariIni = Presensi::where('karyawan_id', $karyawan->id)
             ->whereDate('tanggal', today())
             ->first();
 
-        return view('karyawan.presensi', compact('karyawan', 'jadwal', 'presensiHariIni'));
-    }
+        $geoRequired = $jadwal->kantor_latitude !== null
+            && $jadwal->kantor_longitude !== null
+            && ! empty($jadwal->radius_meter);
 
-    /* ─── POST scan QR ───────────────────────────────────────── */
+        $pendingQrToken = null;
+        $t = request('t');
+        if ($t && QrCode::where('kode_qr', $t)->where('is_active', true)->exists()) {
+            $pendingQrToken = $t;
+        }
+
+        return view('karyawan.presensi', compact(
+            'karyawan',
+            'jadwal',
+            'presensiHariIni',
+            'geoRequired',
+            'pendingQrToken'
+        ));
+    }
 
     public function scan(Request $request): JsonResponse
     {
-        $request->validate(['qr_data' => 'required|string']);
+        $request->validate([
+            'qr_data'   => 'required|string',
+            'latitude'  => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
+
+        $qrData = self::normalizeQrPayload($request->input('qr_data'));
 
         $karyawan = auth()->user()->karyawan;
-        // FIXED: ::getSetting() bukan ::get()
         $jadwal   = JadwalKerja::getSetting();
         $now      = Carbon::now();
-        $qrData   = $request->qr_data;
 
-        // Cari QR di database
+        if ($err = $this->validateLokasiKantor($request, $jadwal)) {
+            return response()->json(['success' => false, 'message' => $err], 422);
+        }
+
         $qr = QrCode::where('kode_qr', $qrData)->where('is_active', true)->first();
 
         if (! $qr) {
             return response()->json(['success' => false, 'message' => 'QR Code tidak valid atau tidak aktif.'], 422);
         }
 
-        // Presensi hari ini
         $presensi = Presensi::firstOrNew([
             'karyawan_id' => $karyawan->id,
             'tanggal'     => today()->toDateString(),
         ]);
 
-        /* ── QR Masuk ── */
         if ($qr->tipe === 'masuk') {
             if ($presensi->jam_datang) {
                 return response()->json(['success' => false, 'message' => 'Anda sudah presensi masuk hari ini.'], 422);
@@ -65,7 +81,6 @@ class PresensiController extends Controller
                 ], 422);
             }
 
-            // FIXED: cek toleransi dengan copy() agar $jamMasuk tidak termutasi
             $statusMasuk = $now->gt($jamMasuk->copy()->addMinutes($jadwal->toleransi_menit))
                 ? 'terlambat' : 'tepat_waktu';
 
@@ -92,7 +107,6 @@ class PresensiController extends Controller
             ]);
         }
 
-        /* ── QR Pulang ── */
         if ($qr->tipe === 'pulang') {
             if (! $presensi->jam_datang) {
                 return response()->json(['success' => false, 'message' => 'Anda belum melakukan presensi masuk hari ini.'], 422);
@@ -138,5 +152,65 @@ class PresensiController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Tipe QR tidak dikenali.'], 422);
+    }
+
+    /** Ambil token `t` dari URL QR atau kembalikan string mentah (kompatibel QR lama). */
+    public static function normalizeQrPayload(string $raw): string
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return $raw;
+        }
+
+        if (str_contains($raw, 'http://') || str_contains($raw, 'https://')) {
+            $parts = parse_url($raw);
+            if (! empty($parts['query'])) {
+                parse_str($parts['query'], $q);
+                if (! empty($q['t'])) {
+                    return $q['t'];
+                }
+            }
+        }
+
+        return $raw;
+    }
+
+    public static function haversineMeters(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earth = 6371000.0;
+        $φ1 = deg2rad($lat1);
+        $φ2 = deg2rad($lat2);
+        $Δφ = deg2rad($lat2 - $lat1);
+        $Δλ = deg2rad($lon2 - $lon1);
+        $a = sin($Δφ / 2) ** 2 + cos($φ1) * cos($φ2) * sin($Δλ / 2) ** 2;
+
+        return 2 * $earth * atan2(sqrt($a), sqrt(1 - $a));
+    }
+
+    protected function validateLokasiKantor(Request $request, JadwalKerja $jadwal): ?string
+    {
+        if ($jadwal->kantor_latitude === null || $jadwal->kantor_longitude === null || empty($jadwal->radius_meter)) {
+            return null;
+        }
+
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+        if ($lat === null || $lng === null || ! is_numeric($lat) || ! is_numeric($lng)) {
+            return 'Aktifkan izin lokasi perangkat untuk presensi di area kantor.';
+        }
+
+        $meters = self::haversineMeters(
+            (float) $lat,
+            (float) $lng,
+            (float) $jadwal->kantor_latitude,
+            (float) $jadwal->kantor_longitude
+        );
+
+        if ($meters > (int) $jadwal->radius_meter) {
+            return 'Anda di luar radius kantor yang diizinkan (' . (int) $jadwal->radius_meter
+                . ' m). Jarak perkiraan: ' . (int) round($meters) . ' m.';
+        }
+
+        return null;
     }
 }

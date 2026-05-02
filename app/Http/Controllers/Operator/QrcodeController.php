@@ -16,9 +16,9 @@ class QrcodeController extends Controller
         $qrMasuk  = QrCode::getOrCreate('masuk');
         $qrPulang = QrCode::getOrCreate('pulang');
 
-        // Generate gambar SVG inline
-        $qrMasukImage  = QrFacade::size(180)->generate($qrMasuk->kode_qr);
-        $qrPulangImage = QrFacade::size(180)->generate($qrPulang->kode_qr);
+        // QR berisi URL publik (bukan token mentah) agar bisa dibuka dari Google Lens / browser
+        $qrMasukImage  = QrFacade::size(180)->generate($qrMasuk->presensiScanUrl());
+        $qrPulangImage = QrFacade::size(180)->generate($qrPulang->presensiScanUrl());
 
         return view('operator.qrcode', compact(
             'jadwal', 'qrMasuk', 'qrPulang', 'qrMasukImage', 'qrPulangImage'
@@ -31,7 +31,7 @@ class QrcodeController extends Controller
         $tipe = $request->input('type', 'masuk');
         $qr   = QrCode::getOrCreate($tipe);
 
-        $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate($qr->kode_qr);
+        $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
 
         return response($image, 200, [
             'Content-Type'        => 'image/png',
@@ -46,7 +46,7 @@ class QrcodeController extends Controller
         $qr    = QrCode::getOrCreate($tipe);
         // FIXED: tambah ::getSetting() untuk jadwal di print view
         $jadwal = JadwalKerja::getSetting();
-        $image = QrFacade::size(400)->generate($qr->kode_qr);
+        $image = QrFacade::size(400)->generate($qr->presensiScanUrl());
 
         return view('operator.qrcode_print', compact('tipe', 'image', 'qr', 'jadwal'));
     }

@@ -67,16 +67,25 @@ body.light-mode {
 
 /* ══════ RESET & BASE — FIX TIDAK GEPENG ══════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;scroll-behavior:smooth}
+html{
+  font-size:16px;
+  scroll-behavior:smooth;
+  background-color:#0F172A;
+}
+html.lm{
+  background-color:#F8FAFC;
+}
 body{
   font-family:'DM Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:var(--bg-primary);color:var(--text-primary);
   min-height:100vh;line-height:1.55;
-  letter-spacing:0px;
+  letter-spacing:normal;
+  font-stretch:normal;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
-  font-weight:450;
+  font-weight:400;
+  font-variant-numeric: lining-nums;
   /* TIDAK ada transition di body — mencegah flash saat pindah halaman */
 }
 body::before{
@@ -88,10 +97,10 @@ body::before{
   /* TIDAK ada transition — background-image transition sangat berat */
 }
 
-/* Heading — lebih proporsional */
+/* Heading — Syne tanpa tracking negatif (menghindari teks/angka “gepeng”) */
 h1,h2,h3,h4,h5{
   font-family:'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight:700;line-height:1.2;letter-spacing:-0.02em; /* ← TAMBAH: judul lebih rapat */
+  font-weight:700;line-height:1.25;letter-spacing:normal;font-stretch:normal;
 }
 h1{font-size:clamp(1.75rem,4vw,2.5rem)}
 h2{font-size:clamp(1.3rem,3vw,1.9rem)}
@@ -140,7 +149,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 }
 .logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 
-.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;line-height:1.2;color:var(--text-primary)}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;line-height:1.2;letter-spacing:normal;color:var(--text-primary)}
 .logo-text span{color:var(--blue-light)}
 .logo-sub{font-size:.67rem;color:var(--text-secondary);margin-top:2px}
 
@@ -190,13 +199,12 @@ body.sidebar-collapsed .main-content{margin-left:0}
 /* ══════ TOPBAR ══════ */
 .topbar{
   height:64px;background:var(--bg-topbar);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 24px;gap:12px;
   position:sticky;top:0;z-index:50;
   transition:background var(--transition);
 }
-.topbar-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;flex:1;color:var(--text-primary)}
+.topbar-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;letter-spacing:normal;flex:1;color:var(--text-primary)}
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 
 .topbar-btn{
@@ -240,11 +248,31 @@ body.sidebar-collapsed .main-content{margin-left:0}
 /* ══════ CARDS ══════ */
 .card{
   background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--radius);backdrop-filter:blur(12px);overflow:hidden;
+  border-radius:var(--radius);overflow:hidden;
   transition:background var(--transition),border-color var(--transition);
+  /* Tanpa backdrop-filter: di Chromium sering bikin teks & ikon FA terlihat “gepeng”/melar */
 }
 .card-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.card-header h3{font-size:1rem;margin:0}
+.card-header h3{
+  font-size:1rem;margin:0;
+  flex:0 1 auto;min-width:0;
+  font-stretch:normal;
+  transform:none;
+}
+/* Ikon di header kartu — kotak persegi supaya tidak ikut melar di flex */
+.card-header > i[class*="fa-"]{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:1.35rem;
+  height:1.35rem;
+  font-size:1.05rem;
+  line-height:1;
+  font-style:normal;
+  transform:none;
+  -webkit-font-smoothing:antialiased;
+}
 .card-header .card-actions{margin-left:auto;display:flex;gap:8px}
 .card-body{padding:22px} .card-body-sm{padding:14px}
 .card-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px}
@@ -271,11 +299,12 @@ body.sidebar-collapsed .main-content{margin-left:0}
   letter-spacing:0.04em;  /* ← TAMBAH: label lebih rapi */
 }
 .stat-value{
-  font-family:'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:'DM Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   font-size:1.65rem;
   font-weight:800;
   line-height:1.2;
-  letter-spacing:-0.02em;  /* ← TAMBAH */
+  letter-spacing:normal;
+  font-variant-numeric: tabular-nums;
 }
 .stat-delta{font-size:.72rem;margin-top:4px}
 .stat-delta.pos{color:var(--green)} .stat-delta.neg{color:var(--red)}
@@ -417,7 +446,15 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 
 /* Clock */
 .clock-card{text-align:center;padding:32px 24px}
-.clock-display{font-family:'Syne',sans-serif;font-size:3.2rem;font-weight:800;background:linear-gradient(135deg,var(--text-primary),var(--blue-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:16px 0 8px}
+.clock-display{
+  font-family:'DM Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:3.2rem;font-weight:800;
+  letter-spacing:normal;
+  font-variant-numeric: tabular-nums;
+  background:linear-gradient(135deg,var(--text-primary),var(--blue-light));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;margin:16px 0 8px;
+}
 .clock-date{color:var(--text-secondary);font-size:.9rem}
 .attendance-status{display:flex;gap:16px;justify-content:center;margin-top:24px}
 .att-dot{display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -430,7 +467,12 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 .qr-code-box{background:white;padding:16px;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.2)}
 .qr-time-window{display:flex;gap:8px}
 .time-badge{background:var(--blue-glow);border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:10px 16px;text-align:center}
-.time-badge .time{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--blue-light)}
+.time-badge .time{
+  font-family:'DM Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:1.1rem;font-weight:700;color:var(--blue-light);
+  letter-spacing:normal;
+  font-variant-numeric: tabular-nums;
+}
 .time-badge .label{font-size:.68rem;color:var(--text-secondary);margin-top:2px}
 
 /* Notifikasi badge */
@@ -459,7 +501,7 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 .gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}.gap-6{gap:24px}
 .mt-2{margin-top:8px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}
 .mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.ml-auto{margin-left:auto}
-.text-muted{color:var(--text-secondary)}.text-blue{color:var(--blue-light)}
+.text-muted{color:var(--text-secondary)}.text-blue{color:var(--blue-light)}.text-teal{color:var(--teal)}
 .text-sm{font-size:.875rem}.text-xs{font-size:.75rem}
 .font-mono{font-family:'Courier New',monospace}.text-right{text-align:right}
 .rounded{border-radius:var(--radius)}.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
@@ -469,18 +511,14 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 ::-webkit-scrollbar-thumb{background:var(--bg-secondary);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text-secondary)}
 
-/* ========== FORCE FIX UNTUK DASHBOARD KARYAWAN ========== */
+/* ========== Tracking konsisten — hindari teks/angka gepeng ========== */
 .page-content,
 .card-body,
 .card-header,
 .stat-card,
-.stat-info,
 .stat-label,
-.stat-value,
 .badge,
 .btn,
-.btn-ghost,
-.btn-sm,
 .text-muted,
 .breadcrumb,
 .table,
@@ -488,16 +526,7 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 .table td,
 .page-header h1,
 .page-header p,
-h1, h2, h3, h4, p, span, div {
-  letter-spacing: normal !important;
-}
-
-.stat-value {
-  font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  letter-spacing: normal !important;
-}
-
-.card-body div[style*="font-family:'Syne'"] {
+h1, h2, h3, h4, p {
   letter-spacing: normal !important;
 }
 
@@ -517,13 +546,7 @@ h1, h2, h3, h4, p, span, div {
 }
 
 /* ========== FIX SCROLL LAG & PERFORMANCE ========== */
-/* Kurangi efek blur di mobile */
 @media (max-width: 768px) {
-  .sidebar, .card, .topbar, .login-card {
-    backdrop-filter: blur(5px) !important;
-    -webkit-backdrop-filter: blur(5px) !important;
-  }
-  
   /* Matikan animasi orb di mobile (penyebab utama lag) */
   .orb {
     animation: none !important;
@@ -561,11 +584,6 @@ h1, h2, h3, h4, p, span, div {
   }
 }
 
-/* Optimasi scroll jadi lebih halus */
-html {
-  scroll-behavior: smooth;
-}
-
 /* Kurangi shadow yang berat */
 .card, .stat-card, .btn {
   box-shadow: none !important;
@@ -576,103 +594,99 @@ html {
 }
 
 /* ═══════════════════════════════════════════════════════
-   FIX FONT GLOBAL — system font, tidak gepeng
-   Berlaku ke semua halaman via layouts/app.blade.php
+   Tipografi global — DM Sans untuk UI/angka, Syne hanya judul
    ═══════════════════════════════════════════════════════ */
 
-/* Pastikan semua elemen pakai system font, override warisan DM Sans/Inter */
 body,
-body p, body span, body div, body td, body th,
-body li, body a, body label, body input, body select,
-body textarea, body button, body small, body strong {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-               'Helvetica Neue', Arial, sans-serif !important;
+body p, body span, body li, body a, body label,
+body input, body select, body textarea, body button,
+body small, body strong {
+  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', sans-serif !important;
   letter-spacing: normal !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
 }
 
-/* Angka — pakai proportional oldstyle agar tidak gepeng di semua OS */
-body {
-  font-variant-numeric: proportional-nums;
-  font-feature-settings: "kern" 1, "liga" 1;
+body td, body th,
+body .table td, body .table th {
+  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', sans-serif !important;
+  letter-spacing: normal !important;
 }
 
-/* Heading tetap Syne */
+/* Judul layar — Syne, tanpa tracking negatif */
 h1, h2, h3, h4, h5,
-.stat-value, .clock-display,
-.topbar-title, .logo-text,
+.page-header h1,
+.topbar-title, .logo-text {
+  font-family: 'Syne', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', sans-serif !important;
+  letter-spacing: normal !important;
+  font-stretch: normal !important;
+}
+
+/* Font Awesome — jangan ikut font/teks warisan yang melar */
+.fa-solid, .fa-regular, .fa-brands, .fas, .far, .fab {
+  font-style: normal !important;
+  font-variant: normal !important;
+  font-stretch: normal !important;
+}
+
+/* Angka & jam — DM Sans + tabular nums (override inline Syne di blade) */
+.stat-value,
+.clock-display,
 .time-badge .time,
 [style*="font-family:'Syne'"],
 [style*='font-family:"Syne"'] {
-  font-family: 'Syne', -apple-system, BlinkMacSystemFont,
+  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont,
                'Segoe UI', sans-serif !important;
-  letter-spacing: -0.01em !important;
-  font-variant-numeric: normal !important;
+  letter-spacing: normal !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "kern" 1, "tnum" 1 !important;
 }
 
-/* Angka besar (stat-value, clock) — bold weight agar tidak terlihat gepeng */
-.stat-value {
-  font-weight: 800 !important;
-  letter-spacing: -0.02em !important;
-  font-variant-numeric: normal !important;
-}
+.stat-value, .clock-display { font-weight: 800 !important; }
 
-.clock-display {
-  font-weight: 800 !important;
-  letter-spacing: -0.03em !important;
-}
-
-/* Badge & kode — font normal */
 .badge {
   font-weight: 600 !important;
-  letter-spacing: 0 !important;
-}
-
-/* Nav item, tombol, label form */
-.nav-item, .btn, .form-label, .topbar-btn {
-  letter-spacing: 0 !important;
-  font-weight: 500 !important;
-}
-.btn { font-weight: 600 !important; }
-.form-label { font-weight: 600 !important; letter-spacing: 0.04em !important; }
-
-/* Table — pastikan font konsisten */
-td, th {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-               Arial, sans-serif !important;
   letter-spacing: normal !important;
 }
+
+.nav-item, .btn, .topbar-btn {
+  letter-spacing: normal !important;
+}
+.btn { font-weight: 600 !important; }
+
+.form-label {
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+}
+
 thead th {
   font-weight: 700 !important;
   letter-spacing: 0.05em !important;
 }
 
-/* Sidebar label section */
 .nav-section-label {
-  letter-spacing: 0.1em !important;
+  letter-spacing: 0.08em !important;
   font-weight: 700 !important;
 }
-
 
 /* ═══════════════════════════════════════════════════════════════
    SCROLL PERFORMANCE & FOUC PREVENTION
    ════════════════════════════════════════════════════════════════ */
 
-/* Sidebar & main — GPU layer untuk scroll mulus */
 .sidebar {
   will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .main-content {
-  will-change: scroll-position;
+  will-change: auto;
 }
 
-/* Tabel & card — contain layout agar tidak trigger full reflow */
+/* Card: jangan contain layout+style — bisa memicu artefak raster/subpixel di beberapa GPU */
 .card {
-  contain: layout style;
+  contain: paint;
 }
 
 .table-wrap {
@@ -681,24 +695,10 @@ thead th {
   -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
 }
 
-/* Semua transisi: gunakan hanya transform & opacity (GPU accelerated)
-   Hindari animasi width/height/margin yang trigger layout recalc */
-.stat-card,
+/* Hindari translateZ(0) massal — lapisan komposit ekstra bisa bikin glyph/ikon terlihat melar */
 .nav-item,
 .btn {
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* Scroll smooth di seluruh halaman */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Cegah layout shift saat font swap */
-body {
-  font-synthesis: none;
-  size-adjust: 100%;
+  will-change: auto;
 }
 
 /* Preload skeleton — cegah blank saat CSS belum ready */

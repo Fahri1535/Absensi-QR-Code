@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hrd;
 use App\Http\Controllers\Controller;
 use App\Models\{Izin, Notifikasi};
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class IzinController extends Controller
 {
@@ -51,10 +52,12 @@ class IzinController extends Controller
         $statusLabel = $validated['status'] === 'disetujui' ? 'disetujui ✅' : 'ditolak ❌';
 
         if ($izin->karyawan && $izin->karyawan->user_id) {
+            $jenisLabel = ucfirst(str_replace('_', ' ', $izin->jenis_izin));
             Notifikasi::create([
                 'user_id' => $izin->karyawan->user_id,
-                'judul'   => 'Status Izin Diperbarui',
-                'pesan'   => "Pengajuan izin Anda ({$izin->tanggal_mulai->format('d M Y')}) telah {$statusLabel}.",
+                'judul'   => 'Status Izin: ' . ($validated['status'] === 'disetujui' ? 'Disetujui' : 'Ditolak'),
+                'pesan'   => "Pengajuan {$jenisLabel} ({$izin->tanggal_mulai->format('d M')} – {$izin->tanggal_selesai->format('d M Y')}) telah {$statusLabel}."
+                    . (! empty($validated['catatan_hrd']) ? ' Catatan HRD: ' . Str::limit((string) $validated['catatan_hrd'], 160) : ''),
                 'ikon'    => $validated['status'] === 'disetujui' ? 'fa-circle-check' : 'fa-circle-xmark',
                 'warna'   => $validated['status'] === 'disetujui' ? 'green' : 'red',
                 'link'    => route('karyawan.izin'),

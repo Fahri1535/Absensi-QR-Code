@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0F172A" id="meta-theme-color">
   <title>Login — Presensi QR PT. Nugraha Tirta Sejati</title>
   {{-- Preload CSS --}}
   <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
@@ -35,17 +36,17 @@
   <script>
     (function(){
       var t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.classList.remove('lm');
+      if (t === 'light') document.documentElement.classList.add('lm');
       document.documentElement.style.background = t === 'light' ? '#F8FAFC' : '#0F172A';
       document.documentElement.style.colorScheme = t === 'light' ? 'light' : 'dark';
     })();
   </script>
   <style>
     html { background: #0F172A; }
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation-duration: 0.15s;
-    }
+    html.lm { background: #F8FAFC; }
+    body { margin: 0; background-color: #0F172A; }
+    html.lm body { background-color: #F8FAFC; }
   </style>
 
   <style>
@@ -83,10 +84,15 @@
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      transition: var(--transition);
+      letter-spacing: normal;
+      line-height: 1.55;
+      font-variant-numeric: lining-nums;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      /* Tanpa transition di body — kurangi kedip saat ganti tema/navigasi */
     }
 
     /* Theme Toggle Button */
@@ -103,7 +109,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      backdrop-filter: blur(10px);
       transition: var(--transition);
       font-size: 0.85rem;
       color: var(--text-primary);
@@ -189,6 +194,16 @@
       gap: 8px;
     }
 
+    .alert-info {
+      padding:14px 16px;margin-bottom:0;border-radius:12px;display:flex;
+      align-items:flex-start;gap:10px;font-size:.875rem;line-height:1.45;
+      background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.3);color:#60A5FA;
+    }
+
+    html.lm .alert-info {
+      background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.25);color:#1D4ED8;
+    }
+
     .alert-danger {
       background: rgba(239, 68, 68, 0.1);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -244,7 +259,6 @@
       max-width: 500px;
       width: 100%;
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
       border: 1px solid var(--border-color);
       border-radius: 32px;
       padding: 48px 40px;
@@ -383,71 +397,70 @@
       color: var(--text-secondary);
     }
 
+    .login-contact-link {
+      color: var(--blue-light);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid transparent;
+      transition: var(--transition);
+    }
+
+    .login-contact-link:hover {
+      color: var(--blue-primary);
+      border-bottom-color: var(--blue-primary);
+    }
+
     @media (max-width: 560px) {
       .login-card { padding: 32px 24px; margin: 0 16px; }
       .feature-grid { gap: 8px; }
       .feature-pill { font-size: .7rem; padding: 4px 12px; }
     }
 
-    /* ========== FIX FONT TIDAK GEPENG - PAKAI SYSTEM FONT ========== */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      transition: var(--transition);
-      letter-spacing: normal !important;
-      line-height: 1.55 !important;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* Heading / Judul tetap pakai Syne biar keren */
+    /* Judul pakai Syne — tanpa tracking negatif */
     .info-title, .login-form-title, h1, h2, h3, h4 {
       font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
       letter-spacing: normal !important;
-      line-height: 1.2 !important;
+      line-height: 1.25 !important;
       font-weight: 700 !important;
     }
 
-    /* Paragraf dan teks biasa */
     .info-desc, .login-form-sub, .text-muted, p, .login-footer {
       letter-spacing: normal !important;
       line-height: 1.6 !important;
     }
 
-    /* Label form */
     .form-label {
       letter-spacing: normal !important;
       font-weight: 600 !important;
     }
 
-    /* Feature pills */
     .feature-pill {
       letter-spacing: normal !important;
       font-weight: 500 !important;
     }
 
-    /* Button */
     .btn, .btn-primary, button, .theme-toggle {
       letter-spacing: normal !important;
       font-weight: 600 !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     }
 
-    /* Input */
     .form-control {
       letter-spacing: normal !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    }
-    
-    /* Feature pills */
-    .feature-pill {
-      letter-spacing: 0px !important;
+      font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      font-variant-numeric: tabular-nums;
     }
 
   </style>
 </head>
 <body>
+<script>
+(function () {
+  try {
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+  } catch (e) {}
+})();
+</script>
 <div class="login-bg-orbs">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
@@ -505,6 +518,13 @@
     </div>
     @endif
 
+    @if(session('info'))
+    <div class="alert alert-info" style="margin-bottom:20px;">
+      <i class="fa-solid fa-qrcode"></i>
+      <span>{{ session('info') }}</span>
+    </div>
+    @endif
+
     <form method="POST" action="{{ route('login') }}" id="loginForm">
       @csrf
 
@@ -528,8 +548,9 @@
       </div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-secondary);cursor:pointer;">
-          <input type="checkbox" name="remember" style="accent-color:var(--blue-primary);"> Ingat saya
+        <label for="remember" style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-secondary);cursor:pointer;user-select:none;">
+          <input type="checkbox" name="remember" id="remember" value="1" @checked(old('remember')) style="accent-color:var(--blue-primary);width:1rem;height:1rem;cursor:pointer;">
+          Ingat saya
         </label>
       </div>
 
@@ -540,7 +561,13 @@
 
     <div class="login-footer">
       <hr class="divider">
-      Butuh bantuan? Hubungi <span style="color:var(--blue-light);">Admin</span>
+      @php($adminUrl = config('app.admin_contact_url'))
+      Butuh bantuan?
+      @if(! empty($adminUrl))
+        <a href="{{ $adminUrl }}" class="login-contact-link" target="_blank" rel="noopener noreferrer">Hubungi Admin</a>
+      @else
+        Hubungi Admin
+      @endif
     </div>
 
   </div>
@@ -565,14 +592,21 @@ document.getElementById('loginForm').addEventListener('submit', function() {
 function applyLoginTheme(theme) {
   const icon = document.getElementById('themeIcon');
   const text = document.getElementById('themeText');
+  const tc = document.getElementById('meta-theme-color');
+  document.documentElement.classList.remove('lm');
   if (theme === 'light') {
+    document.documentElement.classList.add('lm');
+    document.documentElement.style.background = '#F8FAFC';
+    document.documentElement.style.colorScheme = 'light';
     document.body.classList.add('light-mode');
-    document.documentElement.style.background = '';
+    if (tc) tc.setAttribute('content', '#F8FAFC');
     if (icon) icon.className = 'fa-solid fa-sun';
     if (text) text.textContent = 'Light Mode';
   } else {
+    document.documentElement.style.background = '#0F172A';
+    document.documentElement.style.colorScheme = 'dark';
     document.body.classList.remove('light-mode');
-    document.documentElement.style.background = '';
+    if (tc) tc.setAttribute('content', '#0F172A');
     if (icon) icon.className = 'fa-solid fa-moon';
     if (text) text.textContent = 'Dark Mode';
   }

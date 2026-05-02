@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\QrCode;
+use Illuminate\Auth\SessionGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class LoginController extends Controller
 {
@@ -32,22 +35,39 @@ class LoginController extends Controller
 
         if (! Auth::attempt($credentials, $remember)) {
             return back()
-                ->withInput($request->only('username'))
+                ->withInput($request->only(['username', 'remember']))
                 ->withErrors(['username' => 'Username atau password salah.']);
         }
 
-        $request->session()->regenerate();
-
         /*
-         * Jika TIDAK centang "Ingat saya":
-         * set cookie_lifetime = 0 agar session mati saat browser ditutup.
+         * SessionGuard::login() sudah memanggil session->regenerate(true)
+         * di dalam updateSession(); tidak perlu regenerate lagi di sini.
          *
-         * Jika centang "Ingat saya":
-         * Laravel otomatis buat remember_token cookie yang tahan 5 tahun,
-         * dan SESSION_LIFETIME di .env mengontrol berapa lama sesi aktif.
+         * Ingat saya:
+         * - Centang: expire_on_close false + cookie remember_web_* (dari Laravel).
+         * - Tidak centang: hapus cookie remember lama (agar tidak tetap login),
+         *   dan session cookie jadi "session" (habis saat browser ditutup).
          */
-        if (! $remember) {
+        $guard = Auth::guard('web');
+        if ($remember) {
+            config(['session.expire_on_close' => false]);
+        } else {
             config(['session.expire_on_close' => true]);
+            if ($guard instanceof SessionGuard) {
+                Cookie::queue(Cookie::forget($guard->getRecallerName()));
+            }
+        }
+
+        if (Auth::user()->role === 'karyawan') {
+            $pending = $request->session()->pull('presensi_qr_token');
+            if (
+                $pending
+                && QrCode::where('kode_qr', $pending)->where('is_active', true)->exists()
+            ) {
+                $request->session()->forget('url.intended');
+
+                return redirect()->route('karyawan.presensi', ['t' => $pending]);
+            }
         }
 
         return redirect()->intended($this->redirectTo());

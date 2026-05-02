@@ -29,7 +29,9 @@ class AppServiceProvider extends ServiceProvider
                     ->take(5)
                     ->get();
 
-                $notifCount = $notifUnread->count();
+                $notifCount = Notifikasi::where('user_id', auth()->id())
+                    ->where('is_read', false)
+                    ->count();
 
                 $view->with(compact('notifUnread', 'notifCount'));
             }

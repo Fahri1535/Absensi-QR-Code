@@ -40,6 +40,12 @@
           </div>
           @endif
 
+          @if(session('success'))
+          <div class="alert alert-success" style="margin-bottom:20px;">
+            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+          </div>
+          @endif
+
           <form method="POST" action="{{ route('karyawan.izin.store') }}" enctype="multipart/form-data" id="izinForm">
             @csrf
 
@@ -57,7 +63,7 @@
                 <label class="izin-option" style="cursor:pointer;">
                   <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
                     {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                    onchange="document.querySelectorAll('.izin-option').forEach(e=>e.classList.remove('selected')); this.closest('.izin-option').classList.add('selected'); toggleSakit('{{ $val }}');">
+                    onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
                   <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
                     <span style="font-size:1.4rem;">{{ $emoji }}</span>
                     <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
@@ -95,14 +101,14 @@
             <div class="form-group" id="bukti-group" style="{{ old('jenis_izin') === 'sakit' ? '' : 'display:none;' }}">
               <label class="form-label">Bukti Pendukung <span style="color:var(--muted);">(Opsional)</span></label>
               <div style="position:relative;">
-                <input type="file" name="bukti_pendukung" id="buktiInput"
+                <input type="file" name="lampiran" id="buktiInput"
                        accept=".jpg,.jpeg,.png,.pdf"
                        style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;"
                        onchange="previewFile(this)">
                 <div id="bukti-placeholder" style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;color:var(--muted);">
                   <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
                   <div style="font-size:.85rem;">Klik atau seret file ke sini</div>
-                  <div class="text-xs" style="margin-top:4px;">JPG, PNG, PDF — maks 2MB</div>
+                  <div class="text-xs" style="margin-top:4px;">JPG, PNG, PDF — maks 5MB</div>
                 </div>
                 <div id="bukti-preview" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:none;align-items:center;gap:12px;">
                   <i class="fa-solid fa-file-check" style="color:var(--teal);font-size:1.2rem;"></i>
@@ -151,10 +157,12 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($riwayatIzin ?? [] as $izin)
+              @forelse($riwayatIzin as $izin)
               @php
                 $emoji = ['izin'=>'🏖','sakit'=>'🤒','cuti'=>'🌴','tugas_luar'=>'💼','alpa'=>'❌'][$izin->jenis_izin] ?? '📄';
-                $durasi = \Carbon\Carbon::parse($izin->tanggal_mulai)->diffInDays(\Carbon\Carbon::parse($izin->tanggal_selesai)) + 1;
+                $tMulai = $izin->tanggal_mulai;
+                $tAkhir = $izin->tanggal_selesai;
+                $durasi = $tMulai->diffInDays($tAkhir) + 1;
                 $sc = ['pending'=>'amber','disetujui'=>'green','ditolak'=>'red'][$izin->status] ?? 'muted';
               @endphp
               <tr>
@@ -165,9 +173,9 @@
                   </div>
                 </td>
                 <td>
-                  <div>{{ \Carbon\Carbon::parse($izin->tanggal_mulai)->format('d M Y') }}</div>
-                  @if($izin->tanggal_mulai !== $izin->tanggal_selesai)
-                  <div class="text-xs text-muted">s.d. {{ \Carbon\Carbon::parse($izin->tanggal_selesai)->format('d M Y') }}</div>
+                  <div>{{ $tMulai->format('d M Y') }}</div>
+                  @if(!$tMulai->isSameDay($tAkhir))
+                  <div class="text-xs text-muted">s.d. {{ $tAkhir->format('d M Y') }}</div>
                   @endif
                 </td>
                 <td>{{ $durasi }} hari</td>
@@ -329,6 +337,19 @@ document.getElementById('izinForm').addEventListener('submit', function() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('izinForm');
+  if (!form) return;
+  var sel = form.querySelector('input[name="jenis_izin"]:checked');
+  if (sel) {
+    document.querySelectorAll('.izin-card').forEach(function(c) { c.classList.remove('selected'); });
+    var opt = sel.closest('.izin-option');
+    var card = opt && opt.querySelector('.izin-card');
+    if (card) card.classList.add('selected');
+    toggleSakit(sel.value);
+  }
 });
 </script>
 @endpush

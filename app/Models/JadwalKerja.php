@@ -12,8 +12,20 @@ class JadwalKerja extends Model
         'jam_masuk',
         'jam_pulang',
         'toleransi_menit',
-        'hari_kerja'
+        'hari_kerja',
+        'kantor_latitude',
+        'kantor_longitude',
+        'radius_meter',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'kantor_latitude' => 'float',
+            'kantor_longitude' => 'float',
+            'radius_meter' => 'integer',
+        ];
+    }
 
     // Ambil atau buat default (singleton)
     public static function getSetting(): self

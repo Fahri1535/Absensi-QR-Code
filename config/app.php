@@ -125,6 +125,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Kontak admin (halaman login: "Hubungi Admin")
+    |--------------------------------------------------------------------------
+    |
+    | Setel ADMIN_CONTACT_URL di .env, mis. mailto:hr@perusahaan.id atau
+    | https://wa.me/628xxxxxxxxxx — jika kosong dipakai mail ke MAIL_FROM_ADDRESS.
+    |
+    */
+
+    'admin_contact_url' => env(
+        'ADMIN_CONTACT_URL',
+        'mailto:' . env('MAIL_FROM_ADDRESS', 'admin@example.com')
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |

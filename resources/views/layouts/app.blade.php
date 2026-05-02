@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0F172A" id="meta-theme-color">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Presensi QR') — PT. Nugraha Tirta Sejati</title>
 
@@ -52,21 +53,25 @@
     /* Cegah flash — terapkan warna background sebelum CSS load */
     html { background: #0F172A; }
     html.lm { background: #F8FAFC; }
+    /* Warna tubuh dokumen segera — kurangi kilat gelap saat navigasi MPA */
+    body { margin: 0; background-color: #0F172A; }
+    html.lm body { background-color: #F8FAFC; }
     /* Cegah sidebar flicker saat load */
     html.sb .sidebar { transform: translateX(-100%) !important; }
     html.sb .main-content { margin-left: 0 !important; }
-    /* View Transition — smooth antar halaman (Chrome 111+) */
-    @view-transition { navigation: auto; }
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation-duration: 0.15s;
-      animation-timing-function: ease-out;
-    }
+    /* Tanpa View Transitions API — di MPA sering bikin kilatan hitam antar halaman */
   </style>
 
   @stack('styles')
 </head>
 <body>
+<script>
+(function () {
+  try {
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+  } catch (e) {}
+})();
+</script>
 <div class="wrapper">
 
   {{-- ── Sidebar ──────────────────────────────────────────────── --}}
@@ -179,6 +184,13 @@
           @if($pendingApproval > 0)
             <span class="nav-badge">{{ $pendingApproval }}</span>
           @endif
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Data</div>
+        <a href="{{ route('hrd.karyawan') }}" class="nav-item {{ request()->routeIs('hrd.karyawan*') ? 'active' : '' }}">
+          <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan
         </a>
       </div>
 
@@ -361,17 +373,22 @@ const iconMoon  = themeBtn?.querySelector('.icon-moon');
 let currentTheme = localStorage.getItem('theme') || 'dark';
 
 function applyTheme(theme) {
-  // Bersihkan class anti-flash dari html element
   document.documentElement.classList.remove('lm');
-  document.documentElement.style.background = '';
-  document.documentElement.style.colorScheme = '';
+  var tc = document.getElementById('meta-theme-color');
   if (theme === 'light') {
+    document.documentElement.classList.add('lm');
+    document.documentElement.style.background = '#F8FAFC';
+    document.documentElement.style.colorScheme = 'light';
     document.body.classList.add('light-mode');
+    if (tc) tc.setAttribute('content', '#F8FAFC');
     if (iconSun)  iconSun.style.display  = 'block';
     if (iconMoon) iconMoon.style.display = 'none';
     themeBtn?.setAttribute('title', 'Ganti ke Mode Gelap');
   } else {
+    document.documentElement.style.background = '#0F172A';
+    document.documentElement.style.colorScheme = 'dark';
     document.body.classList.remove('light-mode');
+    if (tc) tc.setAttribute('content', '#0F172A');
     if (iconSun)  iconSun.style.display  = 'none';
     if (iconMoon) iconMoon.style.display = 'block';
     themeBtn?.setAttribute('title', 'Ganti ke Mode Terang');

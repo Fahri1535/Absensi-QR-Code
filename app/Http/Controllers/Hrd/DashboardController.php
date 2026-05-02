@@ -9,7 +9,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalKaryawan = Karyawan::where('status', 'aktif')->count();
+        $totalKaryawan = Karyawan::where('status', 'aktif')
+            ->whereHas('user', fn ($q) => $q->where('role', 'karyawan'))
+            ->count();
         $izinPending   = Izin::where('status', 'pending')->count();
 
         $hadirHariIni = Presensi::whereDate('tanggal', today())

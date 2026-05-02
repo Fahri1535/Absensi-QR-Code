@@ -111,8 +111,24 @@
 <div class="page-header">
   <div class="breadcrumb">Beranda / <span>Presensi QR Code</span></div>
   <h1>Presensi QR Code</h1>
-  <p class="text-muted">Arahkan kamera ke QR Code yang tertempel di kantor untuk mencatat presensi.</p>
+  <p class="text-muted">Anda bisa memindai QR dari aplikasi kamera atau Google Lens — tautan akan mengarahkan ke login jika belum masuk. Pastikan izin lokasi aktif jika Operator mengatur radius kantor.</p>
 </div>
+
+@if(!empty($geoRequired))
+<div class="alert alert-success" style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+  <i class="fa-solid fa-location-dot" style="margin-top:2px;"></i>
+  <span><strong>Lokasi wajib:</strong> presensi hanya dapat dilakukan dalam radius kantor yang ditentukan di menu Operator → Kelola QR Code.</span>
+</div>
+@endif
+
+@if(!empty($pendingQrToken))
+<div class="alert alert-success" style="margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
+  <span><i class="fa-solid fa-link"></i> Anda membuka halaman dari tautan QR. Izinkan lokasi jika diminta, lalu gunakan tombol di bawah atau aktifkan kamera untuk memindai ulang.</span>
+  <button type="button" class="btn btn-primary btn-sm" onclick="processPendingQrFromLink()">
+    <i class="fa-solid fa-fingerprint"></i> Presensi dengan QR tautan
+  </button>
+</div>
+@endif
 
 <div class="presensi-grid">
 
@@ -253,7 +269,7 @@
 
           <p class="text-muted text-sm" style="text-align:center; margin-top:12px;">
             <i class="fa-solid fa-circle-info"></i>
-            Pastikan QR Code terlihat jelas dalam bingkai kamera
+            QR cetak berisi tautan — bisa dibuka dari Google Lens lalu login; setelah masuk, gunakan tombol presensi dari tautan atau pindai lagi dengan kamera di halaman ini.
           </p>
         @endif
 
@@ -362,9 +378,62 @@
 {{-- jsQR library for QR decoding --}}
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
+const GEO_REQUIRED = @json(!empty($geoRequired));
+const PENDING_QR_TOKEN = @json($pendingQrToken ?? null);
+
 let videoStream = null;
 let scanning    = false;
 let animFrame   = null;
+
+function normalizeQrPayload(raw) {
+  raw = String(raw || '').trim();
+  if (!raw) return raw;
+  if (raw.includes('http://') || raw.includes('https://')) {
+    try {
+      const u = new URL(raw);
+      const t = u.searchParams.get('t');
+      if (t) return t;
+    } catch (e) { /* ignore */ }
+  }
+  return raw;
+}
+
+function getPositionOptional() {
+  return new Promise((resolve, reject) => {
+    if (!GEO_REQUIRED) {
+      resolve({ latitude: null, longitude: null });
+      return;
+    }
+    if (!navigator.geolocation) {
+      reject(new Error('Peramban tidak mendukung lokasi GPS.'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+      }),
+      () => reject(new Error('Izin lokasi diperlukan untuk presensi dalam radius kantor.')),
+      { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 }
+    );
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (PENDING_QR_TOKEN && !GEO_REQUIRED) {
+    processPendingQrFromLink();
+  }
+});
+
+async function processPendingQrFromLink() {
+  if (!PENDING_QR_TOKEN) return;
+  try {
+    const loc = await getPositionOptional();
+    await submitPresensiWithCoords(PENDING_QR_TOKEN, loc.latitude, loc.longitude);
+  } catch (e) {
+    showScanResult('danger', e.message || 'Gagal memproses QR dari tautan.');
+  }
+}
 
 // Live clock
 function tick() {
@@ -430,45 +499,59 @@ function scanFrame() {
     const code = jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
     if(code) {
       scanning = false;
-      submitPresensi(code.data);
+      void submitPresensi(code.data);
       return;
     }
   }
   animFrame = requestAnimationFrame(scanFrame);
 }
 
-async function submitPresensi(qrData) {
+async function submitPresensi(qrDataRaw) {
+  const qrData = normalizeQrPayload(qrDataRaw);
   document.getElementById('scanner-status').textContent = 'Memproses...';
   document.getElementById('scanner-status').className   = 'badge badge-amber';
 
   try {
-    const res = await fetch('{{ route("karyawan.presensi.scan") }}', {
+    const loc = await getPositionOptional();
+    await submitPresensiWithCoords(qrData, loc.latitude, loc.longitude);
+  } catch (e) {
+    showScanResult('danger', e.message || 'Lokasi atau koneksi gagal.');
+    setTimeout(() => { scanning = true; scanFrame(); }, 2500);
+  }
+}
+
+async function submitPresensiWithCoords(qrData, latitude, longitude) {
+  let res;
+  try {
+    res = await fetch('{{ route("karyawan.presensi.scan") }}', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ qr_data: qrData })
+      body: JSON.stringify({ qr_data: qrData, latitude, longitude })
     });
+  } catch (err) {
+    throw new Error('Koneksi gagal. Periksa internet Anda.');
+  }
 
-    const data = await res.json();
+  const data = await res.json().catch(() => ({}));
 
-    if(data.success) {
-      stopScanner();
-      // Show success modal
-      document.getElementById('success-title').textContent = data.type === 'masuk' ? 'Presensi Masuk Berhasil!' : 'Presensi Pulang Berhasil!';
-      document.getElementById('success-desc').textContent  = data.type === 'masuk' ? 'Jam masuk Anda tercatat' : 'Jam pulang Anda tercatat';
-      document.getElementById('success-time').textContent  = data.jam;
-      document.getElementById('success-status').textContent = data.status_label;
-      document.getElementById('success-status').className  = 'badge badge-' + (data.status === 'tepat_waktu' ? 'green' : 'amber');
-      document.getElementById('success-overlay').classList.add('show');
-    } else {
-      showScanResult('danger', data.message || 'Presensi gagal diproses.');
-      setTimeout(() => { scanning = true; scanFrame(); }, 2000);
-    }
-  } catch(e) {
-    showScanResult('danger', 'Terjadi kesalahan koneksi. Coba lagi.');
-    setTimeout(() => { scanning = true; scanFrame(); }, 2000);
+  if (data.success) {
+    stopScanner();
+    document.getElementById('success-title').textContent = data.type === 'masuk' ? 'Presensi Masuk Berhasil!' : 'Presensi Pulang Berhasil!';
+    document.getElementById('success-desc').textContent  = data.type === 'masuk' ? 'Jam masuk Anda tercatat' : 'Jam pulang Anda tercatat';
+    document.getElementById('success-time').textContent  = data.jam;
+    document.getElementById('success-status').textContent = data.status_label;
+    let badge = 'green';
+    if (data.type === 'masuk') badge = data.status === 'tepat_waktu' ? 'green' : 'amber';
+    else badge = data.status === 'normal' ? 'green' : 'amber';
+    document.getElementById('success-status').className  = 'badge badge-' + badge;
+    document.getElementById('success-overlay').classList.add('show');
+  } else {
+    showScanResult('danger', data.message || 'Presensi gagal diproses.');
+    setTimeout(() => { scanning = true; scanFrame(); }, 2500);
   }
 }
 

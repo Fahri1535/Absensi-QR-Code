@@ -18,4 +18,10 @@ class QrCode extends Model
             ['kode_qr' => 'QR-' . strtoupper($tipe) . '-' . Str::random(32), 'is_active' => true]
         );
     }
+
+    /** URL untuk QR (Google Lens / kamera HP membuka browser → login → presensi). */
+    public function presensiScanUrl(): string
+    {
+        return route('presensi.qr.entry', ['t' => $this->kode_qr], absolute: true);
+    }
 }

@@ -225,6 +225,9 @@
         <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);{{ $notif->is_read ? '' : 'background:rgba(0,201,167,.03);border-radius:6px;padding:10px 8px;' }}">
           <div style="width:8px;height:8px;border-radius:50%;background:{{ $notif->is_read ? 'var(--muted)' : 'var(--teal)' }};margin-top:6px;flex-shrink:0;"></div>
           <div>
+            @if($notif->judul)
+            <div style="font-size:.78rem;font-weight:600;{{ $notif->is_read ? 'color:var(--muted)' : 'color:var(--text-primary);' }}">{{ $notif->judul }}</div>
+            @endif
             <div style="font-size:.83rem; {{ $notif->is_read ? 'color:var(--muted)' : 'font-weight:500;' }}">{{ $notif->pesan }}</div>
             <div class="text-xs text-muted" style="margin-top:3px;">{{ $notif->created_at->diffForHumans() }}</div>
           </div>
