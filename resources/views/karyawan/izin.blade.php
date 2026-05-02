@@ -151,7 +151,7 @@
               </tr>
             </thead>
             <tbody>
-              @forelse($izinList as $izin)
+              @forelse($riwayatIzin ?? [] as $izin)
               @php
                 $emoji = ['izin'=>'🏖','sakit'=>'🤒','cuti'=>'🌴','tugas_luar'=>'💼','alpa'=>'❌'][$izin->jenis_izin] ?? '📄';
                 $durasi = \Carbon\Carbon::parse($izin->tanggal_mulai)->diffInDays(\Carbon\Carbon::parse($izin->tanggal_selesai)) + 1;
@@ -192,9 +192,9 @@
             </tbody>
           </table>
         </div>
-        @if($izinList->hasPages())
-    <div class="card-footer">{{ $izinList->links() }}</div>
-@endif
+        @if(isset($riwayatIzin) && $riwayatIzin->hasPages())
+        <div class="card-footer">{{ $riwayatIzin->links() }}</div>
+        @endif
       </div>
     </div>
 
@@ -272,60 +272,21 @@
 
 </div>
 
-<style>
-  /* ========== PAKSA FONT SYSTEM (SAMA KAYAK LOGIN) ========== */
-  body, .card, .card-body, .page-content, 
-  .table, .table th, .table td, .badge, .btn,
-  h1, h2, h3, h4, p, span, div, .form-label, 
-  .text-muted, .breadcrumb, .stat-label, .stat-value,
-  .tab, .alert, .modal, .nav-item, .topbar-title {
-    font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    letter-spacing: normal !important;
-  }
-  
-  /* Heading yang pakai Syne */
-  .stat-value, .clock-display, [style*="font-family:'Syne'"] {
-    font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    letter-spacing: normal !important;
-  }
-</style>
-
-{{-- rest of content --}}
-
 @endsection
 
 @push('styles')
 <style>
 .izin-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm); 
-  padding: 14px 10px;
-  text-align: center; 
-  background: var(--card-bg);
-  transition: all var(--transition); 
-  cursor: pointer;
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  gap: 6px;
+  border-radius: var(--radius-sm); padding: 14px 10px;
+  text-align: center; background: var(--card-bg);
+  transition: all var(--transition); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .izin-card:hover, .izin-card.selected {
-  border-color: var(--blue-light);
-  background: var(--blue-glow);
-  box-shadow: 0 0 0 2px rgba(37,99,235,.2);
-}
-
-/* ========== FONT SAMA KAYAK LOGIN ========== */
-body, .card, .card-body, .page-content, 
-.table, .table th, .table td, .badge, .btn,
-h1, h2, h3, h4, p, span, div, .form-label, .text-muted {
-  font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  letter-spacing: normal !important;
-}
-
-.stat-value, .clock-display, [style*="font-family:'Syne'"] {
-  font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  letter-spacing: normal !important;
+  border-color: var(--teal);
+  background: var(--teal-glow);
+  box-shadow: 0 0 0 2px rgba(0,201,167,.2);
 }
 </style>
 @endpush
@@ -370,6 +331,4 @@ document.getElementById('izinForm').addEventListener('submit', function() {
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
 });
 </script>
-
-
 @endpush

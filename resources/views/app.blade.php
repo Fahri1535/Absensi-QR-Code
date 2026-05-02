@@ -57,7 +57,7 @@
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       transition: var(--transition);

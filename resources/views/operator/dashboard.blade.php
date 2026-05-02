@@ -78,18 +78,22 @@
         @forelse($presensiTerkini ?? [] as $p)
           <tr>
             <td>{{ $p->karyawan->nama_lengkap ?? '-' }}</td>
-            <td>{{ $p->jam_datang ?? '-' }}</td>
-            <td>{{ $p->jam_pulang ?? '-' }}</td>
+            <td>{{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '—' }}</td>
+            <td>{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '—' }}</td>
             <td>
               @php
-                $statusColor = match($p->status) {
-                  'hadir' => 'green',
-                  'terlambat' => 'amber',
-                  'izin' => 'blue',
-                  default => 'muted'
+                $statusColor = match($p->status_masuk ?? '') {
+                  'tepat_waktu' => 'green',
+                  'terlambat'   => 'amber',
+                  default       => 'muted'
+                };
+                $statusLabel = match($p->status_masuk ?? '') {
+                  'tepat_waktu' => 'Tepat Waktu',
+                  'terlambat'   => 'Terlambat',
+                  default       => '—'
                 };
               @endphp
-              <span class="badge badge-{{ $statusColor }}">{{ $p->status ?? '-' }}</span>
+              <span class="badge badge-{{ $statusColor }}">{{ $statusLabel }}</span>
             </td>
           </tr>
         @empty

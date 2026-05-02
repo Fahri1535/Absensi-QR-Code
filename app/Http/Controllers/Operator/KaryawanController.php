@@ -29,7 +29,7 @@ class KaryawanController extends Controller
 
     public function create()
     {
-        return view('operator.karyawan.index', ['showForm' => true]);
+        return view('operator.karyawan.form');
     }
 
     public function store(Request $request)
@@ -77,7 +77,7 @@ class KaryawanController extends Controller
         $karyawan = Karyawan::with(['user', 'presensi' => fn($q) => $q->orderByDesc('tanggal')->take(10)])
             ->findOrFail($id);
 
-        return view('operator.karyawan.index', ['karyawan' => $karyawan, 'showDetail' => true]);
+        return view('operator.karyawan.form', compact('karyawan'));
     }
 
     /* ─── Edit / Update ──────────────────────────────────────── */
@@ -86,7 +86,7 @@ class KaryawanController extends Controller
     {
         $karyawan = Karyawan::with('user')->findOrFail($id);
 
-        return view('operator.karyawan.index', ['karyawan' => $karyawan, 'showForm' => true]);
+        return view('operator.karyawan.form', compact('karyawan'));
     }
 
     public function update(Request $request, int $id)

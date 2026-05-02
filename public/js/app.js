@@ -154,3 +154,45 @@ document.querySelectorAll('[data-tooltip]').forEach(el => {
   });
   el.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
 });
+
+/* ── Font Loading Observer ─────────────────────────────────────
+   Tandai fonts-loaded setelah semua font selesai download,
+   sehingga browser tidak menahan render menunggu font */
+if ('fonts' in document) {
+  document.fonts.ready.then(() => {
+    document.documentElement.classList.add('fonts-loaded');
+  });
+}
+
+/* ── Passive scroll listeners ──────────────────────────────────
+   Override addEventListener agar scroll/touch pakai passive:true
+   → browser tidak perlu tunggu JS sebelum scroll */
+(function () {
+  const orig = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function (type, fn, opts) {
+    if (['scroll', 'touchstart', 'touchmove', 'wheel'].includes(type)) {
+      if (typeof opts === 'object') {
+        opts.passive = opts.passive !== false;
+      } else {
+        opts = { passive: true, capture: !!opts };
+      }
+    }
+    orig.call(this, type, fn, opts);
+  };
+})();
+
+/* ── Prefetch halaman saat hover link navigasi ─────────────────
+   → halaman sudah di-cache sebelum diklik → transisi lebih cepat */
+document.querySelectorAll('.nav-item[href]').forEach(link => {
+  link.addEventListener('mouseenter', () => {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript')) return;
+    const existing = document.querySelector(`link[rel="prefetch"][href="${href}"]`);
+    if (!existing) {
+      const pre = document.createElement('link');
+      pre.rel  = 'prefetch';
+      pre.href = href;
+      document.head.appendChild(pre);
+    }
+  }, { passive: true });
+});

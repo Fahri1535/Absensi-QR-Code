@@ -6,26 +6,62 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Presensi QR') — PT. Nugraha Tirta Sejati</title>
 
-  {{-- Fonts --}}
+  {{-- ① Preload CSS utama — browser fetch lebih awal, tidak blocking --}}
+  <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
+
+  {{-- ② Preconnect ke semua origin external —  kurangi DNS + TCP round-trip --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-  {{-- Icons --}}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  {{-- ③ Google Fonts: load SEMUA font yang dipakai (Syne + DM Sans + Inter)
+       display=swap → teks langsung tampil pakai fallback, ganti setelah font ready --}}
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap">
+  </noscript>
 
-  {{-- App CSS (FIXED: hanya sekali, tidak duplikat) --}}
+  {{-- ④ Font Awesome: preload + async load --}}
+  <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  </noscript>
+
+  {{-- ⑤ App CSS — load setelah preload hint dikirim --}}
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
-  {{-- Anti-flash: terapkan tema SEBELUM render untuk cegah kedip --}}
+  {{-- Anti-flash: terapkan tema SEBELUM render, cegah FOUC --}}
   <script>
+    // Jalankan SEBELUM CSS load — cegah layar putih/flash
     (function(){
-      var t = localStorage.getItem('theme');
-      if(t === 'light') document.documentElement.classList.add('light-mode-early');
+      var t = localStorage.getItem('theme') || 'dark';
+      var sb = localStorage.getItem('sidebarCollapsed') === 'true';
+      // Set background langsung di html element (sebelum body ada)
+      document.documentElement.style.background = t === 'light' ? '#F8FAFC' : '#0F172A';
+      document.documentElement.style.colorScheme = t === 'light' ? 'light' : 'dark';
+      if (t === 'light') document.documentElement.classList.add('lm');
+      if (sb) document.documentElement.classList.add('sb');
     })();
   </script>
   <style>
-    html.light-mode-early body { background: #F8FAFC !important; }
+    /* Cegah flash — terapkan warna background sebelum CSS load */
+    html { background: #0F172A; }
+    html.lm { background: #F8FAFC; }
+    /* Cegah sidebar flicker saat load */
+    html.sb .sidebar { transform: translateX(-100%) !important; }
+    html.sb .main-content { margin-left: 0 !important; }
+    /* View Transition — smooth antar halaman (Chrome 111+) */
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.15s;
+      animation-timing-function: ease-out;
+    }
   </style>
 
   @stack('styles')
@@ -276,12 +312,12 @@ const isMobile     = () => window.innerWidth <= 768;
 let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
 function applySidebarState() {
+  // Bersihkan class early dari html element
+  document.documentElement.classList.remove('sb');
   if (isMobile()) {
-    // Mobile: pakai class .open di sidebar, bukan body.collapsed
     document.body.classList.remove('sidebar-collapsed');
     return;
   }
-  // Desktop: toggle body.sidebar-collapsed
   if (sidebarCollapsed) {
     document.body.classList.add('sidebar-collapsed');
     toggleBtn.classList.add('sidebar-toggle-active');
@@ -325,6 +361,10 @@ const iconMoon  = themeBtn?.querySelector('.icon-moon');
 let currentTheme = localStorage.getItem('theme') || 'dark';
 
 function applyTheme(theme) {
+  // Bersihkan class anti-flash dari html element
+  document.documentElement.classList.remove('lm');
+  document.documentElement.style.background = '';
+  document.documentElement.style.colorScheme = '';
   if (theme === 'light') {
     document.body.classList.add('light-mode');
     if (iconSun)  iconSun.style.display  = 'block';
@@ -336,8 +376,6 @@ function applyTheme(theme) {
     if (iconMoon) iconMoon.style.display = 'block';
     themeBtn?.setAttribute('title', 'Ganti ke Mode Terang');
   }
-  // Bersihkan class early setelah body sudah siap
-  document.documentElement.classList.remove('light-mode-early');
 }
 
 themeBtn?.addEventListener('click', () => {

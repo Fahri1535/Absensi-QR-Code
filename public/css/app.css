@@ -4,8 +4,6 @@
    Dark Mode default | Light Mode via body.light-mode
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
-
 /* ══════ DARK MODE (default) ══════ */
 :root {
   --bg-primary:    #0F172A;
@@ -71,13 +69,15 @@ body.light-mode {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
 body{
-  font-family:'Inter', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:'DM Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:var(--bg-primary);color:var(--text-primary);
-  min-height:100vh;line-height:1.55;  /* ← UB jadi 1.55 (ngga gepeng) */
-  letter-spacing:0px;                 /* ← TAMBAH: hilangkan jarak huruf */
+  min-height:100vh;line-height:1.55;
+  letter-spacing:0px;
   -webkit-font-smoothing:antialiased;
-  transition:background var(--transition),color var(--transition);
-  font-weight:400;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  font-weight:450;
+  /* TIDAK ada transition di body — mencegah flash saat pindah halaman */
 }
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
@@ -85,12 +85,12 @@ body::before{
     linear-gradient(var(--grid-color) 1px,transparent 1px),
     linear-gradient(90deg,var(--grid-color) 1px,transparent 1px);
   background-size:48px 48px;
-  transition:background-image var(--transition);
+  /* TIDAK ada transition — background-image transition sangat berat */
 }
 
 /* Heading — lebih proporsional */
 h1,h2,h3,h4,h5{
-  font-family:'Syne', 'Inter', sans-serif;
+  font-family:'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight:700;line-height:1.2;letter-spacing:-0.02em; /* ← TAMBAH: judul lebih rapat */
 }
 h1{font-size:clamp(1.75rem,4vw,2.5rem)}
@@ -156,7 +156,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   padding:10px 20px;margin:1px 8px;
   border-radius:var(--radius-sm);
   color:var(--text-secondary);font-size:.875rem;font-weight:500;
-  transition:all var(--transition);cursor:pointer;text-decoration:none;white-space:nowrap;
+  transition:transform var(--transition),opacity var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);cursor:pointer;text-decoration:none;white-space:nowrap;
   letter-spacing:0px; /* ← TAMBAH */
 }
 .nav-item:hover{background:var(--blue-glow);color:var(--text-primary)}
@@ -203,7 +203,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   width:38px;height:38px;border-radius:var(--radius-sm);
   background:var(--bg-card);border:1px solid var(--border);
   color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all var(--transition);font-size:.95rem;flex-shrink:0;
+  cursor:pointer;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);font-size:.95rem;flex-shrink:0;
 }
 .topbar-btn:hover{color:var(--text-primary);border-color:var(--blue-light);background:var(--blue-glow)}
 
@@ -218,7 +218,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   width:38px;height:38px;border-radius:var(--radius-sm);
   background:var(--bg-card);border:1px solid var(--border);
   color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all var(--transition);font-size:.95rem;
+  cursor:pointer;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);font-size:.95rem;
 }
 .theme-toggle-btn:hover{color:var(--blue-light);border-color:var(--blue-light);background:var(--blue-glow)}
 
@@ -254,7 +254,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .stat-card{
   background:var(--bg-card);border:1px solid var(--border);
   border-radius:var(--radius);padding:20px 22px;
-  display:flex;align-items:flex-start;gap:16px;transition:all var(--transition);
+  display:flex;align-items:flex-start;gap:16px;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);
 }
 .stat-card:hover{border-color:var(--blue-light);transform:translateY(-2px);box-shadow:0 8px 24px var(--blue-glow)}
 .stat-icon{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
@@ -271,7 +271,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   letter-spacing:0.04em;  /* ← TAMBAH: label lebih rapi */
 }
 .stat-value{
-  font-family:'Syne', 'Inter', sans-serif;
+  font-family:'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size:1.65rem;
   font-weight:800;
   line-height:1.2;
@@ -312,10 +312,10 @@ td{padding:13px 16px;vertical-align:middle;color:var(--text-primary)}
 .btn{
   display:inline-flex;align-items:center;gap:8px;
   padding:10px 20px;border-radius:var(--radius-sm);
-  font-family:'Inter', 'DM Sans', sans-serif;
+  font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size:.875rem;font-weight:600;
   letter-spacing:0px;  /* ← TAMBAH */
-  cursor:pointer;transition:all var(--transition);border:none;text-decoration:none;white-space:nowrap;
+  cursor:pointer;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);border:none;text-decoration:none;white-space:nowrap;
 }
 .btn-primary{background:linear-gradient(135deg,var(--blue-primary),var(--blue-secondary));color:#fff}
 .btn-primary:hover{background:linear-gradient(135deg,var(--blue-light),var(--blue-primary));transform:translateY(-1px);box-shadow:0 4px 16px var(--blue-glow);color:#fff}
@@ -334,7 +334,7 @@ td{padding:13px 16px;vertical-align:middle;color:var(--text-primary)}
   display:inline-flex;align-items:center;gap:8px;
   padding:12px 24px;border-radius:12px;
   font-weight:600;text-decoration:none;
-  transition:all var(--transition);
+  transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);
   cursor:pointer;
   background:white;
   color:var(--blue-primary);
@@ -356,9 +356,9 @@ td{padding:13px 16px;vertical-align:middle;color:var(--text-primary)}
 .form-control{
   width:100%;background:var(--bg-input);border:1px solid var(--border);
   color:var(--text-primary);border-radius:var(--radius-sm);
-  padding:11px 14px;font-family:'Inter', 'DM Sans', sans-serif;
+  padding:11px 14px;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size:.9rem;letter-spacing:0px;  /* ← TAMBAH */
-  transition:all var(--transition);-webkit-appearance:none;
+  transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);-webkit-appearance:none;
 }
 .form-control:focus{outline:none;border-color:var(--blue-primary);box-shadow:0 0 0 3px var(--blue-glow)}
 .form-control::placeholder{color:var(--text-secondary);opacity:.6}
@@ -390,7 +390,7 @@ select.form-control{cursor:pointer}
 .modal-close{
   width:32px;height:32px;border-radius:8px;background:var(--bg-card);
   border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all var(--transition);
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);
 }
 .modal-close:hover{color:var(--text-primary)}
 .modal-body{padding:24px}
@@ -399,7 +399,7 @@ select.form-control{cursor:pointer}
 /* ══════ TABS ══════ */
 .tabs{display:flex;gap:4px;padding:5px;background:rgba(0,0,0,.2);border-radius:var(--radius-sm)}
 body.light-mode .tabs{background:rgba(0,0,0,.05)}
-.tab{padding:8px 16px;border-radius:6px;font-size:.85rem;font-weight:500;cursor:pointer;transition:all var(--transition);color:var(--text-secondary);border:none;background:transparent}
+.tab{padding:8px 16px;border-radius:6px;font-size:.85rem;font-weight:500;cursor:pointer;transition:transform var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);color:var(--text-secondary);border:none;background:transparent}
 .tab.active{background:var(--bg-card);color:var(--text-primary)}
 .tab:hover:not(.active){color:var(--text-primary)}
 
@@ -573,4 +573,149 @@ html {
 
 .stat-card:hover {
   box-shadow: 0 4px 12px var(--blue-glow) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FIX FONT GLOBAL — system font, tidak gepeng
+   Berlaku ke semua halaman via layouts/app.blade.php
+   ═══════════════════════════════════════════════════════ */
+
+/* Pastikan semua elemen pakai system font, override warisan DM Sans/Inter */
+body,
+body p, body span, body div, body td, body th,
+body li, body a, body label, body input, body select,
+body textarea, body button, body small, body strong {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif !important;
+  letter-spacing: normal !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Angka — pakai proportional oldstyle agar tidak gepeng di semua OS */
+body {
+  font-variant-numeric: proportional-nums;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Heading tetap Syne */
+h1, h2, h3, h4, h5,
+.stat-value, .clock-display,
+.topbar-title, .logo-text,
+.time-badge .time,
+[style*="font-family:'Syne'"],
+[style*='font-family:"Syne"'] {
+  font-family: 'Syne', -apple-system, BlinkMacSystemFont,
+               'Segoe UI', sans-serif !important;
+  letter-spacing: -0.01em !important;
+  font-variant-numeric: normal !important;
+}
+
+/* Angka besar (stat-value, clock) — bold weight agar tidak terlihat gepeng */
+.stat-value {
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  font-variant-numeric: normal !important;
+}
+
+.clock-display {
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+}
+
+/* Badge & kode — font normal */
+.badge {
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Nav item, tombol, label form */
+.nav-item, .btn, .form-label, .topbar-btn {
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+}
+.btn { font-weight: 600 !important; }
+.form-label { font-weight: 600 !important; letter-spacing: 0.04em !important; }
+
+/* Table — pastikan font konsisten */
+td, th {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               Arial, sans-serif !important;
+  letter-spacing: normal !important;
+}
+thead th {
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Sidebar label section */
+.nav-section-label {
+  letter-spacing: 0.1em !important;
+  font-weight: 700 !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PERFORMANCE & FOUC PREVENTION
+   ════════════════════════════════════════════════════════════════ */
+
+/* Sidebar & main — GPU layer untuk scroll mulus */
+.sidebar {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.main-content {
+  will-change: scroll-position;
+}
+
+/* Tabel & card — contain layout agar tidak trigger full reflow */
+.card {
+  contain: layout style;
+}
+
+.table-wrap {
+  contain: layout;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+}
+
+/* Semua transisi: gunakan hanya transform & opacity (GPU accelerated)
+   Hindari animasi width/height/margin yang trigger layout recalc */
+.stat-card,
+.nav-item,
+.btn {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Scroll smooth di seluruh halaman */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cegah layout shift saat font swap */
+body {
+  font-synthesis: none;
+  size-adjust: 100%;
+}
+
+/* Preload skeleton — cegah blank saat CSS belum ready */
+html:not(.fonts-loaded) body {
+  visibility: visible; /* tetap visible, fallback font tampil */
+}
+
+/* ============================================
+   NONAKTIFKAN SEMUA ANIMASI HALAMAN
+   Ini akan menghentikan delay 0.4 detik dari animate-slideup & stagger
+   ============================================ */
+.animate-slideup,
+.animate-fadein,
+.stagger,
+.stagger > * {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
 }

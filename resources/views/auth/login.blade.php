@@ -4,19 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Presensi QR PT. Nugraha Tirta Sejati</title>
+  {{-- Preload CSS --}}
+  <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
+
+  {{-- Preconnect --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+  {{-- Google Fonts async --}}
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap">
+  </noscript>
+
+  {{-- Font Awesome async --}}
+  <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  </noscript>
+
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
-  {{-- Anti-flash: terapkan tema SEBELUM render --}}
+  {{-- Anti-flash: terapkan tema SEBELUM render, cegah FOUC --}}
   <script>
     (function(){
-      if(localStorage.getItem('theme') === 'light'){
-        document.documentElement.style.background = '#F8FAFC';
-      }
+      var t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.style.background = t === 'light' ? '#F8FAFC' : '#0F172A';
+      document.documentElement.style.colorScheme = t === 'light' ? 'light' : 'dark';
     })();
   </script>
+  <style>
+    html { background: #0F172A; }
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.15s;
+    }
+  </style>
 
   <style>
     /* ========== VARIABLES (Default DARK MODE) ========== */

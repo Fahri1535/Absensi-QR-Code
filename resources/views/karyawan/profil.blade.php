@@ -292,14 +292,4 @@ document.getElementById('pw2')?.addEventListener('input', function() {
   label.textContent = text; label.style.color = color;
 });
 </script>
-
-<style>
-  body, .card, .card-body, .page-content, 
-  .table, .table th, .table td, .badge, .btn,
-  h1, h2, h3, h4, p, span, div {
-    font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    letter-spacing: normal !important;
-  }
-</style>
-
 @endpush

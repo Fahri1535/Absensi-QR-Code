@@ -72,22 +72,22 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($presensiTerkini ?? [] as $p)
+          @forelse($presensiHariIni ?? [] as $p)
           <tr>
-            <td>{{ $p->karyawan->nama_lengkap ?? $p->karyawan?->nama_lengkap ?? '-' }}</td>
+            <td>{{ $p->karyawan?->nama_lengkap ?? '—' }}</td>
             <td>{{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '-' }}</td>
             <td>{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '-' }}</td>
             <td>
               @php
-                $statusColor = match($p->status_masuk ?? $p->status) {
+                $statusColor = match($p->status_masuk ?? '') {
                   'tepat_waktu' => 'green',
-                  'terlambat' => 'amber',
-                  default => 'muted'
+                  'terlambat'   => 'amber',
+                  default       => 'muted'
                 };
-                $statusText = match($p->status_masuk ?? $p->status) {
+                $statusText = match($p->status_masuk ?? '') {
                   'tepat_waktu' => 'Tepat Waktu',
-                  'terlambat' => 'Terlambat',
-                  default => '-'
+                  'terlambat'   => 'Terlambat',
+                  default       => '—'
                 };
               @endphp
               <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
@@ -116,11 +116,11 @@
         </div>
       </div>
       <div class="card-body-sm">
-        @forelse($izinPendingList ?? [] as $izin)
+        @forelse($izinMenunggu ?? [] as $izin)
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">
           <div>
             <div style="font-weight:600;">{{ $izin->karyawan->nama_lengkap ?? '-' }}</div>
-            <div style="font-size:0.7rem; color:var(--text-secondary);">{{ $izin->jenis_izin ?? 'Izin' }} • {{ $izin->tanggal ?? '-' }}</div>
+            <div style="font-size:0.7rem; color:var(--text-secondary);">{{ ucfirst(str_replace('_',' ',$izin->jenis_izin ?? 'izin')) }} • {{ $izin->tanggal_mulai?->format('d M Y') ?? '—' }}</div>
           </div>
           <a href="{{ route('hrd.izin') }}" class="badge badge-amber" style="text-decoration:none;">Proses</a>
         </div>

@@ -9,19 +9,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // FIXED: variable name sesuai view ($totalKaryawan bukan $totalKary)
         $totalKaryawan = Karyawan::where('status', 'aktif')->count();
         $izinPending   = Izin::where('status', 'pending')->count();
 
-        // FIXED: tambah $hadirHariIni dan $tidakHadir yang dipakai view
         $hadirHariIni = Presensi::whereDate('tanggal', today())
-            ->whereNotNull('jam_datang')
-            ->count();
+            ->whereNotNull('jam_datang')->count();
+
+        $terlambatHariIni = Presensi::whereDate('tanggal', today())
+            ->where('status_masuk', 'terlambat')->count();
 
         $tidakHadir = $totalKaryawan - $hadirHariIni;
 
-        // Presensi hari ini untuk tabel
-        // FIXED: pakai $presensiHariIni sesuai nama variable di view
+        // Nama variable HARUS cocok dengan yang dipakai view
         $presensiHariIni = Presensi::with('karyawan')
             ->whereDate('tanggal', today())
             ->whereNotNull('jam_datang')
@@ -29,8 +28,6 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        // Izin pending untuk side panel
-        // FIXED: pakai $izinMenunggu sesuai nama variable di view
         $izinMenunggu = Izin::with('karyawan')
             ->where('status', 'pending')
             ->orderByDesc('created_at')
@@ -41,6 +38,7 @@ class DashboardController extends Controller
             'totalKaryawan',
             'izinPending',
             'hadirHariIni',
+            'terlambatHariIni',
             'tidakHadir',
             'presensiHariIni',
             'izinMenunggu'
