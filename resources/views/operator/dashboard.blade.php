@@ -51,7 +51,7 @@
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;margin-top:4px;" class="stagger">
+<div class="main-sidebar-grid stagger" style="margin-top:4px;">
 
   {{-- Presensi --}}
   <div class="card">

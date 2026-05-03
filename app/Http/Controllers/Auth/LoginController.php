@@ -39,25 +39,6 @@ class LoginController extends Controller
                 ->withErrors(['username' => 'Username atau password salah.']);
         }
 
-        /*
-         * SessionGuard::login() sudah memanggil session->regenerate(true)
-         * di dalam updateSession(); tidak perlu regenerate lagi di sini.
-         *
-         * Ingat saya:
-         * - Centang: expire_on_close false + cookie remember_web_* (dari Laravel).
-         * - Tidak centang: hapus cookie remember lama (agar tidak tetap login),
-         *   dan session cookie jadi "session" (habis saat browser ditutup).
-         */
-        $guard = Auth::guard('web');
-        if ($remember) {
-            config(['session.expire_on_close' => false]);
-        } else {
-            config(['session.expire_on_close' => true]);
-            if ($guard instanceof SessionGuard) {
-                Cookie::queue(Cookie::forget($guard->getRecallerName()));
-            }
-        }
-
         if (Auth::user()->role === 'karyawan') {
             $pending = $request->session()->pull('presensi_qr_token');
             if (

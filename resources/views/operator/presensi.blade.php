@@ -152,7 +152,7 @@
           </td>
           <td>
             @if($p->jam_datang)
-              <span style="font-family:'Syne',sans-serif;font-weight:700;">
+              <span style="font-family:'DM Sans',sans-serif;font-weight:700;">
                 {{ \Carbon\Carbon::parse($p->jam_datang)->format('H:i') }}
               </span>
             @else
@@ -168,7 +168,7 @@
           </td>
           <td>
             @if($p->jam_pulang)
-              <span style="font-family:'Syne',sans-serif;font-weight:700;">
+              <span style="font-family:'DM Sans',sans-serif;font-weight:700;">
                 {{ \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') }}
               </span>
             @else
@@ -215,3 +215,4 @@
 </div>
 
 @endsection
+

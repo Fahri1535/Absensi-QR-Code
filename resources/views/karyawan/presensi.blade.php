@@ -92,7 +92,7 @@
 .window-bar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 18px;
-  background: rgba(0,0,0,.2); border-radius: var(--radius-sm);
+  background: var(--bg-soft); border-radius: var(--radius-sm);
   margin-bottom: 16px;
 }
 
@@ -117,7 +117,7 @@
 @if(!empty($geoRequired))
 <div class="alert alert-success" style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
   <i class="fa-solid fa-location-dot" style="margin-top:2px;"></i>
-  <span><strong>Lokasi wajib:</strong> presensi hanya dapat dilakukan dalam radius kantor yang ditentukan di menu Operator → Kelola QR Code.</span>
+  <span><strong>Lokasi wajib:</strong> presensi hanya dapat dilakukan dalam radius kantor yang ditentukan di menu Operator → Jadwal Kerja &amp; Lokasi Kantor.</span>
 </div>
 @endif
 
@@ -160,7 +160,7 @@
             <span>Presensi Masuk</span>
           </div>
           <div>
-            <span style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
+            <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $jamMasuk->format('H:i') }} – {{ $batasMasuk->format('H:i') }}
             </span>
             @if($sudahMasuk)
@@ -175,7 +175,7 @@
             <span>Presensi Pulang</span>
           </div>
           <div>
-            <span style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
+            <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $jamPulang->format('H:i') }} – {{ $batasPulang->format('H:i') }}
             </span>
             @if($sudahPulang)
@@ -214,14 +214,14 @@
             <p class="text-muted">Anda telah melakukan presensi masuk dan pulang.</p>
             <div style="display:flex;justify-content:center;gap:16px;margin-top:20px;">
               <div style="text-align:center;">
-                <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--teal);">
+                <div style="font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--teal);">
                   {{ \Carbon\Carbon::parse($presensiHariIni->jam_datang)->format('H:i') }}
                 </div>
                 <div class="text-xs text-muted">Masuk</div>
               </div>
               <div style="color:var(--muted); line-height:2.5rem;">→</div>
               <div style="text-align:center;">
-                <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--green);">
+                <div style="font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--green);">
                   {{ \Carbon\Carbon::parse($presensiHariIni->jam_pulang)->format('H:i') }}
                 </div>
                 <div class="text-xs text-muted">Pulang</div>
@@ -329,6 +329,8 @@
       </div>
     </div>
 
+    @include('partials.kontak-admin-card')
+
     {{-- Cara Presensi --}}
     <div class="card">
       <div class="card-header">
@@ -364,7 +366,7 @@
     <div class="success-icon" id="success-icon">✅</div>
     <h2 id="success-title">Presensi Berhasil!</h2>
     <p class="text-muted" id="success-desc" style="margin:10px 0 4px;">Jam masuk tercatat</p>
-    <div style="font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--teal);margin:10px 0;" id="success-time">--:--</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:2.5rem;font-weight:800;color:var(--teal);margin:10px 0;" id="success-time">--:--</div>
     <div class="badge badge-green" id="success-status" style="margin-bottom:24px;">Tepat Waktu</div>
     <button class="btn btn-primary btn-full" onclick="document.getElementById('success-overlay').classList.remove('show'); window.location.reload();">
       OK, Tutup
@@ -569,3 +571,4 @@ function showScanResult(type, msg) {
 }
 </script>
 @endpush
+

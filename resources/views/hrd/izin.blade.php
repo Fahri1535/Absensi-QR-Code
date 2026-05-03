@@ -77,7 +77,7 @@
           </div>
 
           @if($izin->keterangan)
-          <div style="background:rgba(0,0,0,.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;">
+          <div style="background:var(--bg-soft);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;">
             <div class="text-xs text-muted" style="margin-bottom:4px;">Keterangan:</div>
             <div style="font-size:.88rem;">{{ $izin->keterangan }}</div>
           </div>
@@ -179,12 +179,12 @@
 @endif
 
 {{-- Tolak Modal --}}
-<div id="tolak-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:20px;width:100%;max-width:480px;box-shadow:var(--shadow);">
+<div id="tolak-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(15,23,42,.72);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px;" role="dialog" aria-modal="true" aria-labelledby="tolak-modal-title">
+  <div style="background:var(--bg-card);border:1px solid var(--border-strong);border-radius:20px;width:100%;max-width:480px;box-shadow:var(--shadow);">
     <div style="padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
       <i class="fa-solid fa-circle-xmark" style="color:var(--red);"></i>
-      <h3 style="flex:1;font-size:1.05rem;margin:0;">Tolak Pengajuan Izin</h3>
-      <button onclick="closeTolakModal()" style="width:32px;height:32px;border-radius:8px;background:var(--card-bg);border:1px solid var(--border);color:var(--muted);cursor:pointer;">✕</button>
+      <h3 id="tolak-modal-title" style="flex:1;font-size:1.05rem;margin:0;color:var(--text-primary);">Tolak Pengajuan Izin</h3>
+      <button type="button" onclick="closeTolakModal()" style="width:32px;height:32px;border-radius:8px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;">✕</button>
     </div>
     <form method="POST" id="tolak-form" action="">
       @csrf @method('PATCH')
@@ -212,17 +212,24 @@
 
 @push('scripts')
 <script>
-function showTolakModal(id) {
-  document.getElementById('tolak-form').action = '/hrd/izin/' + id;
-  const modal = document.getElementById('tolak-modal');
-  modal.style.display = 'flex';
-}
-function closeTolakModal() {
-  document.getElementById('tolak-modal').style.display = 'none';
-}
-// Close on backdrop click
-document.getElementById('tolak-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeTolakModal();
-});
+(function () {
+  var approveTpl = @json(route('hrd.izin.approve', ['id' => 999987654321]));
+  window.showTolakModal = function (id) {
+    var form = document.getElementById('tolak-form');
+    if (form) form.action = approveTpl.replace('999987654321', String(id));
+    var modal = document.getElementById('tolak-modal');
+    if (modal) modal.style.display = 'flex';
+  };
+  window.closeTolakModal = function () {
+    var modal = document.getElementById('tolak-modal');
+    if (modal) modal.style.display = 'none';
+  };
+  var modal = document.getElementById('tolak-modal');
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeTolakModal();
+    });
+  }
+})();
 </script>
 @endpush

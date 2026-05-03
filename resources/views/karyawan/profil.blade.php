@@ -27,7 +27,7 @@
               {{ strtoupper(substr($karyawan?->nama_lengkap ?? auth()->user()->username, 0, 1)) }}
             </div>
           @endif
-          <label for="fotoInput" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.65rem;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.3);">
+          <label for="fotoInput" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.65rem;color:var(--navy);box-shadow:var(--shadow-sm);">
             <i class="fa-solid fa-pen"></i>
           </label>
         </div>
@@ -65,7 +65,7 @@
       </div>
       <div class="card-body" style="text-align:center;">
         @if($qrCode)
-          <div style="background:#fff;padding:12px;border-radius:10px;display:inline-block;margin-bottom:12px;box-shadow:0 4px 16px rgba(0,0,0,.2);">
+          <div style="background:#fff;padding:12px;border-radius:10px;display:inline-block;margin-bottom:12px;box-shadow:var(--shadow-sm);">
             {!! $qrImage !!}
           </div>
           <div class="text-xs text-muted" style="margin-bottom:12px;">
@@ -229,7 +229,7 @@
             ['Alpha', $stats['alpha']??0, 'red'],
           ] as [$label, $val, $col])
           <div style="background:rgba({{ $col==='teal'?'0,201,167':($col==='green'?'0,224,150':($col==='amber'?'255,171,64':'255,83,112')) }},.08);border-radius:var(--radius-sm);padding:14px 8px;border:1px solid rgba({{ $col==='teal'?'0,201,167':($col==='green'?'0,224,150':($col==='amber'?'255,171,64':'255,83,112')) }},.15);">
-            <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--{{ $col }});">{{ $val }}</div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--{{ $col }});">{{ $val }}</div>
             <div class="text-xs text-muted">{{ $label }}</div>
           </div>
           @endforeach
@@ -293,3 +293,4 @@ document.getElementById('pw2')?.addEventListener('input', function() {
 });
 </script>
 @endpush
+

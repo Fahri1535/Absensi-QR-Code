@@ -15,14 +15,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-  {{-- ③ Google Fonts: load SEMUA font yang dipakai (Syne + DM Sans + Inter)
+  {{-- ③ Google Fonts: load DM Sans + Inter
        display=swap → teks langsung tampil pakai fallback, ganti setelah font ready --}}
   <link rel="preload" as="style"
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap"
         onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap">
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap">
   </noscript>
 
   {{-- ④ Font Awesome: preload + async load --}}
@@ -109,10 +109,17 @@
         <a href="{{ route('karyawan.riwayat') }}" class="nav-item {{ request()->routeIs('karyawan.riwayat') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> Riwayat Presensi
         </a>
+        <a href="{{ route('karyawan.laporan') }}" class="nav-item {{ request()->routeIs('karyawan.laporan*') ? 'active' : '' }}">
+          <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Laporan Presensi
+        </a>
         <a href="{{ route('karyawan.izin') }}" class="nav-item {{ request()->routeIs('karyawan.izin*') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-file-medical"></i></span> Pengajuan Izin
-          {{-- FIXED: gunakan null-safe query, jangan crash jika karyawan null --}}
-          @php $pendingIzin = auth()->user()->karyawan?->izin()->where('status','pending')->count() ?? 0; @endphp
+          {{-- OPTIMASI: Cache count izin selama 2 menit --}}
+          @php 
+            $pendingIzin = cache()->remember('pending_izin_'.auth()->id(), 120, function() {
+              return auth()->user()->karyawan?->izin()->where('status','pending')->count() ?? 0;
+            });
+          @endphp
           @if($pendingIzin > 0)
             <span class="nav-badge">{{ $pendingIzin }}</span>
           @endif
@@ -145,7 +152,7 @@
           <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan
         </a>
         <a href="{{ route('operator.jadwal') }}" class="nav-item {{ request()->routeIs('operator.jadwal*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja
+          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja &amp; Lokasi Kantor
         </a>
         <a href="{{ route('operator.qrcode') }}" class="nav-item {{ request()->routeIs('operator.qrcode*') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Kelola QR Code
@@ -155,7 +162,10 @@
       <div class="nav-section">
         <div class="nav-section-label">Laporan</div>
         <a href="{{ route('operator.laporan') }}" class="nav-item {{ request()->routeIs('operator.laporan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
+          <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Laporan Presensi
+        </a>
+        <a href="{{ route('operator.bantuan.index') }}" class="nav-item {{ request()->routeIs('operator.bantuan*') ? 'active' : '' }}">
+          <span class="nav-icon"><i class="fa-solid fa-headset"></i></span> Kelola Bantuan
         </a>
       </div>
 
@@ -173,13 +183,15 @@
         <div class="nav-section-label">Persetujuan</div>
         <a href="{{ route('hrd.izin') }}" class="nav-item {{ request()->routeIs('hrd.izin*') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-file-circle-check"></i></span> Persetujuan Izin
-          {{-- FIXED: gunakan try-catch model bukan class yang tidak ada --}}
+          {{-- OPTIMASI: Cache count approval HRD selama 1 menit --}}
           @php
-            try {
-              $pendingApproval = \App\Models\Izin::where('status','pending')->count();
-            } catch (\Exception $e) {
-              $pendingApproval = 0;
-            }
+            $pendingApproval = cache()->remember('pending_approval_hrd', 60, function() {
+              try {
+                return \App\Models\Izin::where('status','pending')->count();
+              } catch (\Exception $e) {
+                return 0;
+              }
+            });
           @endphp
           @if($pendingApproval > 0)
             <span class="nav-badge">{{ $pendingApproval }}</span>
@@ -197,7 +209,7 @@
       <div class="nav-section">
         <div class="nav-section-label">Laporan</div>
         <a href="{{ route('hrd.laporan') }}" class="nav-item {{ request()->routeIs('hrd.laporan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
+          <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Laporan Presensi
         </a>
       </div>
 
@@ -206,15 +218,20 @@
       {{-- Notifikasi (semua role) --}}
       <div class="nav-section">
         <div class="nav-section-label">Sistem</div>
+        <a href="{{ route('bantuan') }}" class="nav-item {{ request()->routeIs('bantuan') ? 'active' : '' }}">
+          <span class="nav-icon"><i class="fa-solid fa-circle-question"></i></span> Bantuan &amp; Kontak
+        </a>
         <a href="{{ route('notifikasi') }}" class="nav-item {{ request()->routeIs('notifikasi') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-bell"></i></span> Notifikasi
-          {{-- FIXED: pakai $unreadNavCount agar tidak crash, hitung di sini --}}
+          {{-- OPTIMASI: Cache count notifikasi selama 1 menit --}}
           @php
-            try {
-              $unreadNavCount = \App\Models\Notifikasi::where('user_id', auth()->id())->where('is_read',0)->count();
-            } catch (\Exception $e) {
-              $unreadNavCount = 0;
-            }
+            $unreadNavCount = cache()->remember('unread_notif_'.auth()->id(), 60, function() {
+              try {
+                return \App\Models\Notifikasi::where('user_id', auth()->user()->getKey())->where('is_read',0)->count();
+              } catch (\Exception $e) {
+                return 0;
+              }
+            });
           @endphp
           @if($unreadNavCount > 0)
             <span class="nav-badge">{{ $unreadNavCount }}</span>
@@ -302,109 +319,6 @@
      onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
 
 <script src="{{ asset('js/app.js') }}"></script>
-<script>
-/* ── Live Clock ───────────────────────────────────────────── */
-function updateClock() {
-  const now  = new Date();
-  const opts = { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' };
-  const el   = document.getElementById('topbar-clock');
-  if (el) el.textContent = now.toLocaleDateString('id-ID', opts);
-}
-updateClock();
-setInterval(updateClock, 30000);
-
-/* ── Sidebar Toggle (Desktop collapse + Mobile slide) ────── */
-const sidebar      = document.getElementById('sidebar');
-const overlay      = document.getElementById('sidebar-overlay');
-const toggleBtn    = document.getElementById('sidebar-toggle');
-const toggleIcon   = document.getElementById('sidebar-toggle-icon');
-const isMobile     = () => window.innerWidth <= 768;
-
-// Simpan state di localStorage supaya ingat pilihan user
-let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-
-function applySidebarState() {
-  // Bersihkan class early dari html element
-  document.documentElement.classList.remove('sb');
-  if (isMobile()) {
-    document.body.classList.remove('sidebar-collapsed');
-    return;
-  }
-  if (sidebarCollapsed) {
-    document.body.classList.add('sidebar-collapsed');
-    toggleBtn.classList.add('sidebar-toggle-active');
-  } else {
-    document.body.classList.remove('sidebar-collapsed');
-    toggleBtn.classList.remove('sidebar-toggle-active');
-  }
-}
-
-toggleBtn?.addEventListener('click', () => {
-  if (isMobile()) {
-    // Mobile: slide in/out
-    const isOpen = sidebar.classList.toggle('open');
-    overlay.style.display = isOpen ? 'block' : 'none';
-  } else {
-    // Desktop: collapse/expand
-    sidebarCollapsed = !sidebarCollapsed;
-    localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
-    applySidebarState();
-  }
-});
-
-// Tutup sidebar mobile kalau resize ke desktop
-window.addEventListener('resize', () => {
-  if (!isMobile()) {
-    sidebar.classList.remove('open');
-    overlay.style.display = 'none';
-    applySidebarState();
-  }
-});
-
-// Terapkan state awal saat halaman load
-applySidebarState();
-
-/* ── Theme Toggle (Dark / Light) ─────────────────────────── */
-const themeBtn  = document.getElementById('theme-toggle');
-const iconSun   = themeBtn?.querySelector('.icon-sun');
-const iconMoon  = themeBtn?.querySelector('.icon-moon');
-
-// Ambil preferensi tersimpan, default = dark
-let currentTheme = localStorage.getItem('theme') || 'dark';
-
-function applyTheme(theme) {
-  document.documentElement.classList.remove('lm');
-  var tc = document.getElementById('meta-theme-color');
-  if (theme === 'light') {
-    document.documentElement.classList.add('lm');
-    document.documentElement.style.background = '#F8FAFC';
-    document.documentElement.style.colorScheme = 'light';
-    document.body.classList.add('light-mode');
-    if (tc) tc.setAttribute('content', '#F8FAFC');
-    if (iconSun)  iconSun.style.display  = 'block';
-    if (iconMoon) iconMoon.style.display = 'none';
-    themeBtn?.setAttribute('title', 'Ganti ke Mode Gelap');
-  } else {
-    document.documentElement.style.background = '#0F172A';
-    document.documentElement.style.colorScheme = 'dark';
-    document.body.classList.remove('light-mode');
-    if (tc) tc.setAttribute('content', '#0F172A');
-    if (iconSun)  iconSun.style.display  = 'none';
-    if (iconMoon) iconMoon.style.display = 'block';
-    themeBtn?.setAttribute('title', 'Ganti ke Mode Terang');
-  }
-}
-
-themeBtn?.addEventListener('click', () => {
-  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('theme', currentTheme);
-  applyTheme(currentTheme);
-});
-
-// Terapkan tema saat halaman load
-applyTheme(currentTheme);
-</script>
-
 @stack('scripts')
 </body>
 </html>

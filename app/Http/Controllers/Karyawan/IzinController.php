@@ -48,6 +48,18 @@ class IzinController extends Controller
         ]);
 
         $karyawan = auth()->user()->karyawan;
+
+        $sudahMengajuHariIni = Izin::where('karyawan_id', $karyawan->id)
+            ->whereDate('created_at', today())
+            ->exists();
+
+        if ($sudahMengajuHariIni) {
+            return back()
+                ->withErrors([
+                    'izin_per_hari' => 'Anda sudah mengajukan izin hari ini. Maksimal satu pengajuan per hari kalender.',
+                ])
+                ->withInput();
+        }
         $lampiranPath = null;
 
         if ($request->hasFile('lampiran')) {

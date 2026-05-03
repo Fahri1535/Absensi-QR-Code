@@ -29,12 +29,20 @@
   --border:        rgba(59,130,246,0.18);
   --border-strong: rgba(59,130,246,0.38);
   --shadow:        0 8px 32px rgba(0,0,0,0.4);
+  --shadow-sm:     0 4px 16px rgba(0,0,0,0.2);
 
   --radius:    14px;
   --radius-sm:  8px;
   --transition: .25s cubic-bezier(.4,0,.2,1);
   --sidebar-w:  260px;
   --grid-color: rgba(37,99,235,0.04);
+
+  /* Alias kompatibel view lama (modal, card inline) */
+  --card-bg:    var(--bg-card);
+  --muted:      var(--text-secondary);
+  --navy-mid:   var(--bg-secondary);
+  --navy-light: var(--bg-card);
+  --bg-soft:    rgba(0,0,0,0.2);
 }
 
 /* ══════ LIGHT MODE ══════ */
@@ -62,7 +70,14 @@ body.light-mode {
   --border:        rgba(37,99,235,0.14);
   --border-strong: rgba(37,99,235,0.3);
   --shadow:        0 8px 32px rgba(0,0,0,0.08);
+  --shadow-sm:     0 4px 12px rgba(0,0,0,0.06);
   --grid-color:    rgba(37,99,235,0.03);
+
+  --card-bg:    var(--bg-card);
+  --muted:      var(--text-secondary);
+  --navy-mid:   var(--bg-secondary);
+  --navy-light: var(--bg-card);
+  --bg-soft:    rgba(0,0,0,0.04);
 }
 
 /* ══════ RESET & BASE — FIX TIDAK GEPENG ══════ */
@@ -97,10 +112,10 @@ body::before{
   /* TIDAK ada transition — background-image transition sangat berat */
 }
 
-/* Heading — Syne tanpa tracking negatif (menghindari teks/angka “gepeng”) */
+/* Heading — DM Sans (Ganti Syne karena Syne terlalu lebar/gepeng) */
 h1,h2,h3,h4,h5{
-  font-family:'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight:700;line-height:1.25;letter-spacing:normal;font-stretch:normal;
+  font-family:'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight:700;line-height:1.2;letter-spacing:0.02em;font-stretch:normal;
 }
 h1{font-size:clamp(1.75rem,4vw,2.5rem)}
 h2{font-size:clamp(1.3rem,3vw,1.9rem)}
@@ -149,7 +164,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 }
 .logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 
-.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;line-height:1.2;letter-spacing:normal;color:var(--text-primary)}
+.logo-text{font-family:'DM Sans',sans-serif;font-weight:800;font-size:.95rem;line-height:1.2;letter-spacing:0.02em;color:var(--text-primary)}
 .logo-text span{color:var(--blue-light)}
 .logo-sub{font-size:.67rem;color:var(--text-secondary);margin-top:2px}
 
@@ -178,16 +193,21 @@ body.sidebar-collapsed .main-content{margin-left:0}
 }
 
 .sidebar-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
-.user-card{display:flex;align-items:center;gap:10px}
-.user-avatar{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue-primary),var(--blue-secondary));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;
+.user-card{
+  display:flex;align-items:center;gap:12px;padding:12px;
+  background:var(--bg-primary);border-radius:var(--radius-sm);
+  overflow: hidden;
 }
-.user-info{flex:1;min-width:0}
-.user-name{font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-role{font-size:.67rem;color:var(--text-secondary);display:inline-block;background:var(--border);border-radius:4px;padding:1px 6px;margin-top:2px}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--blue-primary);
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;
+  flex-shrink: 0;
+}
+.user-info{
+  flex:1;min-width:0;
+}
+.user-name{font-size:.85rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.7rem;color:var(--text-secondary)}
 
 /* ══════ MAIN CONTENT ══════ */
 .main-content{
@@ -204,7 +224,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   position:sticky;top:0;z-index:50;
   transition:background var(--transition);
 }
-.topbar-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;letter-spacing:normal;flex:1;color:var(--text-primary)}
+.topbar-title{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.02em;flex:1;color:var(--text-primary)}
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 
 .topbar-btn{
@@ -241,7 +261,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .page-content{padding:28px;flex:1}
 .page-header{margin-bottom:28px}
 .page-header h1{margin-bottom:6px}
-.page-header p{color:var(--text-secondary);font-size:.9rem}
+.page-header p{color:var(--text-secondary);font-size:.9rem;letter-spacing:0.01em !important}
 .breadcrumb{font-size:.78rem;color:var(--text-secondary);margin-bottom:8px}
 .breadcrumb span{color:var(--blue-light)}
 
@@ -485,7 +505,7 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 .profile-avatar{width:80px;height:80px;border-radius:50%;border:3px solid var(--blue-primary);background:linear-gradient(135deg,var(--blue-primary),var(--blue-secondary));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;flex-shrink:0;box-shadow:0 0 24px var(--blue-glow)}
 
 /* ══════ ANIMATIONS ══════ */
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translate3d(0,20px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -511,7 +531,7 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 ::-webkit-scrollbar-thumb{background:var(--bg-secondary);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text-secondary)}
 
-/* ========== Tracking konsisten — hindari teks/angka gepeng ========== */
+/* ========== Tracking konsisten ========== */
 .page-content,
 .card-body,
 .card-header,
@@ -524,39 +544,61 @@ body.light-mode .tabs{background:rgba(0,0,0,.05)}
 .table,
 .table th,
 .table td,
-.page-header h1,
 .page-header p,
-h1, h2, h3, h4, p {
+p {
   letter-spacing: normal !important;
 }
 
-/* ══════ RESPONSIVE ══════ */
-@media(max-width:768px){
+/* Judul & Subjudul — NORMAL (Tidak Gepeng) */
+h1, h2, h3, h4, h5,
+.page-header h1,
+.topbar-title, 
+.logo-text,
+.card-header h3 {
+  letter-spacing: 0.02em !important;
+}
+
+/* ══════ RESPONSIVE UTILITIES ══════ */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.main-sidebar-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .main-sidebar-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .main-content{margin-left:0!important}
   .page-content{padding:16px}
   .stat-grid{grid-template-columns:1fr 1fr}
+  .responsive-grid { grid-template-columns: 1fr; }
   body.sidebar-collapsed .sidebar{transform:translateX(-100%)}
+  
+  .page-header h1 { font-size: 1.5rem; }
+  .card-header h3 { font-size: 1rem; }
 }
-@media(max-width:480px){
+@media (max-width: 480px) {
   .stat-grid{grid-template-columns:1fr}
-  .topbar{padding:0 16px}
+  .topbar{padding:0 12px}
   .topbar-date{display:none}
+  .topbar-title { font-size: 0.9rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar-right { gap: 4px; }
+  .topbar-btn { width: 34px; height: 34px; font-size: 0.9rem; }
 }
 
 /* ========== FIX SCROLL LAG & PERFORMANCE ========== */
 @media (max-width: 768px) {
-  /* Matikan animasi orb di mobile (penyebab utama lag) */
-  .orb {
-    animation: none !important;
-    opacity: 0.1 !important;
-  }
-  
-  /* Matikan grid background di mobile */
-  body::before {
-    display: none !important;
-  }
+  /* Orb & Grid Background aktif kembali di mobile */
 }
 
 /* Optimasi untuk semua device */
@@ -566,27 +608,17 @@ h1, h2, h3, h4, p {
 
 /* Kurangi transisi yang terlalu banyak */
 .nav-item, .btn, .stat-card, .card {
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease !important;
+  /* Restore original transitions */
 }
 
 /* Matikan efek hover yang berat di mobile */
 @media (max-width: 768px) {
-  .stat-card:hover {
-    transform: none !important;
-  }
-  
-  .btn:hover {
-    transform: none !important;
-  }
-  
-  .feature-pill:hover {
-    transform: none !important;
-  }
+  /* Restore hover effects on mobile */
 }
 
 /* Kurangi shadow yang berat */
 .card, .stat-card, .btn {
-  box-shadow: none !important;
+  /* Restore original shadows */
 }
 
 .stat-card:hover {
@@ -615,13 +647,13 @@ body .table td, body .table th {
   letter-spacing: normal !important;
 }
 
-/* Judul layar — Syne, tanpa tracking negatif */
+/* Judul layar — DM Sans NORMAL */
 h1, h2, h3, h4, h5,
 .page-header h1,
 .topbar-title, .logo-text {
-  font-family: 'Syne', -apple-system, BlinkMacSystemFont,
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont,
                'Segoe UI', sans-serif !important;
-  letter-spacing: normal !important;
+  letter-spacing: 0.02em !important;
   font-stretch: normal !important;
 }
 
@@ -636,8 +668,8 @@ h1, h2, h3, h4, h5,
 .stat-value,
 .clock-display,
 .time-badge .time,
-[style*="font-family:'Syne'"],
-[style*='font-family:"Syne"'] {
+[style*="font-family:'DM Sans'"],
+[style*='font-family:"DM Sans"'] {
   font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont,
                'Segoe UI', sans-serif !important;
   letter-spacing: normal !important;
@@ -673,49 +705,56 @@ thead th {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SCROLL PERFORMANCE & FOUC PREVENTION
+   SCROLL PERFORMANCE & RENDERING OPTIMIZATION
    ════════════════════════════════════════════════════════════════ */
 
-.sidebar {
-  will-change: transform;
-}
-
-.main-content {
-  will-change: auto;
-}
-
-/* Card: jangan contain layout+style — bisa memicu artefak raster/subpixel di beberapa GPU */
-.card {
-  contain: paint;
-}
-
+/* Pastikan scroll mulus di mobile */
 .table-wrap {
-  contain: layout;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Hindari translateZ(0) massal — lapisan komposit ekstra bisa bikin glyph/ikon terlihat melar */
-.nav-item,
-.btn {
-  will-change: auto;
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE PERFORMANCE OVERRIDE
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Matikan efek paling berat khusus di mobile agar scroll mulus */
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Sederhanakan bayangan di mobile */
+  .card, .stat-card, .btn, .sidebar, .topbar {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  }
+
+  /* Gunakan transform sederhana untuk animasi di mobile */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hindari fixed background yang memicu lag scroll di mobile */
+  body::before {
+    position: absolute !important;
+    height: 100% !important;
+  }
 }
 
-/* Preload skeleton — cegah blank saat CSS belum ready */
-html:not(.fonts-loaded) body {
-  visibility: visible; /* tetap visible, fallback font tampil */
+/* Optimasi interaksi saat scroll */
+body.is-scrolling {
+  pointer-events: none !important;
 }
 
-/* ============================================
-   NONAKTIFKAN SEMUA ANIMASI HALAMAN
-   Ini akan menghentikan delay 0.4 detik dari animate-slideup & stagger
-   ============================================ */
-.animate-slideup,
-.animate-fadein,
-.stagger,
-.stagger > * {
-  animation: none !important;
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
+/* Performa Scroll Maksimal */
+* {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
 }

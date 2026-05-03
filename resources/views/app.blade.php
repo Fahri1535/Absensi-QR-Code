@@ -119,7 +119,7 @@
     }
 
     .logo-text {
-      font-family: 'Syne', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-weight: 800;
       font-size: 1.2rem;
     }
@@ -258,7 +258,7 @@
     }
 
     .topbar-title {
-      font-family: 'Syne', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-weight: 700;
       font-size: 1.1rem;
     }
@@ -448,7 +448,7 @@
           <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan
         </a>
         <a href="{{ route('operator.jadwal') }}" class="nav-item {{ request()->routeIs('operator.jadwal*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja
+          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja &amp; Lokasi Kantor
         </a>
         <a href="{{ route('operator.qrcode') }}" class="nav-item {{ request()->routeIs('operator.qrcode*') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Kelola QR Code
@@ -501,6 +501,9 @@
       {{-- Shared bottom --}}
       <div class="nav-section" style="margin-top: auto;">
         <div class="nav-section-label">Sistem</div>
+        <a href="{{ route('bantuan') }}" class="nav-item {{ request()->routeIs('bantuan') ? 'active' : '' }}">
+          <span class="nav-icon"><i class="fa-solid fa-circle-question"></i></span> Bantuan &amp; Kontak
+        </a>
         <a href="{{ route('notifikasi') }}" class="nav-item {{ request()->routeIs('notifikasi') ? 'active' : '' }}">
           <span class="nav-icon"><i class="fa-solid fa-bell"></i></span> Notifikasi
           @php $unread = auth()->user()->notifikasi()->where('is_read',0)->count(); @endphp

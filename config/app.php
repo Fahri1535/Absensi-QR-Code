@@ -128,15 +128,15 @@ return [
     | Kontak admin (halaman login: "Hubungi Admin")
     |--------------------------------------------------------------------------
     |
-    | Setel ADMIN_CONTACT_URL di .env, mis. mailto:hr@perusahaan.id atau
-    | https://wa.me/628xxxxxxxxxx — jika kosong dipakai mail ke MAIL_FROM_ADDRESS.
+    | Setel ADMIN_CONTACT_URL di .env bila login perlu tautan satu-klik ekstra:
+    | https://wa.me/628xxxxxxxxxx — mailto: — tel: (+ tanpa tab baru untuk mailto/tel).
+    |
+    | Default kosong → halaman login mengarahkan ke halaman kontak publik /kontak
+    | dengan isi sama seperti config/bantuan.php (.env ADMIN_OPERASI_*, ADMIN_HRD_*).
     |
     */
 
-    'admin_contact_url' => env(
-        'ADMIN_CONTACT_URL',
-        'mailto:' . env('MAIL_FROM_ADDRESS', 'admin@example.com')
-    ),
+    'admin_contact_url' => env('ADMIN_CONTACT_URL'),
 
     /*
     |--------------------------------------------------------------------------

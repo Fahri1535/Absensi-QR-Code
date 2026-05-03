@@ -12,7 +12,7 @@
 </div>
 
 {{-- ── Status Presensi Hari Ini ─────────────────────────────── --}}
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px;" class="stagger">
+<div class="responsive-grid stagger" style="margin-bottom:24px;">
 
   {{-- Masuk --}}
   <div class="card">
@@ -22,14 +22,14 @@
       </div>
       <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px;">Presensi Masuk</div>
       @if($presensiHariIni?->jam_datang)
-        <div style="font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:var(--teal);">
+        <div style="font-family:'DM Sans',sans-serif; font-size:1.9rem; font-weight:800; color:var(--teal);">
           {{ \Carbon\Carbon::parse($presensiHariIni->jam_datang)->format('H:i') }}
         </div>
         <div class="badge badge-{{ $presensiHariIni->status === 'tepat_waktu' ? 'green' : 'amber' }}" style="margin-top:8px;">
           {{ $presensiHariIni->status === 'tepat_waktu' ? '✓ Tepat Waktu' : '⚠ Terlambat' }}
         </div>
       @else
-        <div style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700; color:var(--muted);">Belum Presensi</div>
+        <div style="font-family:'DM Sans',sans-serif; font-size:1.4rem; font-weight:700; color:var(--muted);">Belum Presensi</div>
         <div class="badge badge-muted" style="margin-top:8px;">Menunggu</div>
       @endif
     </div>
@@ -43,7 +43,7 @@
       </div>
       <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px;">Presensi Pulang</div>
       @if($presensiHariIni?->jam_pulang)
-        <div style="font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:var(--green);">
+        <div style="font-family:'DM Sans',sans-serif; font-size:1.9rem; font-weight:800; color:var(--green);">
           {{ \Carbon\Carbon::parse($presensiHariIni->jam_pulang)->format('H:i') }}
         </div>
         @if($presensiHariIni->status === 'pulang_awal')
@@ -52,7 +52,7 @@
           <div class="badge badge-green" style="margin-top:8px;">✓ Selesai</div>
         @endif
       @else
-        <div style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700; color:var(--muted);">Belum Presensi</div>
+        <div style="font-family:'DM Sans',sans-serif; font-size:1.4rem; font-weight:700; color:var(--muted);">Belum Presensi</div>
         <div class="badge badge-muted" style="margin-top:8px;">Menunggu</div>
       @endif
     </div>
@@ -124,7 +124,7 @@
 </div>
 
 {{-- ── Grid: Riwayat + Izin Pending ────────────────────────── --}}
-<div style="display:grid; grid-template-columns:1fr 380px; gap:20px; margin-top:24px;" class="stagger">
+<div class="main-sidebar-grid stagger" style="margin-top:24px;">
 
   {{-- Riwayat Presensi Terakhir --}}
   <div class="card">
@@ -242,3 +242,4 @@
 </div>
 
 @endsection
+

@@ -49,7 +49,7 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns:1fr 340px; gap:20px;" class="stagger">
+<div class="main-sidebar-grid stagger">
 
   {{-- Presensi Terbaru --}}
   <div class="card">

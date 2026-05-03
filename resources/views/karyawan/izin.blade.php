@@ -8,7 +8,7 @@
 <div class="page-header">
   <div class="breadcrumb">Beranda / <span>Pengajuan Izin</span></div>
   <h1>Pengajuan Izin</h1>
-  <p class="text-muted">Ajukan izin, cuti, atau sakit. Persetujuan dari HRD akan dikirim via notifikasi.</p>
+  <p class="text-muted">Ajukan izin, cuti, atau sakit. Persetujuan dari HRD akan dikirim via notifikasi. Satu karyawan maksimal satu pengajuan per hari kalender.</p>
 </div>
 
 <div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
@@ -211,6 +211,8 @@
   {{-- RIGHT: Info Sidebar --}}
   <div style="display:flex;flex-direction:column;gap:16px;">
 
+    @include('partials.kontak-admin-card')
+
     {{-- Status Cuti --}}
     <div class="card">
       <div class="card-header">
@@ -218,7 +220,7 @@
         <h3>Sisa Cuti Tahun Ini</h3>
       </div>
       <div class="card-body" style="text-align:center;">
-        <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--teal);">
+        <div style="font-family:'DM Sans',sans-serif;font-size:3rem;font-weight:800;color:var(--teal);">
           {{ $sisaCuti ?? 12 }}
         </div>
         <div class="text-muted text-sm">hari dari {{ $totalCuti ?? 12 }} hari</div>
@@ -246,7 +248,7 @@
             <span>{{ $emoji }}</span>
             <span style="font-size:.85rem;">{{ $label }}</span>
           </div>
-          <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--teal);">{{ $count }} hari</span>
+          <span style="font-family:'DM Sans',sans-serif;font-weight:700;color:var(--teal);">{{ $count }} hari</span>
         </div>
         @endforeach
       </div>
@@ -353,3 +355,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+

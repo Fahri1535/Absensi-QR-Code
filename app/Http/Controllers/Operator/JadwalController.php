@@ -10,8 +10,9 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        // Redirect ke halaman QR Code yang memuat jadwal
-        return redirect()->route('operator.qrcode');
+        $jadwal = JadwalKerja::getSetting();
+
+        return view('operator.jadwal', compact('jadwal'));
     }
 
     public function update(Request $request)

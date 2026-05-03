@@ -3,11 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PresensiQrEntryController;
-use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\{BantuanController, NotifikasiController};
 use App\Http\Controllers\Karyawan\{
     DashboardController as KaryawanDashboard,
     PresensiController,
     RiwayatController,
+    LaporanController as KaryawanLaporan,
     IzinController as KaryawanIzin,
     ProfilController,
 };
@@ -18,6 +19,7 @@ use App\Http\Controllers\Operator\{
     JadwalController,
     LaporanController as OperatorLaporan,
     PresensiController as OperatorPresensi,
+    BantuanController as OperatorBantuan,
 };
 use App\Http\Controllers\Hrd\{
     DashboardController as HrdDashboard,
@@ -48,6 +50,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/login',  [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 });
+
+/* Kontak admin tanpa login (selaras dengan isi halaman /bantuan setelah masuk) */
+Route::view('/kontak', 'kontak-publik')->name('kontak.publik');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 /* ═══════════════════════════════════════════
@@ -72,6 +77,9 @@ Route::middleware(['auth', 'role:karyawan'])
         // Riwayat
         Route::get('/riwayat',             [RiwayatController::class, 'index'])->name('riwayat');
         Route::get('/riwayat/export',      [RiwayatController::class, 'export'])->name('riwayat.export');
+
+        // Laporan
+        Route::get('/laporan',             [KaryawanLaporan::class, 'index'])->name('laporan');
 
         // Izin
         Route::get('/izin',                [KaryawanIzin::class, 'index'])->name('izin');
@@ -118,6 +126,10 @@ Route::middleware(['auth', 'role:operator'])
         // Laporan
         Route::get('/laporan',                    [OperatorLaporan::class, 'index'])->name('laporan');
         Route::get('/laporan/export',             [OperatorLaporan::class, 'export'])->name('laporan.export');
+
+        // Bantuan Management
+        Route::get('/bantuan',                    [OperatorBantuan::class, 'index'])->name('bantuan.index');
+        Route::patch('/bantuan',                  [OperatorBantuan::class, 'update'])->name('bantuan.update');
     });
 
 /* ═══════════════════════════════════════════
@@ -147,6 +159,8 @@ Route::middleware(['auth', 'role:hrd'])
    NOTIFIKASI (semua role yang sudah login)
 ═══════════════════════════════════════════ */
 Route::middleware('auth')->group(function () {
+    Route::get('/bantuan', BantuanController::class)->name('bantuan');
+
     Route::get('/notifikasi',                    [NotifikasiController::class, 'index'])->name('notifikasi');
     Route::patch('/notifikasi/{id}/baca',        [NotifikasiController::class, 'baca'])->name('notifikasi.baca');
     Route::post('/notifikasi/baca-semua',        [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');

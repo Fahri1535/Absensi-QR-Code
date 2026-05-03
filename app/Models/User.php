@@ -30,12 +30,7 @@ class User extends Authenticatable
         return $this->hasMany(Notifikasi::class)->latest();
     }
 
-    /* ─── Helpers ────────────────────────────────────────────── */
-
-    public function getAuthIdentifierName(): string
-    {
-        return 'username';
-    }
+    /* ─── Relations ─────────────────────────────────────────── */
 
     public function isKaryawan(): bool { return $this->role === 'karyawan'; }
     public function isOperator(): bool { return $this->role === 'operator'; }

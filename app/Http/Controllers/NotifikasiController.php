@@ -9,11 +9,13 @@ class NotifikasiController extends Controller
 {
     public function index()
     {
-        $notifikasi = Notifikasi::where('user_id', auth()->id())
+        $userId = auth()->user()->getKey();
+
+        $notifikasi = Notifikasi::where('user_id', $userId)
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        $unreadCount = Notifikasi::where('user_id', auth()->id())
+        $unreadCount = Notifikasi::where('user_id', $userId)
             ->where('is_read', false)
             ->count();
 
@@ -22,7 +24,7 @@ class NotifikasiController extends Controller
 
     public function baca(int $id)
     {
-        Notifikasi::where('user_id', auth()->id())
+        Notifikasi::where('user_id', auth()->user()->getKey())
             ->findOrFail($id)
             ->update(['is_read' => true]);
 
@@ -31,7 +33,7 @@ class NotifikasiController extends Controller
 
     public function bacaSemua(Request $request)
     {
-        Notifikasi::where('user_id', auth()->id())
+        Notifikasi::where('user_id', auth()->user()->getKey())
             ->where('is_read', false)
             ->update(['is_read' => true]);
 

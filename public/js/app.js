@@ -3,196 +3,141 @@
  * PT. Nugraha Tirta Sejati
  */
 
-// ── Auto dismiss flash alerts ─────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // ── Auto dismiss flash alerts ─────────────────────────────────
   document.querySelectorAll('.alert').forEach(el => {
     if (!el.closest('.modal') && !el.closest('form')) {
       setTimeout(() => {
-        el.style.transition = 'opacity .5s ease, transform .5s ease';
-        el.style.opacity    = '0';
-        el.style.transform  = 'translateY(-8px)';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-8px)';
         setTimeout(() => el.remove(), 500);
       }, 5000);
     }
   });
-});
 
-// ── CSRF helper for fetch ─────────────────────────────────────
-function csrfToken() {
-  return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
-}
-
-async function apiFetch(url, options = {}) {
-  const defaults = {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': csrfToken(),
-      'Accept': 'application/json',
-    },
-  };
-  const res  = await fetch(url, { ...defaults, ...options });
-  const data = await res.json();
-  return { ok: res.ok, status: res.status, data };
-}
-
-// ── Confirm delete helper ─────────────────────────────────────
-document.querySelectorAll('[data-confirm]').forEach(el => {
-  el.addEventListener('click', e => {
-    if (!confirm(el.dataset.confirm || 'Yakin?')) e.preventDefault();
-  });
-});
-
-// ── Loading state for forms ───────────────────────────────────
-document.querySelectorAll('form[data-loading]').forEach(form => {
-  form.addEventListener('submit', () => {
-    const btn = form.querySelector('[type=submit]');
-    if (btn) {
-      btn.disabled   = true;
-      const orig     = btn.innerHTML;
-      btn.innerHTML  = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
-      btn.dataset.orig = orig;
-    }
-  });
-});
-
-// ── Notification mark-read on click ──────────────────────────
-document.querySelectorAll('.notif-item[data-id]').forEach(item => {
-  item.addEventListener('click', async () => {
-    const id = item.dataset.id;
-    await apiFetch(`/notifikasi/${id}/baca`, { method: 'PATCH' });
-    item.querySelector('.unread-dot')?.remove();
-  });
-});
-
-// ── Date range validator ──────────────────────────────────────
-const tglMulai   = document.querySelector('[name="tanggal_mulai"]');
-const tglSelesai = document.querySelector('[name="tanggal_selesai"]');
-
-if (tglMulai && tglSelesai) {
-  tglMulai.addEventListener('change', () => {
-    if (tglSelesai.value < tglMulai.value) {
-      tglSelesai.value = tglMulai.value;
-    }
-    tglSelesai.min = tglMulai.value;
-  });
-}
-
-// ── Ripple effect on buttons ──────────────────────────────────
-document.querySelectorAll('.btn').forEach(btn => {
-  btn.addEventListener('click', function (e) {
-    const r = document.createElement('span');
-    const d = Math.max(this.offsetWidth, this.offsetHeight);
-    const x = e.clientX - this.getBoundingClientRect().left - d / 2;
-    const y = e.clientY - this.getBoundingClientRect().top  - d / 2;
-
-    Object.assign(r.style, {
-      position: 'absolute', width: d + 'px', height: d + 'px',
-      left: x + 'px', top: y + 'px',
-      background: 'rgba(255,255,255,.15)', borderRadius: '50%',
-      transform: 'scale(0)', animation: 'ripple .5s linear',
-      pointerEvents: 'none',
+  // ── Confirm delete helper ─────────────────────────────────────
+  document.querySelectorAll('[data-confirm]').forEach(el => {
+    el.addEventListener('click', e => {
+      if (!confirm(el.dataset.confirm || 'Yakin?')) e.preventDefault();
     });
-
-    this.style.position = 'relative';
-    this.style.overflow = 'hidden';
-    this.appendChild(r);
-    setTimeout(() => r.remove(), 600);
   });
-});
 
-// Add ripple keyframe
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes ripple {
-    to { transform: scale(4); opacity: 0; }
+  // ── Loading state for forms ───────────────────────────────────
+  document.querySelectorAll('form[data-loading]').forEach(form => {
+    form.addEventListener('submit', () => {
+      const btn = form.querySelector('[type=submit]');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+      }
+    });
+  });
+
+  // ── Table row click → show detail ────────────────────────────
+  document.querySelectorAll('tr[data-href]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', () => {
+      window.location.href = row.dataset.href;
+    });
+  });
+
+  /* ── Live Clock ───────────────────────────────────────────── */
+  function updateClock() {
+    const now = new Date();
+    const opts = { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' };
+    const el = document.getElementById('topbar-clock');
+    if (el) el.textContent = now.toLocaleDateString('id-ID', opts);
   }
-`;
-document.head.appendChild(style);
+  updateClock();
+  setInterval(updateClock, 30000);
 
-// ── Table row click → show detail ────────────────────────────
-document.querySelectorAll('tr[data-href]').forEach(row => {
-  row.style.cursor = 'pointer';
-  row.addEventListener('click', () => {
-    window.location.href = row.dataset.href;
-  });
-});
+  /* ── Sidebar Toggle ───────────────────────────────────────── */
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const isMobile = () => window.innerWidth <= 768;
 
-// ── Confirm before page unload if form dirty ─────────────────
-(function () {
-  const forms = document.querySelectorAll('form[data-dirty-check]');
-  forms.forEach(form => {
-    let dirty = false;
-    form.addEventListener('input', () => { dirty = true; });
-    form.addEventListener('submit', () => { dirty = false; });
-    window.addEventListener('beforeunload', e => {
-      if (dirty) {
-        e.preventDefault();
-        e.returnValue = 'Perubahan belum disimpan. Yakin ingin meninggalkan halaman?';
-      }
-    });
-  });
-})();
-
-// ── Simple tooltip ────────────────────────────────────────────
-document.querySelectorAll('[data-tooltip]').forEach(el => {
-  const tip = document.createElement('div');
-  Object.assign(tip.style, {
-    position: 'fixed', background: 'var(--navy-mid)', color: 'var(--white)',
-    padding: '5px 10px', borderRadius: '6px', fontSize: '.75rem',
-    border: '1px solid var(--border)', pointerEvents: 'none',
-    zIndex: '9999', opacity: '0', transition: 'opacity .15s ease',
-    whiteSpace: 'nowrap',
-  });
-  tip.textContent = el.dataset.tooltip;
-  document.body.appendChild(tip);
-
-  el.addEventListener('mouseenter', e => {
-    const rect = el.getBoundingClientRect();
-    tip.style.left    = rect.left + 'px';
-    tip.style.top     = (rect.top - 32) + 'px';
-    tip.style.opacity = '1';
-  });
-  el.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
-});
-
-/* ── Font Loading Observer ─────────────────────────────────────
-   Tandai fonts-loaded setelah semua font selesai download,
-   sehingga browser tidak menahan render menunggu font */
-if ('fonts' in document) {
-  document.fonts.ready.then(() => {
-    document.documentElement.classList.add('fonts-loaded');
-  });
-}
-
-/* ── Passive scroll listeners ──────────────────────────────────
-   Override addEventListener agar scroll/touch pakai passive:true
-   → browser tidak perlu tunggu JS sebelum scroll */
-(function () {
-  const orig = EventTarget.prototype.addEventListener;
-  EventTarget.prototype.addEventListener = function (type, fn, opts) {
-    if (['scroll', 'touchstart', 'touchmove', 'wheel'].includes(type)) {
-      if (typeof opts === 'object') {
-        opts.passive = opts.passive !== false;
-      } else {
-        opts = { passive: true, capture: !!opts };
-      }
-    }
-    orig.call(this, type, fn, opts);
-  };
-})();
-
-/* ── Prefetch halaman saat hover link navigasi ─────────────────
-   → halaman sudah di-cache sebelum diklik → transisi lebih cepat */
-document.querySelectorAll('.nav-item[href]').forEach(link => {
-  link.addEventListener('mouseenter', () => {
-    const href = link.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript')) return;
-    const existing = document.querySelector(`link[rel="prefetch"][href="${href}"]`);
-    if (!existing) {
-      const pre = document.createElement('link');
-      pre.rel  = 'prefetch';
-      pre.href = href;
-      document.head.appendChild(pre);
-    }
+  // Optimasi Scroll Mobile: Matikan event listener yang tidak perlu saat scroll
+  let isScrolling;
+  window.addEventListener('scroll', () => {
+    document.body.classList.add('is-scrolling');
+    clearTimeout(isScrolling);
+    isScrolling = setTimeout(() => {
+      document.body.classList.remove('is-scrolling');
+    }, 150);
   }, { passive: true });
+
+  let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+  function applySidebarState() {
+    document.documentElement.classList.remove('sb');
+    if (isMobile()) {
+      document.body.classList.remove('sidebar-collapsed');
+      return;
+    }
+    if (sidebarCollapsed) {
+      document.body.classList.add('sidebar-collapsed');
+      toggleBtn?.classList.add('sidebar-toggle-active');
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+      toggleBtn?.classList.remove('sidebar-toggle-active');
+    }
+  }
+
+  toggleBtn?.addEventListener('click', () => {
+    if (isMobile()) {
+      const isOpen = sidebar.classList.toggle('open');
+      if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
+    } else {
+      sidebarCollapsed = !sidebarCollapsed;
+      localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+      applySidebarState();
+    }
+  });
+
+  overlay?.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.style.display = 'none';
+  });
+
+  window.addEventListener('resize', () => {
+    if (!isMobile()) {
+      sidebar.classList.remove('open');
+      if (overlay) overlay.style.display = 'none';
+      applySidebarState();
+    }
+  });
+
+  applySidebarState();
+
+  /* ── Theme Toggle ─────────────────────────────────────────── */
+  const themeBtn = document.getElementById('theme-toggle');
+  const iconSun = themeBtn?.querySelector('.icon-sun');
+  const iconMoon = themeBtn?.querySelector('.icon-moon');
+  let currentTheme = localStorage.getItem('theme') || 'dark';
+
+  function applyTheme(theme) {
+    document.documentElement.classList.remove('lm');
+    const tc = document.getElementById('meta-theme-color');
+    if (theme === 'light') {
+      document.documentElement.classList.add('lm');
+      document.body.classList.add('light-mode');
+      if (tc) tc.setAttribute('content', '#F8FAFC');
+      if (iconSun) iconSun.style.display = 'block';
+      if (iconMoon) iconMoon.style.display = 'none';
+    } else {
+      document.body.classList.remove('light-mode');
+      if (tc) tc.setAttribute('content', '#0F172A');
+      if (iconSun) iconSun.style.display = 'none';
+      if (iconMoon) iconMoon.style.display = 'block';
+    }
+  }
+
+  themeBtn?.addEventListener('click', () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', currentTheme);
+    applyTheme(currentTheme);
+  });
+
+  applyTheme(currentTheme);
 });

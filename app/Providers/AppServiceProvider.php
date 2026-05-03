@@ -23,13 +23,15 @@ class AppServiceProvider extends ServiceProvider
         // Share notifikasi unread ke semua view
         View::composer('*', function ($view) {
             if (auth()->check()) {
-                $notifUnread = Notifikasi::where('user_id', auth()->id())
+                $userId = auth()->user()->getKey();
+
+                $notifUnread = Notifikasi::where('user_id', $userId)
                     ->where('is_read', false)
                     ->orderByDesc('created_at')
                     ->take(5)
                     ->get();
 
-                $notifCount = Notifikasi::where('user_id', auth()->id())
+                $notifCount = Notifikasi::where('user_id', $userId)
                     ->where('is_read', false)
                     ->count();
 

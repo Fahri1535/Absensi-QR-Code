@@ -70,11 +70,14 @@
 
 {{-- Export Buttons --}}
 <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-  <a href="{{ route(auth()->user()->role . '.laporan.export', array_merge(request()->query(), ['format'=>'xlsx'])) }}"
+  @php
+    $exportRoute = auth()->user()->role === 'karyawan' ? 'karyawan.riwayat.export' : auth()->user()->role . '.laporan.export';
+  @endphp
+  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format'=>'xlsx'])) }}"
      class="btn btn-outline">
     <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Export Excel
   </a>
-  <a href="{{ route(auth()->user()->role . '.laporan.export', array_merge(request()->query(), ['format'=>'pdf'])) }}"
+  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format'=>'pdf'])) }}"
      class="btn btn-outline">
     <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
   </a>

@@ -49,14 +49,14 @@ class IzinController extends Controller
         ]);
 
         // FIXED: user_id field di notifikasi = karyawan->user_id (bukan karyawan->user->id yang bisa null)
-        $statusLabel = $validated['status'] === 'disetujui' ? 'disetujui ✅' : 'ditolak ❌';
+        $statusVerbal = $validated['status'] === 'disetujui' ? 'disetujui' : 'ditolak';
 
         if ($izin->karyawan && $izin->karyawan->user_id) {
             $jenisLabel = ucfirst(str_replace('_', ' ', $izin->jenis_izin));
             Notifikasi::create([
                 'user_id' => $izin->karyawan->user_id,
                 'judul'   => 'Status Izin: ' . ($validated['status'] === 'disetujui' ? 'Disetujui' : 'Ditolak'),
-                'pesan'   => "Pengajuan {$jenisLabel} ({$izin->tanggal_mulai->format('d M')} – {$izin->tanggal_selesai->format('d M Y')}) telah {$statusLabel}."
+                'pesan'   => "Pengajuan {$jenisLabel} ({$izin->tanggal_mulai->format('d M')} – {$izin->tanggal_selesai->format('d M Y')}) telah {$statusVerbal}."
                     . (! empty($validated['catatan_hrd']) ? ' Catatan HRD: ' . Str::limit((string) $validated['catatan_hrd'], 160) : ''),
                 'ikon'    => $validated['status'] === 'disetujui' ? 'fa-circle-check' : 'fa-circle-xmark',
                 'warna'   => $validated['status'] === 'disetujui' ? 'green' : 'red',
@@ -64,6 +64,6 @@ class IzinController extends Controller
             ]);
         }
 
-        return back()->with('success', "Izin berhasil {$statusLabel}.");
+        return back()->with('success', "Izin berhasil {$statusVerbal}.");
     }
 }

@@ -72,12 +72,12 @@ class PresensiController extends Controller
 
             $jamMasuk    = Carbon::parse($jadwal->jam_masuk);
             $windowBuka  = $jamMasuk->copy()->subMinutes(15);
-            $windowTutup = $jamMasuk->copy()->addMinutes(60 + $jadwal->toleransi_menit);
+            $windowTutup = $jamMasuk->copy()->addMinutes($jadwal->toleransi_menit);
 
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Window presensi masuk: {$windowBuka->format('H:i')} – {$windowTutup->format('H:i')}",
+                    'message' => "Window presensi masuk: {$windowBuka->format('H:i')} – {$windowTutup->format('H:i')} (Batas toleransi)",
                 ], 422);
             }
 
@@ -90,7 +90,7 @@ class PresensiController extends Controller
             ])->save();
 
             Notifikasi::create([
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->getKey(),
                 'judul'   => 'Presensi Masuk Berhasil',
                 'pesan'   => "Presensi masuk tercatat pukul {$now->format('H:i')} · " . ucfirst(str_replace('_', ' ', $statusMasuk)),
                 'ikon'    => 'fa-clock',
@@ -117,7 +117,7 @@ class PresensiController extends Controller
 
             $jamPulang   = Carbon::parse($jadwal->jam_pulang);
             $windowBuka  = $jamPulang->copy()->subMinutes(30);
-            $windowTutup = $jamPulang->copy()->addHour();
+            $windowTutup = $jamPulang;
 
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([
@@ -134,7 +134,7 @@ class PresensiController extends Controller
             ])->save();
 
             Notifikasi::create([
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->getKey(),
                 'judul'   => 'Presensi Pulang Berhasil',
                 'pesan'   => "Presensi pulang tercatat pukul {$now->format('H:i')}",
                 'ikon'    => 'fa-house',

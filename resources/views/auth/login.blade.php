@@ -318,7 +318,7 @@
     }
 
     .info-title {
-      font-family: 'Syne', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       font-weight: 800;
       font-size: clamp(1.8rem, 5vw, 2.5rem);
       line-height: 1.2;
@@ -418,7 +418,7 @@
 
     /* Judul pakai Syne — tanpa tracking negatif */
     .info-title, .login-form-title, h1, h2, h3, h4 {
-      font-family: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
       letter-spacing: normal !important;
       line-height: 1.25 !important;
       font-weight: 700 !important;
@@ -501,7 +501,7 @@
       <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#2563EB,#1D4ED8);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;box-shadow:0 8px 24px rgba(37,99,235,.3);">
         📋
       </div>
-      <div class="login-form-title" style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;">Selamat Datang</div>
+      <div class="login-form-title" style="font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;">Selamat Datang</div>
       <div class="login-form-sub" style="color:var(--text-secondary);font-size:.85rem;margin-bottom:0;">Masuk ke akun Anda untuk melanjutkan</div>
     </div>
 
@@ -561,12 +561,34 @@
 
     <div class="login-footer">
       <hr class="divider">
-      @php($adminUrl = config('app.admin_contact_url'))
+      @php
+        // Ambil data operator dari database untuk "Hubungi Cepat"
+        $opBantuan = \App\Models\Bantuan::where('slug', 'operator')->first();
+        $waNumber = $opBantuan?->whatsapp ?? '';
+        // Bersihkan nomor (buang +, spasi, dll) untuk link wa.me
+        $waDigits = preg_replace('/\D+/', '', $waNumber);
+        $waUrl = $waDigits ? "https://wa.me/{$waDigits}" : null;
+
+        $adminUrlCfg = trim((string) config('app.admin_contact_url', ''));
+        $adminOpenNewTab =
+            str_starts_with($adminUrlCfg, 'http://')
+            || str_starts_with($adminUrlCfg, 'https://');
+      @endphp
       Butuh bantuan?
-      @if(! empty($adminUrl))
-        <a href="{{ $adminUrl }}" class="login-contact-link" target="_blank" rel="noopener noreferrer">Hubungi Admin</a>
-      @else
-        Hubungi Admin
+      <br style="margin:6px 0;">
+      {{-- Kontak utama: halaman HTTPS — tab baru boleh; isi sama dengan /bantuan --}}
+      <a href="{{ route('kontak.publik') }}" class="login-contact-link" target="_blank" rel="noopener noreferrer">Lihat kontak admin</a>
+      
+      @if($waUrl)
+        <span style="color:var(--text-secondary);"> · </span>
+        <a href="{{ $waUrl }}" class="login-contact-link" target="_blank" rel="noopener noreferrer">Hubungi cepat</a>
+      @elseif($adminUrlCfg !== '')
+        <span style="color:var(--text-secondary);"> · </span>
+        @if($adminOpenNewTab)
+          <a href="{{ $adminUrlCfg }}" class="login-contact-link" target="_blank" rel="noopener noreferrer">Tautan cepat</a>
+        @else
+          <a href="{{ $adminUrlCfg }}" class="login-contact-link" rel="noopener noreferrer">Hubungi cepat</a>
+        @endif
       @endif
     </div>
 
