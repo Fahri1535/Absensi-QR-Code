@@ -562,8 +562,12 @@
     <div class="login-footer">
       <hr class="divider">
       @php
-        // Ambil data operator dari database untuk "Hubungi Cepat"
-        $opBantuan = \App\Models\Bantuan::where('slug', 'operator')->first();
+        try {
+            $opBantuan = \App\Models\Bantuan::where('slug', 'operator')->first();
+        } catch (\Exception $e) {
+            $opBantuan = null;
+        }
+
         $waNumber = $opBantuan?->whatsapp ?? '';
         // Bersihkan nomor (buang +, spasi, dll) untuk link wa.me
         $waDigits = preg_replace('/\D+/', '', $waNumber);
