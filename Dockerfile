@@ -2,11 +2,9 @@ FROM php:8.2-cli
 
 WORKDIR /app
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    zip \
+    git unzip zip \
     libzip-dev \
     libpng-dev \
     libjpeg-dev \
@@ -19,20 +17,20 @@ RUN apt-get update && apt-get install -y \
         pdo \
         pdo_mysql
 
-# Install Composer
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
-COPY . .
+# Copy dependency dulu (biar cache aman)
+COPY composer.json composer.lock ./
 
-# Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions (penting untuk Laravel)
-RUN chmod -R 777 storage bootstrap/cache
+# Copy app
+COPY . .
 
-# Expose port Railway
+# Permission fix (aman)
+RUN chown -R www-data:www-data storage bootstrap/cache
+
 EXPOSE 8000
 
-# Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
