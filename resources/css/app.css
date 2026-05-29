@@ -565,7 +565,7 @@ p {
 /* Judul & Subjudul — NORMAL (Tidak Gepeng) */
 h1, h2, h3, h4, h5,
 .page-header h1,
-.topbar-title, 
+.topbar-title,
 .logo-text,
 .card-header h3 {
   letter-spacing: 0.02em !important;
@@ -771,3 +771,4 @@ body {
   position: relative;
   -webkit-overflow-scrolling: touch;
 }
+
