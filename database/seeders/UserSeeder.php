@@ -7,11 +7,25 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Karyawan;
+use App\Models\JadwalKerja;
+use App\Models\QrCode;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Jadwal Kerja
+        JadwalKerja::firstOrCreate([], [
+            'jam_masuk'       => '08:00',
+            'jam_pulang'      => '17:00',
+            'toleransi_menit' => 5,
+            'hari_kerja'      => 'Senin - Jumat',
+        ]);
+
+        // QR Codes
+        QrCode::getOrCreate('masuk');
+        QrCode::getOrCreate('pulang');
+
         // Operator
         User::updateOrCreate(
             ['username' => 'operator'],
