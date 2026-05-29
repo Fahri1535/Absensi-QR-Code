@@ -7,8 +7,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Presensi QR') — PT. Nugraha Tirta Sejati</title>
 
-  {{-- ① Preload CSS utama — browser fetch lebih awal, tidak blocking --}}
-  <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
+
 
   {{-- ② Preconnect ke semua origin external —  kurangi DNS + TCP round-trip --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
