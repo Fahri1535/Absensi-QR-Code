@@ -16,7 +16,6 @@
 # =====================
 # Vite / Frontend
 # =====================
-/public/build
 /dist
 /.vite
 
