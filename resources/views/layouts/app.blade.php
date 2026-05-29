@@ -33,8 +33,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </noscript>
 
-  {{-- ⑤ App CSS — load setelah preload hint dikirim --}}
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+  {{-- ⑤ App CSS & JS dengan Vite --}}
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 
   {{-- Anti-flash: terapkan tema SEBELUM render, cegah FOUC --}}
   <script>
@@ -337,7 +337,6 @@
 <div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99; backdrop-filter:blur(2px);"
      onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
 
-<script src="{{ asset('js/app.js') }}"></script>
 @stack('scripts')
 </body>
 </html>

@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0F172A" id="meta-theme-color">
   <title>@yield('title', 'Kontak Admin') — Presensi QR</title>
-  <link rel="preload" href="{{ asset('css/app.css') }}" as="style">
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 
   <script>
     (function(){
