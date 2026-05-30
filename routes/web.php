@@ -183,6 +183,8 @@ Route::middleware(['auth', 'role:hrd'])
 /* ═══════════════════════════════════════════
    NOTIFIKASI (semua role yang sudah login)
 ═══════════════════════════════════════════ */
+Route::get('/karyawan/{kode_karyawan}', [KaryawanProfileController::class, 'show'])->name('karyawan.profile-public');
+
 Route::middleware('auth')->group(function () {
     Route::get('/bantuan', BantuanController::class)->name('bantuan');
 

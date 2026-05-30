@@ -20,7 +20,7 @@ class ProfilController extends Controller
         $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
 
         $qrImage = QrCode::size(150)
-            ->generate($qrCode);
+            ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));
     }
 
     return view('karyawan.profil', compact(
@@ -77,10 +77,11 @@ class ProfilController extends Controller
     {
         $karyawan = auth()->user()->karyawan;
 
+        $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
         $qrImage = QrCode::format('png')
             ->size(400)
             ->errorCorrection('H')
-            ->generate($karyawan->kode_karyawan ?? $karyawan->id);
+            ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));
 
         return response($qrImage, 200, [
             'Content-Type'        => 'image/png',
