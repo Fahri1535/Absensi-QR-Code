@@ -25,7 +25,7 @@ DAFTAR AKUN PRESENSI QR
 | Syiefa Alaida       | syiefa   | syiefa123  |
 | Ersa                | ersa     | ersa123    |
 | Nisa                | nisa     | nisa123    |
-| M. Fachrizal        | m.       | m.123      |
+| M. Fachrizal        | fachrizal| fachrizal123 |
 | Mariam Muslimah     | mariam   | mariam123  |
 | Wahyudi             | wahyudi  | wahyudi123 |
 | Devigo Arthurito    | devigo   | devigo123  |

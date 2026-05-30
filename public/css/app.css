@@ -204,16 +204,17 @@ body.sidebar-collapsed .main-content{margin-left:0}
 
 /* Collapsible items container */
 .nav-section-items{
-  overflow:visible !important;
-  max-height:none !important;
-  opacity:1 !important;
-  transition:none !important;
-  display:block !important;
+  overflow:hidden;
+  max-height:500px;
+  opacity:1;
+  transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .3s;
+  display:block;
 }
 .nav-section.collapsed .nav-section-items{
-  max-height:none !important;
-  opacity:1 !important;
-  display:block !important;
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  display:none;
 }
 
 

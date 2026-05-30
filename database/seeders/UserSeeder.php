@@ -73,12 +73,17 @@ class UserSeeder extends Seeder
 
         foreach ($users as $name) {
 
-            $firstName = strtolower(explode(' ', $name)[0]);
+            // Khusus untuk M. Fachrizal, gunakan username "fachrizal"
+            if ($name === "M. Fachrizal") {
+                $username = "fachrizal";
+            } else {
+                $username = strtolower(explode(' ', $name)[0]);
+            }
 
             $user = User::updateOrCreate(
-                ['username' => $firstName],
+                ['username' => $username],
                 [
-                    'password' => Hash::make($firstName . '123'),
+                    'password' => Hash::make($username . '123'),
                     'role' => 'karyawan',
                 ]
             );
