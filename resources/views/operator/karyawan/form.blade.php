@@ -45,12 +45,7 @@
           <div class="form-group">
             <label class="form-label">Username <span style="color:var(--red);">*</span></label>
             <input type="text" name="username" class="form-control"
-                   value="{{ old('username', $karyawan?->user?->username) }}"
-                   {{ isset($karyawan) ? 'readonly' : 'required' }}
-                   style="{{ isset($karyawan) ? 'opacity:.6;' : '' }}">
-            @if(isset($karyawan))
-            <div class="text-xs text-muted" style="margin-top:4px;">Username tidak dapat diubah</div>
-            @endif
+                   value="{{ old('username', $karyawan?->user?->username) }}" required>
           </div>
           <div class="form-group">
             <label class="form-label">Role <span style="color:var(--red);">*</span></label>
