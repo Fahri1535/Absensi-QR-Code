@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Karyawan;
+use App\Models\Notifikasi;
 
 class User extends Authenticatable
 {
