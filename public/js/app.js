@@ -57,16 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleBtn = document.getElementById('sidebar-toggle');
   const isMobile = () => window.innerWidth <= 768;
 
-  // Optimasi Scroll Mobile: Matikan event listener yang tidak perlu saat scroll
-  let isScrolling;
-  window.addEventListener('scroll', () => {
-    document.body.classList.add('is-scrolling');
-    clearTimeout(isScrolling);
-    isScrolling = setTimeout(() => {
-      document.body.classList.remove('is-scrolling');
-    }, 150);
-  }, { passive: true });
-
   let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
   function applySidebarState() {
@@ -84,20 +74,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  toggleBtn?.addEventListener('click', () => {
-    if (isMobile()) {
-      const isOpen = sidebar.classList.toggle('open');
-      if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
-    } else {
-      sidebarCollapsed = !sidebarCollapsed;
-      localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
-      applySidebarState();
-    }
-  });
+  // Helper function to handle both click and touch
+  function addTouchClickHandler(element, handler) {
+    element.addEventListener('click', handler);
+    element.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handler(e);
+    }, { passive: false });
+  }
 
-  overlay?.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.style.display = 'none';
+  if (toggleBtn) {
+    addTouchClickHandler(toggleBtn, () => {
+      if (isMobile()) {
+        const isOpen = sidebar.classList.toggle('open');
+        if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
+      } else {
+        sidebarCollapsed = !sidebarCollapsed;
+        localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+        applySidebarState();
+      }
+    });
+  }
+
+  if (overlay) {
+    addTouchClickHandler(overlay, () => {
+      sidebar.classList.remove('open');
+      overlay.style.display = 'none';
+    });
+  }
+
+  // Make nav items extra responsive
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.style.cursor = 'pointer';
+    item.addEventListener('touchstart', () => {
+      item.style.backgroundColor = 'rgba(37,99,235,0.2)';
+    }, { passive: true });
+    item.addEventListener('touchend', () => {
+      setTimeout(() => {
+        item.style.backgroundColor = '';
+      }, 100);
+    }, { passive: true });
   });
 
   window.addEventListener('resize', () => {

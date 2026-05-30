@@ -142,7 +142,7 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   background:var(--bg-sidebar);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;z-index:100;
+  position:fixed;top:0;left:0;bottom:0;z-index:9999;
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
 }
@@ -216,11 +216,13 @@ body.sidebar-collapsed .main-content{margin-left:0}
 
 .nav-item{
   display:flex;align-items:center;gap:12px;
-  padding:10px 20px;margin:1px 8px;
+  padding:12px 20px;margin:1px 8px;
   border-radius:var(--radius-sm);
   color:var(--text-secondary);font-size:.875rem;font-weight:500;
   transition:transform var(--transition),opacity var(--transition),color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);cursor:pointer;text-decoration:none;white-space:nowrap;
   letter-spacing:0px; /* ← TAMBAH */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .nav-item:hover{background:var(--blue-glow);color:var(--text-primary)}
 .nav-item.active{background:var(--blue-glow);color:var(--blue-light);font-weight:600}
@@ -632,7 +634,8 @@ h1, h2, h3, h4, h5,
   .topbar-date{display:none}
   .topbar-title { font-size: 0.9rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .topbar-right { gap: 4px; }
-  .topbar-btn { width: 34px; height: 34px; font-size: 0.9rem; }
+  .topbar-btn { width: 44px; height: 44px; font-size: 1rem; }
+  .nav-item { padding: 14px 20px; }
 }
 
 /* ========== FIX SCROLL LAG & PERFORMANCE ========== */
