@@ -74,17 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Helper function to handle both click and touch
-  function addTouchClickHandler(element, handler) {
-    element.addEventListener('click', handler);
-    element.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      handler(e);
-    }, { passive: false });
-  }
-
+  // Simple click handler (no preventDefault to avoid breaking links)
   if (toggleBtn) {
-    addTouchClickHandler(toggleBtn, () => {
+    toggleBtn.addEventListener('click', () => {
       if (isMobile()) {
         const isOpen = sidebar.classList.toggle('open');
         if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
@@ -97,24 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (overlay) {
-    addTouchClickHandler(overlay, () => {
+    overlay.addEventListener('click', () => {
       sidebar.classList.remove('open');
       overlay.style.display = 'none';
     });
   }
-
-  // Make nav items extra responsive
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.style.cursor = 'pointer';
-    item.addEventListener('touchstart', () => {
-      item.style.backgroundColor = 'rgba(37,99,235,0.2)';
-    }, { passive: true });
-    item.addEventListener('touchend', () => {
-      setTimeout(() => {
-        item.style.backgroundColor = '';
-      }, 100);
-    }, { passive: true });
-  });
 
   window.addEventListener('resize', () => {
     if (!isMobile()) {
