@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     zip \
     curl \
-    nodejs \
-    npm \
     libzip-dev \
     libpng-dev \
     libjpeg-dev \
@@ -40,21 +38,12 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # =========================
-# FRONTEND BUILD (FIX CSS / VITE HILANG)
-# =========================
-RUN npm install
-RUN npm run build
-
-# =========================
 # LARAVEL CACHE CLEAR (SAFE)
 # =========================
 RUN php artisan config:clear || true
 RUN php artisan cache:clear || true
 RUN php artisan view:clear || true
 RUN php artisan route:clear || true
-
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
 
 # =========================
 # PERMISSION FIX
@@ -69,4 +58,4 @@ EXPOSE 8000
 # =========================
 # START APP
 # =========================
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD php -S 0.0.0.0:8000 -t public

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use App\Models\Notifikasi;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Paginator pakai Bootstrap 5
         Paginator::useBootstrapFive();
+
+        // Paksa HTTPS di Production
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
 
         // Share notifikasi unread ke semua view
         View::composer('*', function ($view) {

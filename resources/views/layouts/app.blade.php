@@ -32,8 +32,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </noscript>
 
-  {{-- ⑤ App CSS & JS dengan Vite --}}
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  {{-- ⑤ App CSS & JS (Cara Lama Aman untuk Railway) --}}
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+  <script src="{{ asset('js/app.js') }}"></script>
 
   {{-- Anti-flash: terapkan tema SEBELUM render, cegah FOUC --}}
   <script>
