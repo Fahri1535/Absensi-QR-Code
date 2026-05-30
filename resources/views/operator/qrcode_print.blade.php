@@ -13,12 +13,12 @@
 </head>
 <body onload="window.print()">
   <div class="box">
-    <h1>{{ $tipe === 'login' ? 'QR Login' : 'QR Presensi ' . ucfirst($tipe) }}</h1>
-    <p>{{ $tipe === 'login' ? 'Scan QR ini untuk langsung ke halaman login' : 'Buka menu <b>Presensi QR</b> di aplikasi untuk memindai, atau gunakan Google Lens jika belum login.' }}</p>
+    <h1>QR Presensi {{ ucfirst($tipe) }}</h1>
+    <p>Buka menu <b>Presensi QR</b> di aplikasi untuk memindai, atau gunakan Google Lens jika belum login.</p>
     <div style="background:#fff;padding:16px;display:inline-block;margin-top:12px;">
       {!! $image !!}
     </div>
-    <p style="margin-top:16px;font-size:.75rem;word-break:break-all;">{{ $tipe === 'login' ? route('login') : $qr->presensiScanUrl() }}</p>
+    <p style="margin-top:16px;font-size:.75rem;word-break:break-all;">{{ $qr->presensiScanUrl() }}</p>
   </div>
 </body>
 </html>
