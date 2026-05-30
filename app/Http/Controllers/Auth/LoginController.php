@@ -39,15 +39,15 @@ class LoginController extends Controller
                 ->withErrors(['username' => 'Username atau password salah.']);
         }
 
-        if (Auth::user()->role === 'karyawan') {
+        if (in_array(Auth::user()->role, ['karyawan', 'hrd'])) {
             $pending = $request->session()->pull('presensi_qr_token');
             if (
                 $pending
                 && QrCode::where('kode_qr', $pending)->where('is_active', true)->exists()
             ) {
                 $request->session()->forget('url.intended');
-
-                return redirect()->route('karyawan.presensi', ['t' => $pending]);
+                $route = Auth::user()->role === 'hrd' ? 'hrd.presensi' : 'karyawan.presensi';
+                return redirect()->route($route, ['t' => $pending]);
             }
         }
 
