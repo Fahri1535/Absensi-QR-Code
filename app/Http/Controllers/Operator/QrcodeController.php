@@ -25,16 +25,16 @@ class QrcodeController extends Controller
         ));
     }
 
-    /** Download QR sebagai PNG */
+    /** Download QR sebagai SVG */
     public function download(Request $request)
     {
         $tipe = $request->input('type', 'masuk');
         $qr   = QrCode::getOrCreate($tipe);
-        $image = QrFacade::useGd()->format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
-        $filename = "qr-presensi-{$tipe}.png";
+        $image = QrFacade::format('svg')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        $filename = "qr-presensi-{$tipe}.svg";
 
         return response($image, 200, [
-            'Content-Type'        => 'image/png',
+            'Content-Type'        => 'image/svg+xml',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }

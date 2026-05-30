@@ -78,14 +78,14 @@ class ProfilController extends Controller
         $karyawan = auth()->user()->karyawan;
 
         $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
-        $qrImage = QrCode::useGd()->format('png')
+        $qrImage = QrCode::format('svg')
             ->size(400)
             ->errorCorrection('H')
             ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));
 
         return response($qrImage, 200, [
-            'Content-Type'        => 'image/png',
-            'Content-Disposition' => "attachment; filename=\"qr-{$karyawan->id}.png\"",
+            'Content-Type'        => 'image/svg+xml',
+            'Content-Disposition' => "attachment; filename=\"qr-{$karyawan->id}.svg\"",
         ]);
     }
 }
