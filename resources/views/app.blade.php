@@ -140,8 +140,56 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--text-secondary);
-      margin-bottom: 8px;
-      padding-left: 12px;
+      margin-bottom: 0;
+      padding-left: 0;
+      pointer-events: none;
+    }
+
+    /* Collapsible toggle button */
+    .nav-section-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: background 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .nav-section-toggle:hover {
+      background: rgba(148,163,184,0.06);
+    }
+
+    /* Chevron arrow */
+    .nav-section-arrow {
+      font-size: 0.55rem;
+      color: var(--text-secondary);
+      opacity: 0.5;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
+      flex-shrink: 0;
+    }
+    .nav-section-toggle:hover .nav-section-arrow {
+      opacity: 0.8;
+    }
+    .nav-section.collapsed .nav-section-arrow {
+      transform: rotate(-90deg);
+    }
+
+    /* Collapsible items container */
+    .nav-section-items {
+      overflow: hidden;
+      max-height: 500px;
+      transition: max-height 0.3s cubic-bezier(.4,0,.2,1), opacity 0.25s ease;
+      opacity: 1;
+    }
+    .nav-section.collapsed .nav-section-items {
+      max-height: 0;
+      opacity: 0;
     }
 
     .nav-item {
@@ -398,119 +446,169 @@
       {{-- ── KARYAWAN MENU ─────────────────────── --}}
       @if(auth()->user()->role === 'karyawan')
 
-      <div class="nav-section">
-        <div class="nav-section-label">Utama</div>
-        <a href="{{ route('karyawan.dashboard') }}" class="nav-item {{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
-        </a>
-        <a href="{{ route('karyawan.presensi') }}" class="nav-item {{ request()->routeIs('karyawan.presensi') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Presensi QR
-        </a>
+      <div class="nav-section" data-section="karyawan-utama">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Utama</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('karyawan.dashboard') }}" class="nav-item {{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
+          </a>
+          <a href="{{ route('karyawan.presensi') }}" class="nav-item {{ request()->routeIs('karyawan.presensi') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Presensi QR
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Riwayat</div>
-        <a href="{{ route('karyawan.riwayat') }}" class="nav-item {{ request()->routeIs('karyawan.riwayat') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> Riwayat Presensi
-        </a>
-        <a href="{{ route('karyawan.izin') }}" class="nav-item {{ request()->routeIs('karyawan.izin*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-medical"></i></span> Pengajuan Izin
-          @php $pendingIzin = auth()->user()->karyawan?->pengajuanIzin()->where('status','pending')->count() ?? 0; @endphp
-          @if($pendingIzin > 0)
-            <span class="nav-badge">{{ $pendingIzin }}</span>
-          @endif
-        </a>
+      <div class="nav-section" data-section="karyawan-riwayat">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Riwayat</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('karyawan.riwayat') }}" class="nav-item {{ request()->routeIs('karyawan.riwayat') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> Riwayat Presensi
+          </a>
+          <a href="{{ route('karyawan.izin') }}" class="nav-item {{ request()->routeIs('karyawan.izin*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-file-medical"></i></span> Pengajuan Izin
+            @php $pendingIzin = auth()->user()->karyawan?->pengajuanIzin()->where('status','pending')->count() ?? 0; @endphp
+            @if($pendingIzin > 0)
+              <span class="nav-badge">{{ $pendingIzin }}</span>
+            @endif
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Akun</div>
-        <a href="{{ route('karyawan.profil') }}" class="nav-item {{ request()->routeIs('karyawan.profil') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-user"></i></span> Profil Saya
-        </a>
+      <div class="nav-section" data-section="karyawan-akun">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Akun</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('karyawan.profil') }}" class="nav-item {{ request()->routeIs('karyawan.profil') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-user"></i></span> Profil Saya
+          </a>
+        </div>
       </div>
 
       {{-- ── OPERATOR MENU ─────────────────────── --}}
       @elseif(auth()->user()->role === 'operator')
 
-      <div class="nav-section">
-        <div class="nav-section-label">Utama</div>
-        <a href="{{ route('operator.dashboard') }}" class="nav-item {{ request()->routeIs('operator.dashboard') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
-        </a>
-        <a href="{{ route('operator.presensi') }}" class="nav-item {{ request()->routeIs('operator.presensi*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Data Presensi
-        </a>
+      <div class="nav-section" data-section="operator-utama">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Utama</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('operator.dashboard') }}" class="nav-item {{ request()->routeIs('operator.dashboard') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
+          </a>
+          <a href="{{ route('operator.presensi') }}" class="nav-item {{ request()->routeIs('operator.presensi*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Data Presensi
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Kelola</div>
-        <a href="{{ route('operator.karyawan') }}" class="nav-item {{ request()->routeIs('operator.karyawan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan &amp; HRD
-        </a>
-        <a href="{{ route('operator.jadwal') }}" class="nav-item {{ request()->routeIs('operator.jadwal*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja &amp; Lokasi Kantor
-        </a>
-        <a href="{{ route('operator.qrcode') }}" class="nav-item {{ request()->routeIs('operator.qrcode*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Kelola QR Code
-        </a>
+      <div class="nav-section" data-section="operator-kelola">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Kelola</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('operator.karyawan') }}" class="nav-item {{ request()->routeIs('operator.karyawan*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan &amp; HRD
+          </a>
+          <a href="{{ route('operator.jadwal') }}" class="nav-item {{ request()->routeIs('operator.jadwal*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-clock"></i></span> Jadwal Kerja &amp; Lokasi Kantor
+          </a>
+          <a href="{{ route('operator.qrcode') }}" class="nav-item {{ request()->routeIs('operator.qrcode*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-qrcode"></i></span> Kelola QR Code
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Laporan</div>
-        <a href="{{ route('operator.laporan') }}" class="nav-item {{ request()->routeIs('operator.laporan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
-        </a>
+      <div class="nav-section" data-section="operator-laporan">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Laporan</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('operator.laporan') }}" class="nav-item {{ request()->routeIs('operator.laporan*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
+          </a>
+        </div>
       </div>
 
       {{-- ── HRD MENU ──────────────────────────── --}}
       @elseif(auth()->user()->role === 'hrd')
 
-      <div class="nav-section">
-        <div class="nav-section-label">Utama</div>
-        <a href="{{ route('hrd.dashboard') }}" class="nav-item {{ request()->routeIs('hrd.dashboard') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
-        </a>
-        <a href="{{ route('hrd.presensi') }}" class="nav-item {{ request()->routeIs('hrd.presensi*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Monitoring Presensi
-        </a>
+      <div class="nav-section" data-section="hrd-utama">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Utama</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('hrd.dashboard') }}" class="nav-item {{ request()->routeIs('hrd.dashboard') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Dashboard
+          </a>
+          <a href="{{ route('hrd.presensi') }}" class="nav-item {{ request()->routeIs('hrd.presensi*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Monitoring Presensi
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Persetujuan</div>
-        <a href="{{ route('hrd.izin') }}" class="nav-item {{ request()->routeIs('hrd.izin*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-circle-check"></i></span> Persetujuan Izin
-          @php $pendingApproval = \App\Models\PengajuanIzin::where('status','pending')->count(); @endphp
-          @if($pendingApproval > 0)
-            <span class="nav-badge">{{ $pendingApproval }}</span>
-          @endif
-        </a>
+      <div class="nav-section" data-section="hrd-persetujuan">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Persetujuan</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('hrd.izin') }}" class="nav-item {{ request()->routeIs('hrd.izin*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-file-circle-check"></i></span> Persetujuan Izin
+            @php $pendingApproval = \App\Models\PengajuanIzin::where('status','pending')->count(); @endphp
+            @if($pendingApproval > 0)
+              <span class="nav-badge">{{ $pendingApproval }}</span>
+            @endif
+          </a>
+        </div>
       </div>
 
-      <div class="nav-section">
-        <div class="nav-section-label">Laporan</div>
-        <a href="{{ route('hrd.laporan') }}" class="nav-item {{ request()->routeIs('hrd.laporan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
-        </a>
-        <a href="{{ route('hrd.karyawan') }}" class="nav-item {{ request()->routeIs('hrd.karyawan*') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan &amp; HRD
-        </a>
+      <div class="nav-section" data-section="hrd-laporan">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Laporan</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('hrd.laporan') }}" class="nav-item {{ request()->routeIs('hrd.laporan*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span> Laporan Presensi
+          </a>
+          <a href="{{ route('hrd.karyawan') }}" class="nav-item {{ request()->routeIs('hrd.karyawan*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Data Karyawan &amp; HRD
+          </a>
+        </div>
       </div>
 
       @endif
 
       {{-- Shared bottom --}}
-      <div class="nav-section" style="margin-top: auto;">
-        <div class="nav-section-label">Sistem</div>
-        <a href="{{ route('bantuan') }}" class="nav-item {{ request()->routeIs('bantuan') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-circle-question"></i></span> Bantuan &amp; Kontak
-        </a>
-        <a href="{{ route('notifikasi') }}" class="nav-item {{ request()->routeIs('notifikasi') ? 'active' : '' }}">
-          <span class="nav-icon"><i class="fa-solid fa-bell"></i></span> Notifikasi
-          @php $unread = auth()->user()->notifikasi()->where('is_read',0)->count(); @endphp
-          @if($unread > 0)
-            <span class="nav-badge">{{ $unread }}</span>
-          @endif
-        </a>
+      <div class="nav-section" data-section="sistem" style="margin-top: auto;">
+        <button class="nav-section-toggle" type="button">
+          <span class="nav-section-label">Sistem</span>
+          <i class="fa-solid fa-chevron-down nav-section-arrow"></i>
+        </button>
+        <div class="nav-section-items">
+          <a href="{{ route('bantuan') }}" class="nav-item {{ request()->routeIs('bantuan') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-circle-question"></i></span> Bantuan &amp; Kontak
+          </a>
+          <a href="{{ route('notifikasi') }}" class="nav-item {{ request()->routeIs('notifikasi') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fa-solid fa-bell"></i></span> Notifikasi
+            @php $unread = auth()->user()->notifikasi()->where('is_read',0)->count(); @endphp
+            @if($unread > 0)
+              <span class="nav-badge">{{ $unread }}</span>
+            @endif
+          </a>
+        </div>
       </div>
 
     </nav>
@@ -629,6 +727,38 @@ if (savedTheme === 'light') {
   if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
   if (themeText) themeText.textContent = 'Light Mode';
 }
+
+// ── Collapsible Nav Sections ──
+(function() {
+  var STORAGE_KEY = 'navSectionsCollapsed';
+  function getState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+  }
+  function saveState(s) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch(e) {}
+  }
+  var state = getState();
+  document.querySelectorAll('.nav-section[data-section]').forEach(function(sec) {
+    var key = sec.dataset.section;
+    var toggle = sec.querySelector('.nav-section-toggle');
+    var hasActive = sec.querySelector('.nav-item.active');
+    if (hasActive) {
+      sec.classList.remove('collapsed');
+      delete state[key];
+    } else if (state[key]) {
+      sec.classList.add('collapsed');
+    }
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var isCollapsed = sec.classList.toggle('collapsed');
+        var s = getState();
+        if (isCollapsed) { s[key] = true; } else { delete s[key]; }
+        saveState(s);
+      });
+    }
+  });
+  saveState(state);
+})();
 </script>
 
 @stack('scripts')

@@ -170,10 +170,49 @@ body.sidebar-collapsed .main-content{margin-left:0}
 
 .sidebar-nav{padding:10px 0;flex:1;overflow-y:auto;overflow-x:hidden}
 .nav-section{margin-bottom:4px}
-.nav-section-label{
-  padding:8px 20px 4px;font-size:.62rem;letter-spacing:0.04em; /* ← UBAH: normal spacing */
-  text-transform:uppercase;color:var(--text-secondary);font-weight:600;opacity:.7
+
+/* Toggle button — styled to look exactly like the old nav-section-label */
+.nav-section-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:8px 20px 4px;
+  background:none;border:none;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  transition:background var(--transition);
 }
+.nav-section-toggle:hover{
+  background:rgba(148,163,184,0.06);
+}
+.nav-section-toggle .nav-section-label{
+  font-size:.62rem;letter-spacing:0.04em;
+  text-transform:uppercase;color:var(--text-secondary);font-weight:600;opacity:.7;
+  pointer-events:none;
+}
+
+/* Chevron arrow — rotates when section is collapsed */
+.nav-section-arrow{
+  font-size:.55rem;color:var(--text-secondary);opacity:.5;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity var(--transition);
+  flex-shrink:0;
+}
+.nav-section-toggle:hover .nav-section-arrow{
+  opacity:.8;
+}
+.nav-section.collapsed .nav-section-arrow{
+  transform:rotate(-90deg);
+}
+
+/* Collapsible items container */
+.nav-section-items{
+  overflow:hidden;
+  max-height:500px; /* large enough for any number of items */
+  transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;
+  opacity:1;
+}
+.nav-section.collapsed .nav-section-items{
+  max-height:0;
+  opacity:0;
+}
+
 
 .nav-item{
   display:flex;align-items:center;gap:12px;
@@ -699,7 +738,8 @@ thead th {
   letter-spacing: 0.05em !important;
 }
 
-.nav-section-label {
+.nav-section-label,
+.nav-section-toggle .nav-section-label {
   letter-spacing: 0.08em !important;
   font-weight: 700 !important;
 }

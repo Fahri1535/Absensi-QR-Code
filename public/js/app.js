@@ -140,4 +140,56 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   applyTheme(currentTheme);
+
+  /* ── Collapsible Nav Sections ────────────────────────────────── */
+  const STORAGE_KEY = 'navSectionsCollapsed';
+
+  // Load saved collapsed state from localStorage
+  function getCollapsedSections() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveCollapsedSections(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  const collapsedState = getCollapsedSections();
+
+  document.querySelectorAll('.nav-section[data-section]').forEach(section => {
+    const key = section.dataset.section;
+    const toggle = section.querySelector('.nav-section-toggle');
+    const hasActive = section.querySelector('.nav-item.active');
+
+    // Jika section punya item aktif, selalu buka (dan hapus dari collapsed state)
+    if (hasActive) {
+      section.classList.remove('collapsed');
+      delete collapsedState[key];
+    } else if (collapsedState[key]) {
+      // Restore collapsed state dari localStorage
+      section.classList.add('collapsed');
+    }
+
+    // Toggle click handler
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const isCollapsed = section.classList.toggle('collapsed');
+        const state = getCollapsedSections();
+        if (isCollapsed) {
+          state[key] = true;
+        } else {
+          delete state[key];
+        }
+        saveCollapsedSections(state);
+      });
+    }
+  });
+
+  // Simpan state yang sudah di-update (untuk section aktif yang dibuka)
+  saveCollapsedSections(collapsedState);
 });
