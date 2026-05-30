@@ -10,25 +10,25 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class ProfilController extends Controller
 {
     public function index()
-{
-    $karyawan = auth()->user()->karyawan;
+    {
+        $karyawan = auth()->user()->karyawan;
 
-    $qrCode = null;
-    $qrImage = null;
+        $qrCode = null;
+        $qrImage = null;
 
-    if ($karyawan) {
-        $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
+        if ($karyawan) {
+            $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
 
-        $qrImage = QrCode::size(150)
-            ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));
+            $qrImage = QrCode::format('svg')->size(150)
+                ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));
+        }
+
+        return view('karyawan.profil', compact(
+            'karyawan',
+            'qrCode',
+            'qrImage'
+        ));
     }
-
-    return view('karyawan.profil', compact(
-        'karyawan',
-        'qrCode',
-        'qrImage'
-    ));
-}
 
     public function update(Request $request)
     {
@@ -78,7 +78,7 @@ class ProfilController extends Controller
         $karyawan = auth()->user()->karyawan;
 
         $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
-        $qrImage = QrCode::format('png')
+        $qrImage = QrCode::useGd()->format('png')
             ->size(400)
             ->errorCorrection('H')
             ->generate(route('karyawan.profile-public', ['kode_karyawan' => $qrCode]));

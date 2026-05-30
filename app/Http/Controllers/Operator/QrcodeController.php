@@ -17,8 +17,8 @@ class QrcodeController extends Controller
         $qrPulang = QrCode::getOrCreate('pulang');
 
         // QR berisi URL publik (bukan token mentah) agar bisa dibuka dari Google Lens / browser
-        $qrMasukImage  = QrFacade::size(250)->errorCorrection('M')->generate($qrMasuk->presensiScanUrl());
-        $qrPulangImage = QrFacade::size(250)->errorCorrection('M')->generate($qrPulang->presensiScanUrl());
+        $qrMasukImage  = QrFacade::format('svg')->size(250)->errorCorrection('M')->generate($qrMasuk->presensiScanUrl());
+        $qrPulangImage = QrFacade::format('svg')->size(250)->errorCorrection('M')->generate($qrPulang->presensiScanUrl());
 
         return view('operator.qrcode', compact(
             'jadwal', 'qrMasuk', 'qrPulang', 'qrMasukImage', 'qrPulangImage'
@@ -30,7 +30,7 @@ class QrcodeController extends Controller
     {
         $tipe = $request->input('type', 'masuk');
         $qr   = QrCode::getOrCreate($tipe);
-        $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        $image = QrFacade::useGd()->format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
         $filename = "qr-presensi-{$tipe}.png";
 
         return response($image, 200, [
@@ -46,7 +46,7 @@ class QrcodeController extends Controller
         // FIXED: tambah ::getSetting() untuk jadwal di print view
         $jadwal = JadwalKerja::getSetting();
         $qr    = QrCode::getOrCreate($tipe);
-        $image = QrFacade::size(500)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        $image = QrFacade::format('svg')->size(500)->errorCorrection('H')->generate($qr->presensiScanUrl());
 
         return view('operator.qrcode_print', compact('tipe', 'image', 'qr', 'jadwal'));
     }
