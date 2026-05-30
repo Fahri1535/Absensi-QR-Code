@@ -782,9 +782,9 @@ thead th {
   }
 }
 
-/* Optimasi interaksi saat scroll */
+/* Optimasi interaksi saat scroll (disabled pointer-events was causing navigation issues) */
 body.is-scrolling {
-  pointer-events: none !important;
+  /* pointer-events: none !important; */
 }
 
 /* Performa Scroll Maksimal */
