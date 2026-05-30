@@ -26,20 +26,24 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Share notifikasi unread ke semua view
+        // Share notifikasi unread ke semua view (CACHE 5 MENIT)
         View::composer('*', function ($view) {
             if (auth()->check()) {
                 $userId = auth()->user()->getKey();
 
-                $notifUnread = Notifikasi::where('user_id', $userId)
-                    ->where('is_read', false)
-                    ->orderByDesc('created_at')
-                    ->take(5)
-                    ->get();
+                $notifUnread = cache()->remember("notif.unread.{$userId}", 300, function () use ($userId) {
+                    return Notifikasi::where('user_id', $userId)
+                        ->where('is_read', false)
+                        ->orderByDesc('created_at')
+                        ->take(5)
+                        ->get();
+                });
 
-                $notifCount = Notifikasi::where('user_id', $userId)
-                    ->where('is_read', false)
-                    ->count();
+                $notifCount = cache()->remember("notif.count.{$userId}", 300, function () use ($userId) {
+                    return Notifikasi::where('user_id', $userId)
+                        ->where('is_read', false)
+                        ->count();
+                });
 
                 $view->with(compact('notifUnread', 'notifCount'));
             }

@@ -1,0 +1,32 @@
+===============================
+DAFTAR AKUN PRESENSI QR
+===============================
+
+1. AKUN ADMIN OPERATOR
+   Username: operator
+   Password: operator123
+   Role    : Operator
+
+2. AKUN ADMIN HRD
+   Username: hrd
+   Password: hrd123
+   Role    : HRD
+
+3. DAFTAR AKUN KARYAWAN
+-------------------------------
+| Nama Lengkap       | Username | Password   |
+|---------------------|----------|------------|
+| Heru Susanto        | heru     | heru123    |
+| Eko Purnomo         | eko      | eko123     |
+| Anik Marlina        | anik     | anik123    |
+| Hary Imansyah       | hary     | hary123    |
+| Putri Milenia       | putri    | putri123   |
+| Randy Azhari        | randy    | randy123   |
+| Syiefa Alaida       | syiefa   | syiefa123  |
+| Ersa                | ersa     | ersa123    |
+| Nisa                | nisa     | nisa123    |
+| M. Fachrizal        | m.       | m.123      |
+| Mariam Muslimah     | mariam   | mariam123  |
+| Wahyudi             | wahyudi  | wahyudi123 |
+| Devigo Arthurito    | devigo   | devigo123  |
+===============================
