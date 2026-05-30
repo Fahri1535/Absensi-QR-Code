@@ -28,14 +28,20 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # =========================
-# COPY PROJECT FILES
+# COPY COMPOSER FILES FIRST (CACHE LAYER)
+# =========================
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+# =========================
+# COPY REST OF PROJECT FILES
 # =========================
 COPY . .
 
 # =========================
-# BACKEND INSTALL
+# RUN POST-INSTALL SCRIPTS
 # =========================
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer run post-autoload-dump
 
 # =========================
 # LARAVEL CACHE CLEAR (SAFE)
