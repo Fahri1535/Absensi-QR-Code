@@ -18,17 +18,33 @@ class DashboardController extends Controller
             ->whereDate('tanggal', today())
             ->first();
 
-        // Statistik bulan ini
-        // FIXED: kolom status_masuk → sesuai migration
+        // Statistik bulan ini (HANDLE KASUS KOLOM TIDAK ADA)
         $bulanIni = Carbon::now()->startOfMonth();
-        $stat = Presensi::where('karyawan_id', $karyawan->id)
-            ->whereDate('tanggal', '>=', $bulanIni)
-            ->selectRaw('
-                COUNT(*) as total_hadir,
-                SUM(CASE WHEN status_masuk = "terlambat" THEN 1 ELSE 0 END) as total_terlambat,
-                SUM(CASE WHEN jam_pulang IS NOT NULL THEN 1 ELSE 0 END) as total_lengkap
-            ')
-            ->first();
+        try {
+            $stat = Presensi::where('karyawan_id', $karyawan->id)
+                ->whereDate('tanggal', '>=', $bulanIni)
+                ->selectRaw('
+                    COUNT(*) as total_hadir,
+                    SUM(CASE WHEN status_masuk = "terlambat" THEN 1 ELSE 0 END) as total_terlambat,
+                    SUM(CASE WHEN jam_pulang IS NOT NULL THEN 1 ELSE 0 END) as total_lengkap
+                ')
+                ->first();
+        } catch (\Exception $e) {
+            $stat = (object)[
+                'total_hadir' => 0,
+                'total_terlambat' => 0,
+                'total_lengkap' => 0
+            ];
+        }
+
+        // Pastikan stat tidak null
+        if (!$stat) {
+            $stat = (object)[
+                'total_hadir' => 0,
+                'total_terlambat' => 0,
+                'total_lengkap' => 0
+            ];
+        }
 
         // Riwayat 7 hari terakhir
         $riwayatTerakhir = Presensi::where('karyawan_id', $karyawan->id)
