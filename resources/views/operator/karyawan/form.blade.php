@@ -65,16 +65,9 @@
               <span style="color:var(--red);">*</span>
             @endif
           </label>
-          <div style="position:relative;">
-            <input type="password" name="password" id="pwInput" class="form-control"
+          <input type="password" name="password" class="form-control"
                    placeholder="{{ isset($karyawan) ? 'Biarkan kosong...' : 'Min. 6 karakter' }}"
                    {{ isset($karyawan) ? '' : 'required' }} minlength="6">
-            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
-                         cursor:pointer;color:var(--text-secondary);"
-                  onclick="const i=document.getElementById('pwInput');i.type=i.type==='password'?'text':'password'">
-              <i class="fa-solid fa-eye"></i>
-            </span>
-          </div>
         </div>
 
         <hr class="divider">
