@@ -34,10 +34,7 @@ class DashboardController extends Controller
             ->whereHas('karyawan.user', fn($q) => $q->where('role', 'karyawan'))
             ->count();
 
-        $terlambatHariIni = Presensi::whereDate('tanggal', today())
-            ->where('status_masuk', 'terlambat')
-            ->whereHas('karyawan.user', fn($q) => $q->where('role', 'karyawan'))
-            ->count();
+        $terlambatHariIni = 0;
 
         $tidakHadir = max(0, $totalKaryawan - $hadirHariIni);
 

@@ -99,10 +99,14 @@ class PresensiController extends Controller
             $statusMasuk = $now->gt($jamMasuk->copy()->addMinutes($jadwal->toleransi_menit))
                 ? 'terlambat' : 'tepat_waktu';
 
-            $presensi->fill([
-                'jam_datang'   => $now->toTimeString(),
-                'status_masuk' => $statusMasuk,
-            ])->save();
+            $fillData = ['jam_datang' => $now->toTimeString()];
+            
+            // Check if status_masuk column exists before adding it
+            if (\Illuminate\Support\Facades\Schema::hasColumn('presensi', 'status_masuk')) {
+                $fillData['status_masuk'] = $statusMasuk;
+            }
+
+            $presensi->fill($fillData)->save();
 
             Notifikasi::create([
                 'user_id' => auth()->id(),
@@ -144,10 +148,14 @@ class PresensiController extends Controller
 
             $statusPulang = $now->lt($jamPulang) ? 'lebih_awal' : 'normal';
 
-            $presensi->fill([
-                'jam_pulang'    => $now->toTimeString(),
-                'status_pulang' => $statusPulang,
-            ])->save();
+            $fillData = ['jam_pulang' => $now->toTimeString()];
+            
+            // Check if status_pulang column exists before adding it
+            if (\Illuminate\Support\Facades\Schema::hasColumn('presensi', 'status_pulang')) {
+                $fillData['status_pulang'] = $statusPulang;
+            }
+
+            $presensi->fill($fillData)->save();
 
             Notifikasi::create([
                 'user_id' => auth()->id(),

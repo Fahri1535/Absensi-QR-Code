@@ -28,12 +28,7 @@ class DashboardController extends Controller
             })
             ->count();
 
-        $terlambatHariIni = Presensi::whereDate('tanggal', $today)
-            ->where('status_masuk', 'terlambat')
-            ->whereHas('karyawan.user', function($q) {
-                $q->where('role', '!=', 'operator');
-            })
-            ->count();
+        $terlambatHariIni = 0;
 
         $belumPresensi = $totalKaryawan - $hadirHariIni;
 
