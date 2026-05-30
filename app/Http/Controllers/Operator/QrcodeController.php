@@ -19,9 +19,11 @@ class QrcodeController extends Controller
         // QR berisi URL publik (bukan token mentah) agar bisa dibuka dari Google Lens / browser
         $qrMasukImage  = QrFacade::size(250)->errorCorrection('M')->generate($qrMasuk->presensiScanUrl());
         $qrPulangImage = QrFacade::size(250)->errorCorrection('M')->generate($qrPulang->presensiScanUrl());
+        // QR Code Login langsung ke halaman login
+        $qrLoginImage = QrFacade::size(250)->errorCorrection('M')->generate(route('login'));
 
         return view('operator.qrcode', compact(
-            'jadwal', 'qrMasuk', 'qrPulang', 'qrMasukImage', 'qrPulangImage'
+            'jadwal', 'qrMasuk', 'qrPulang', 'qrMasukImage', 'qrPulangImage', 'qrLoginImage'
         ));
     }
 
@@ -29,13 +31,19 @@ class QrcodeController extends Controller
     public function download(Request $request)
     {
         $tipe = $request->input('type', 'masuk');
-        $qr   = QrCode::getOrCreate($tipe);
-
-        $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        
+        if ($tipe === 'login') {
+            $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate(route('login'));
+            $filename = 'qr-login.png';
+        } else {
+            $qr   = QrCode::getOrCreate($tipe);
+            $image = QrFacade::format('png')->size(600)->errorCorrection('H')->generate($qr->presensiScanUrl());
+            $filename = "qr-presensi-{$tipe}.png";
+        }
 
         return response($image, 200, [
             'Content-Type'        => 'image/png',
-            'Content-Disposition' => "attachment; filename=\"qr-presensi-{$tipe}.png\"",
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 
@@ -43,10 +51,16 @@ class QrcodeController extends Controller
     public function print(Request $request)
     {
         $tipe  = $request->input('type', 'masuk');
-        $qr    = QrCode::getOrCreate($tipe);
         // FIXED: tambah ::getSetting() untuk jadwal di print view
         $jadwal = JadwalKerja::getSetting();
-        $image = QrFacade::size(500)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        
+        if ($tipe === 'login') {
+            $image = QrFacade::size(500)->errorCorrection('H')->generate(route('login'));
+            $qr = null;
+        } else {
+            $qr    = QrCode::getOrCreate($tipe);
+            $image = QrFacade::size(500)->errorCorrection('H')->generate($qr->presensiScanUrl());
+        }
 
         return view('operator.qrcode_print', compact('tipe', 'image', 'qr', 'jadwal'));
     }

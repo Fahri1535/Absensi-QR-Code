@@ -40,6 +40,33 @@
 <div class="animate-slideup">
 <div class="responsive-grid stagger" style="margin-bottom:24px; gap:24px;">
 
+  {{-- QR Code Login --}}
+  <div class="card" style="border-left: 4px solid var(--blue); background: linear-gradient(to right, rgba(59,130,246,0.05), transparent);">
+    <div class="card-header">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);"></div>
+      <h3>QR Code Login</h3>
+    </div>
+    <div class="card-body" style="text-align:center;">
+      <div class="qr-white-box">
+        {!! $qrLoginImage ?? '<div style="width:180px;height:180px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:2rem;">🔐</div>' !!}
+      </div>
+
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;">Scan QR ini untuk langsung ke halaman login</div>
+      <div style="font-family:'Courier New',monospace;font-size:.8rem;color:var(--blue);background:rgba(59,130,246,.08);border-radius:6px;padding:6px 12px;display:inline-block;margin-bottom:16px;">
+        {{ route('login') }}
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">
+        <a href="{{ route('operator.qrcode.download', ['type'=>'login']) }}" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-download"></i> Unduh
+        </a>
+        <a href="{{ route('operator.qrcode.print', ['type'=>'login']) }}" class="btn btn-outline btn-sm" target="_blank">
+          <i class="fa-solid fa-print"></i> Cetak
+        </a>
+      </div>
+    </div>
+  </div>
+
   {{-- QR Code Masuk --}}
   <div class="card" style="border-left: 4px solid var(--teal); background: linear-gradient(to right, rgba(0,201,167,0.05), transparent);">
     <div class="card-header">
