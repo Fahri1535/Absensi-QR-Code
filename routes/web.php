@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PresensiQrEntryController;
 use App\Http\Controllers\{BantuanController, NotifikasiController, ProfileController, KaryawanProfileController};
@@ -28,18 +27,6 @@ use App\Http\Controllers\Hrd\{
     KaryawanController as HrdKaryawan,
     LaporanController as HrdLaporan,
 };
-
-/* ═══════════════════════════════════════════
-   CLEAR CACHE (UNTUK RENDER FREE TANPA SHELL)
-═══════════════════════════════════════════ */
-Route::get('/clear-app-cache-99', function () {
-    Artisan::call('config:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
-    
-    return "Cache sukses dibersihkan di Render!";
-});
 
 /* ═══════════════════════════════════════════
    REDIRECT ROOT
