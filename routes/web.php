@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PresensiQrEntryController;
-use App\Http\Controllers\{BantuanController, NotifikasiController, ProfileController};
+use App\Http\Controllers\{BantuanController, NotifikasiController, ProfileController, KaryawanProfileController};
 use App\Http\Controllers\Karyawan\{
     DashboardController as KaryawanDashboard,
     PresensiController as KaryawanPresensi,
@@ -27,6 +27,17 @@ use App\Http\Controllers\Hrd\{
     KaryawanController as HrdKaryawan,
     LaporanController as HrdLaporan,
 };
+
+/* ═══════════════════════════════════════════
+   CLEAR CACHE (UNTUK RENDER FREE TANPA SHELL)
+═══════════════════════════════════════════ */
+Route::get('/clear-cache', function () {
+    Illuminate\Support\Facades\Artisan::call('cache:clear');
+    Illuminate\Support\Facades\Artisan::call('config:clear');
+    Illuminate\Support\Facades\Artisan::call('route:clear');
+    Illuminate\Support\Facades\Artisan::call('view:clear');
+    return "Cache cleared successfully!";
+});
 
 /* ═══════════════════════════════════════════
    REDIRECT ROOT
