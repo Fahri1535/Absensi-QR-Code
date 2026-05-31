@@ -142,7 +142,7 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   background:var(--bg-sidebar);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;z-index:99999;
+  position:fixed;top:0;left:0;bottom:0;z-index:999999;
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
 }
@@ -168,9 +168,9 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .logo-text span{color:var(--blue-light)}
 .logo-sub{font-size:.67rem;color:var(--text-secondary);margin-top:2px}
 
-.sidebar-nav{padding:10px 0;flex:1;overflow-y:auto;overflow-x:hidden;z-index:1}
-.nav-section{margin-bottom:4px;position:relative;z-index:1}
-.nav-item{position:relative;z-index:2;pointer-events:auto !important;}
+.sidebar-nav{padding:10px 0;flex:1;overflow-y:auto;overflow-x:hidden;z-index:1;pointer-events:auto !important;}
+.nav-section{margin-bottom:4px;position:relative;z-index:1;pointer-events:auto !important;}
+.nav-item{position:relative;z-index: 2;pointer-events:auto !important;}
 
 /* Toggle button — styled to look exactly like the old nav-section-label */
 .nav-section-toggle{
@@ -804,4 +804,19 @@ body {
   overflow-x: hidden;
   position: relative;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Pastikan seluruh elemen di sidebar bisa diklik di mobile */
+.sidebar.open,
+.sidebar.open *,
+.sidebar * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Pastikan nav-item memiliki area klik yang luas di mobile */
+.sidebar .nav-item {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
 }
