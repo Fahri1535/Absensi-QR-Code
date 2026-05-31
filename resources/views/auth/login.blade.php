@@ -411,7 +411,7 @@
     }
 
     @media (max-width: 560px) {
-      .login-card { padding: 32px 24px; margin: 0 16px; }
+      .login-card { padding: 32px 20px; margin: 0 8px; max-width: 100%; }
       .feature-grid { gap: 8px; }
       .feature-pill { font-size: .7rem; padding: 4px 12px; }
     }
