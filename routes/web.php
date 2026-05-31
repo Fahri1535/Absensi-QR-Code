@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PresensiQrEntryController;
 use App\Http\Controllers\{BantuanController, NotifikasiController, ProfileController, KaryawanProfileController};
@@ -31,12 +32,13 @@ use App\Http\Controllers\Hrd\{
 /* ═══════════════════════════════════════════
    CLEAR CACHE (UNTUK RENDER FREE TANPA SHELL)
 ═══════════════════════════════════════════ */
-Route::get('/clear-cache', function () {
-    Illuminate\Support\Facades\Artisan::call('cache:clear');
-    Illuminate\Support\Facades\Artisan::call('config:clear');
-    Illuminate\Support\Facades\Artisan::call('route:clear');
-    Illuminate\Support\Facades\Artisan::call('view:clear');
-    return "Cache cleared successfully!";
+Route::get('/clear-app-cache-99', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    
+    return "Cache sukses dibersihkan di Render!";
 });
 
 /* ═══════════════════════════════════════════
