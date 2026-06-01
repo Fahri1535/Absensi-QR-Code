@@ -100,13 +100,13 @@
      class="btn btn-outline">
     <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
   </a>
-  <div style="margin-left:auto;" class="text-muted text-sm">
+  <div style="margin-left:auto;" class="text-muted text-sm" style="line-height:2.2rem;">
     Menampilkan <strong>{{ $laporan->total() ?? 0 }}</strong> data
   </div>
 </div>
 
 {{-- Summary Cards --}}
-<div class="stat-grid stagger" style="margin-bottom:24px;">
+<div class="stat-grid stagger" style="margin-bottom:20px;">
   <div class="stat-card">
     <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
     <div class="stat-info">
@@ -151,8 +151,8 @@
   </div>
 </div>
 
-{{-- Table (Desktop Only) --}}
-<div class="card desktop-table">
+{{-- Table --}}
+<div class="card">
   <div class="table-wrap">
     <table>
       <thead>
@@ -224,96 +224,5 @@
   </div>
   @endif
 </div>
-
-{{-- Mobile Card View --}}
-<div class="mobile-cards">
-  @forelse($laporan ?? [] as $i => $p)
-  @php
-    $isIzin = $p->is_izin ?? false;
-    $status = $p->status ?? '—';
-    
-    if ($isIzin) {
-        $sc = match($status) {
-            'sakit' => 'blue',
-            'cuti'  => 'indigo',
-            'pulang_cepat' => 'orange',
-            'lembur' => 'teal',
-            default => 'purple'
-        };
-        $sl = ucfirst(str_replace('_', ' ', $status));
-    } elseif ($status === 'alpa') {
-        $sc = 'red';
-        $sl = 'Alpa';
-    } else {
-        $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
-        $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
-    }
-
-    $durasi = ($p->jam_datang && $p->jam_pulang)
-      ? \Carbon\Carbon::parse($p->jam_datang)->diff(\Carbon\Carbon::parse($p->jam_pulang))->format('%H:%I')
-      : '—';
-  @endphp
-  <div class="card animate-slideup" style="margin-bottom: 16px;">
-    <div class="card-body-sm">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
-        <div>
-          @if(auth()->user()->role !== 'karyawan')
-          <div style="font-weight: 700; font-size: 0.95rem;">{{ $p->karyawan?->nama_lengkap }}</div>
-          @endif
-          <div style="font-weight: 600;">{{ \Carbon\Carbon::parse($p->tanggal)->format('d M Y') }}</div>
-          <div class="text-muted text-sm">{{ $p->hari ?? \Carbon\Carbon::parse($p->tanggal)->translatedFormat('l') }}</div>
-        </div>
-        <span class="badge badge-{{ $sc }}">{{ $sl }}</span>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Jam Masuk</div>
-          <div style="font-weight: 600;">{{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '—' }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Jam Pulang</div>
-          <div style="font-weight: 600;">{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '—' }}</div>
-        </div>
-        <div>
-          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Durasi</div>
-          <div style="font-weight: 600;" class="font-mono">{{ $durasi }}</div>
-        </div>
-      </div>
-      @if($p->keterangan)
-      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-        <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Keterangan</div>
-        <div class="text-sm">{{ $p->keterangan }}</div>
-      </div>
-      @endif
-    </div>
-  </div>
-  @empty
-  <div class="card animate-slideup">
-    <div class="card-body" style="text-align: center; padding: 40px; color: var(--muted);">
-      <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-      Tidak ada data untuk filter yang dipilih
-    </div>
-  </div>
-  @endforelse
-  @if(isset($laporan) && $laporan->hasPages())
-  <div class="card" style="margin-top: 16px;">
-    <div class="card-footer">
-      <div class="text-muted text-sm">{{ $laporan->firstItem() }}–{{ $laporan->lastItem() }} dari {{ $laporan->total() }}</div>
-      <div style="margin-left:auto;">{{ $laporan->appends(request()->query())->links() }}</div>
-    </div>
-  </div>
-  @endif
-</div>
 </div>
 @endsection
-
-<style>
-/* Desktop: show table, hide cards */
-@media (min-width: 769px) {
-  .mobile-cards { display: none; }
-}
-/* Mobile: show cards, hide table */
-@media (max-width: 768px) {
-  .desktop-table { display: none; }
-}
-</style>
