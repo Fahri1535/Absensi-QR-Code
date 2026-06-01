@@ -50,13 +50,11 @@
           $exportParams = array_merge(request()->query(), ['format' => 'xlsx']);
           $exportRoute  = auth()->user()->role . '.riwayat.export';
         @endphp
-        <a href="{{ route($exportRoute, $exportParams) }}"
-           class="btn btn-outline">
+        <a href="{{ route($exportRoute, $exportParams) }}" class="btn btn-outline">
           <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Excel
         </a>
         @php $exportParams['format'] = 'pdf'; @endphp
-        <a href="{{ route($exportRoute, $exportParams) }}"
-           class="btn btn-outline">
+        <a href="{{ route($exportRoute, $exportParams) }}" class="btn btn-outline">
           <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> PDF
         </a>
       </div>
@@ -92,8 +90,8 @@
   </div>
 </div>
 
-{{-- Table --}}
-<div class="card animate-slideup">
+{{-- TABLE VIEW (Desktop Only) --}}
+<div class="card animate-slideup desktop-table">
   <div class="table-wrap">
     <table>
       <thead>
@@ -153,4 +151,89 @@
   <div class="card-footer">{{ $riwayat->links() }}</div>
   @endif
 </div>
+
+{{-- MOBILE CARD VIEW --}}
+<div class="mobile-cards">
+  @forelse($riwayat ?? [] as $p)
+  @php
+    $isIzin = $p->is_izin ?? false;
+    $status = $p->status ?? '—';
+    
+    if ($isIzin) {
+        $sc = match($status) {
+            'sakit' => 'blue',
+            'cuti'  => 'indigo',
+            'pulang_cepat' => 'orange',
+            'lembur' => 'teal',
+            default => 'purple'
+        };
+        $sl = ucfirst(str_replace('_', ' ', $status));
+    } elseif ($status === 'alpa') {
+        $sc = 'red';
+        $sl = 'Alpa';
+    } else {
+        $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
+        $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
+    }
+
+    $durasi = ($p->jam_datang && $p->jam_pulang)
+      ? \Carbon\Carbon::parse($p->jam_datang)->diff(\Carbon\Carbon::parse($p->jam_pulang))->format('%H:%I')
+      : '—';
+  @endphp
+  <div class="card animate-slideup" style="margin-bottom: 16px;">
+    <div class="card-body-sm">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+        <div>
+          <div style="font-weight: 700; font-size: 1rem;">{{ \Carbon\Carbon::parse($p->tanggal)->format('d M Y') }}</div>
+          <div class="text-muted text-sm">{{ \Carbon\Carbon::parse($p->tanggal)->translatedFormat('l') }}</div>
+        </div>
+        <span class="badge badge-{{ $sc }}">{{ $sl }}</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Jam Masuk</div>
+          <div style="font-weight: 600;">{{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '—' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Jam Pulang</div>
+          <div style="font-weight: 600;">{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '—' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Durasi</div>
+          <div style="font-weight: 600;" class="font-mono">{{ $durasi }}</div>
+        </div>
+      </div>
+      @if($p->keterangan)
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Keterangan</div>
+        <div class="text-sm">{{ $p->keterangan }}</div>
+      </div>
+      @endif
+    </div>
+  </div>
+  @empty
+  <div class="card animate-slideup">
+    <div class="card-body" style="text-align: center; padding: 40px; color: var(--muted);">
+      <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+      Tidak ada data presensi bulan ini
+    </div>
+  </div>
+  @endforelse
+  @if(isset($riwayat) && $riwayat->hasPages())
+  <div class="card" style="margin-top: 16px;">
+    <div class="card-footer">{{ $riwayat->links() }}</div>
+  </div>
+  @endif
+</div>
 @endsection
+
+<style>
+/* Desktop: show table, hide cards */
+@media (min-width: 769px) {
+  .mobile-cards { display: none; }
+}
+/* Mobile: show cards, hide table */
+@media (max-width: 768px) {
+  .desktop-table { display: none; }
+}
+</style>
