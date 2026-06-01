@@ -89,9 +89,13 @@
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
+        z-index: 9999999 !important;
       }
       .sidebar.open {
         transform: translateX(0);
+      }
+      #sidebar-overlay {
+        z-index: 9999998 !important;
       }
     }
 
@@ -639,7 +643,7 @@
 
     {{-- Top Bar --}}
     <header class="topbar">
-      <button class="topbar-btn" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <button class="topbar-btn" id="sidebar-toggle">
         <i class="fa-solid fa-bars"></i>
       </button>
       <div class="topbar-title">@yield('page-title', 'Dashboard')</div>
@@ -693,11 +697,12 @@ function updateClock() {
 updateClock(); setInterval(updateClock, 30000);
 
 // Sidebar mobile
-document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
-  const overlay = document.getElementById('sidebar-overlay');
-  const sidebar = document.getElementById('sidebar');
-  overlay.style.display = sidebar.classList.contains('open') ? 'none' : 'block';
-});
+  document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+    const overlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.getElementById('sidebar');
+    const isOpen = sidebar.classList.toggle('open');
+    overlay.style.display = isOpen ? 'block' : 'none';
+  });
 
 // ========== DARK/LIGHT MODE TOGGLE ==========
 function toggleTheme() {

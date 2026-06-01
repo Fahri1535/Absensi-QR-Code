@@ -765,12 +765,6 @@ thead th {
    MOBILE PERFORMANCE OVERRIDE
    ════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Matikan efek paling berat khusus di mobile agar scroll mulus */
-  * {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  
   /* Sederhanakan bayangan di mobile */
   .card, .stat-card, .btn, .sidebar, .topbar {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
@@ -786,6 +780,15 @@ thead th {
   body::before {
     position: absolute !important;
     height: 100% !important;
+  }
+  
+  /* Pastikan sidebar dan overlay berada di paling atas dan bisa di klik */
+  .sidebar.open {
+    z-index: 9999999 !important;
+  }
+  
+  #sidebar-overlay {
+    z-index: 9999998 !important;
   }
 }
 
@@ -807,11 +810,11 @@ body {
 }
 
 /* Pastikan seluruh elemen di sidebar bisa diklik di mobile */
+.sidebar,
 .sidebar.open,
 .sidebar.open *,
 .sidebar * {
   pointer-events: auto !important;
-  cursor: pointer !important;
 }
 
 /* Pastikan nav-item memiliki area klik yang luas di mobile */
@@ -819,4 +822,9 @@ body {
   min-height: 48px;
   display: flex;
   align-items: center;
+}
+
+/* Overlay memiliki pointer-events auto saat ditampilkan */
+#sidebar-overlay {
+  pointer-events: auto !important;
 }
