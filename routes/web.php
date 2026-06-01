@@ -16,7 +16,7 @@ use App\Http\Controllers\Operator\{
     PresensiController as OperatorPresensi,
     KaryawanController as OperatorKaryawan,
     JadwalController as OperatorJadwal,
-    QrCodeController as OperatorQrCode,
+    QrcodeController as OperatorQrCode,
     LaporanController as OperatorLaporan,
     BantuanController as OperatorBantuan,
     SetupController as OperatorSetup,
