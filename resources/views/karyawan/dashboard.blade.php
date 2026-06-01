@@ -26,8 +26,8 @@
         <div style="font-family:'DM Sans',sans-serif; font-size:1.9rem; font-weight:800; color:var(--teal);">
           {{ \Carbon\Carbon::parse($presensiHariIni->jam_datang)->format('H:i') }}
         </div>
-        <div class="badge badge-{{ $presensiHariIni->status === 'tepat_waktu' ? 'green' : 'amber' }}" style="margin-top:8px;">
-          {{ $presensiHariIni->status === 'tepat_waktu' ? '✓ Tepat Waktu' : '⚠ Terlambat' }}
+        <div class="badge badge-{{ $presensiHariIni->status_masuk === 'tepat_waktu' ? 'green' : 'amber' }}" style="margin-top:8px;">
+          {{ $presensiHariIni->status_masuk === 'tepat_waktu' ? '✓ Tepat Waktu' : '⚠ Terlambat' }}
         </div>
       @else
         <div style="font-family:'DM Sans',sans-serif; font-size:1.4rem; font-weight:700; color:var(--muted);">Belum Presensi</div>
@@ -47,7 +47,7 @@
         <div style="font-family:'DM Sans',sans-serif; font-size:1.9rem; font-weight:800; color:var(--green);">
           {{ \Carbon\Carbon::parse($presensiHariIni->jam_pulang)->format('H:i') }}
         </div>
-        @if($presensiHariIni->status === 'pulang_awal')
+        @if($presensiHariIni->status_pulang === 'pulang_awal')
           <div class="badge badge-amber" style="margin-top:8px;">⚠ Pulang Lebih Awal</div>
         @else
           <div class="badge badge-green" style="margin-top:8px;">✓ Selesai</div>
@@ -164,8 +164,13 @@
                   'tepat_waktu'  => ['green', 'Tepat Waktu'],
                   'terlambat'    => ['amber', 'Terlambat'],
                   'pulang_awal'  => ['red',   'Pulang Awal'],
+                  'sakit'        => ['blue', 'Sakit'],
+                  'izin'         => ['purple', 'Izin'],
+                  'cuti'         => ['indigo', 'Cuti'],
+                  'tugas_luar'   => ['teal', 'Tugas Luar'],
+                  'alpa'         => ['red', 'Alpha'],
                 ];
-                [$bc, $bl] = $statusMap[$r->status] ?? ['muted', ucfirst($r->status)];
+                [$bc, $bl] = $statusMap[$r->status] ?? ['muted', ucfirst(str_replace('_', ' ', $r->status))];
               @endphp
               <span class="badge badge-{{ $bc }}">{{ $bl }}</span>
             </td>

@@ -131,6 +131,12 @@ class RiwayatController extends Controller
         // 5. Filter status jika ada (Fitur Laporan)
         if ($statusFilter) {
             $generatedData = $generatedData->filter(function($item) use ($statusFilter) {
+                if ($statusFilter === 'izin') {
+                    return $item->is_izin ?? false;
+                }
+                if ($statusFilter === 'pulang_awal') {
+                    return ($item->status_pulang ?? null) === 'pulang_awal';
+                }
                 return $item->status === $statusFilter;
             });
         }
