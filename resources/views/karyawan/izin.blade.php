@@ -63,7 +63,7 @@
               {{-- Kategori 1: Membutuhkan Persetujuan --}}
               <div style="margin-bottom:16px;">
                 <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                  <i class="fa-solid fa-shield-check"></i> Membutuhkan Persetujuan
+                  <i class="fa-solid fa-circle-check"></i> Membutuhkan Persetujuan
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
                   @foreach([
@@ -89,7 +89,7 @@
               {{-- Kategori 2: Tidak Membutuhkan Persetujuan --}}
               <div>
                 <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                  <i class="fa-solid fa-check-circle"></i> Tidak Membutuhkan Persetujuan
+                  <i class="fa-solid fa-circle-xmark"></i> Tidak Membutuhkan Persetujuan
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
                   @foreach([

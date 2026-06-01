@@ -146,13 +146,14 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
   backdrop-filter: none !important;
+  min-height: 100vh;
 }
 
 /* Desktop: sidebar tertutup via class .collapsed di body */
 body.sidebar-collapsed .sidebar{transform:translateX(-100%)}
 body.sidebar-collapsed .main-content{margin-left:0}
 
-.sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo{padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;max-height: 120px;}
 .logo-mark{display:flex;align-items:center;gap:12px}
 
 /* Logo icon — bisa gambar atau emoji */
@@ -169,7 +170,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .logo-text span{color:var(--blue-light)}
 .logo-sub{font-size:.67rem;color:var(--text-secondary);margin-top:2px}
 
-.sidebar-nav{padding:10px 0;flex:1;overflow-y:auto;overflow-x:hidden;z-index:1;pointer-events:auto !important;}
+.sidebar-nav{padding:10px 0;flex:0 1 auto;overflow-y:auto;overflow-x:hidden;z-index:1;pointer-events:auto !important;min-height:0;max-height: calc(100vh - 260px);}
 .nav-section{margin-bottom:4px;position:relative;z-index:1;pointer-events:auto !important;}
 .nav-item{position:relative;z-index: 2;pointer-events:auto !important;}
 
@@ -238,7 +239,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
   font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;
 }
 
-.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;margin-top:auto;}
 .user-card{
   display:flex;align-items:center;gap:12px;padding:12px;
   background:var(--bg-primary);border-radius:var(--radius-sm);

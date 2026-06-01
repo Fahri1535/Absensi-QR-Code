@@ -52,39 +52,38 @@ class LaporanController extends Controller
 
         // 3. Transform Izin & Deteksi Alpa (Berdasarkan Hari Kerja)
         // HRD juga disertakan dalam laporan karena sekarang bisa melakukan presensi mandiri
-        $listKaryawanToScan = $karyawanId 
-            ? Karyawan::where('id', $karyawanId)->get() 
-            : Karyawan::where('status', 'aktif')
-                ->whereHas('user', fn($q) => $q->whereIn('role', ['karyawan', 'hrd']))
-                ->get();
-        
         $generatedData = new Collection();
         
+        // 1. Add all presensi data first
+        foreach ($dataPresensi as $presensi) {
+            $presensi->is_izin = false;
+            $presensi->status = $presensi->status_masuk;
+            $generatedData->push($presensi);
+        }
+
+        // 2. Then add izin data
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        // Jangan scan melampaui hari ini
-        if ($endOfMonth->isFuture()) {
-            $endOfMonth = now();
+        if ($endOfMonth->isFuture()) $endOfMonth = now();
+        
+        // Get all karyawan from presensi or izin for scanning izin
+        $karyawanIdsFromData = $dataPresensi->pluck('karyawan_id')->merge($dataIzin->pluck('karyawan_id'))->unique();
+        $listKaryawanToScan = Karyawan::whereIn('id', $karyawanIdsFromData)->get();
+        
+        // If karyawanId is set, only use that
+        if ($karyawanId) {
+            $listKaryawanToScan = Karyawan::where('id', $karyawanId)->get();
         }
 
         foreach ($listKaryawanToScan as $karyawan) {
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
                 
-                // Cek apakah ada presensi (Selalu tampilkan jika ada data, meskipun hari libur/weekend)
-                $presensi = $dataPresensi->filter(function($item) use ($karyawan, $dateStr) {
-                    return $item->karyawan_id == $karyawan->id && 
-                           ($item->tanggal instanceof \Carbon\Carbon ? $item->tanggal->toDateString() : $item->tanggal) == $dateStr;
-                })->first();
+                // Skip if there's already a presensi for this date & karyawan
+                $hasPresensi = $dataPresensi->filter(fn($p) => $p->karyawan_id == $karyawan->id && $p->tanggal->toDateString() === $dateStr)->count() > 0;
+                if ($hasPresensi) continue;
 
-                if ($presensi) {
-                    $presensi->is_izin = false;
-                    $presensi->status = $presensi->status_masuk;
-                    $generatedData->push($presensi);
-                    continue;
-                }
-
-                // Cek apakah ada izin
+                // Check for izin
                 $izin = $dataIzin->where('karyawan_id', $karyawan->id)
                                  ->filter(fn($i) => $date->between($i->tanggal_mulai, $i->tanggal_selesai))
                                  ->first();
@@ -105,10 +104,7 @@ class LaporanController extends Controller
                         'is_izin' => true,
                         'is_alpa' => false
                     ]);
-                    continue;
                 }
-
-                // Baris Alpa dihilangkan agar laporan hanya menampilkan yang benar-benar presensi atau izin
             }
         }
 
@@ -138,12 +134,19 @@ class LaporanController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $listKaryawan = Karyawan::where('status', 'aktif')
-            ->whereHas('user', function($q) {
-                $q->whereIn('role', ['karyawan', 'hrd']);
-            })
-            ->orderBy('nama_lengkap')
-            ->get();
+        $listKaryawan = Karyawan::whereHas('presensi', function ($q) use ($year, $month) {
+                $q->whereYear('tanggal', $year)->whereMonth('tanggal', $month);
+            })->orWhereIn('id', $dataPresensi->pluck('karyawan_id'))->orderBy('nama_lengkap')->get();
+
+        // If empty, fallback
+        if ($listKaryawan->isEmpty()) {
+            $listKaryawan = Karyawan::where('status', 'aktif')
+                ->whereHas('user', function($q) {
+                    $q->whereIn('role', ['karyawan', 'hrd']);
+                })
+                ->orderBy('nama_lengkap')
+                ->get();
+        }
 
         $summary = [
             'total' => $laporanAll->count(),
