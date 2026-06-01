@@ -76,7 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Simple click handler (no preventDefault to avoid breaking links)
   if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       if (isMobile()) {
         const isOpen = sidebar.classList.toggle('open');
         if (overlay) overlay.style.display = isOpen ? 'block' : 'none';

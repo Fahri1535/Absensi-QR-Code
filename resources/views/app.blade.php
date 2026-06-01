@@ -684,7 +684,7 @@
 </div>{{-- /wrapper --}}
 
 {{-- Sidebar Overlay (mobile) --}}
-<div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99; backdrop-filter:blur(2px);"
+<div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:99;"
      onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
 
 <script>
