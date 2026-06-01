@@ -7,8 +7,8 @@ use App\Models\{Karyawan, Presensi, Izin, JadwalKerja};
 use App\Exports\LaporanPresensiExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class LaporanController extends Controller
 {
@@ -23,9 +23,10 @@ class LaporanController extends Controller
         [$year, $month] = explode('-', $bulan);
 
         $karyawanId = $request->input('karyawan_id');
+        $jadwal = JadwalKerja::getSetting();
 
         // 1. Ambil Data Presensi
-        $queryPresensi = Presensi::with('karyawan.user')
+        $queryPresensi = Presensi::with('karyawan')
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $month);
 
@@ -36,7 +37,7 @@ class LaporanController extends Controller
         $dataPresensi = $queryPresensi->get();
 
         // 2. Ambil Data Izin yang disetujui
-        $queryIzin = Izin::with('karyawan.user')
+        $queryIzin = Izin::with('karyawan')
             ->where('status', 'disetujui')
             ->where(function($q) use ($year, $month) {
                 $q->whereYear('tanggal_mulai', $year)->whereMonth('tanggal_mulai', $month)
@@ -49,19 +50,28 @@ class LaporanController extends Controller
 
         $dataIzin = $queryIzin->get();
 
-        // 3. Transform & Deteksi Alpa
-        $listKaryawanToScan = $karyawanId ? Karyawan::where('id', $karyawanId)->get() : Karyawan::where('status', 'aktif')->whereHas('user', fn($q) => $q->where('role', '!=', 'operator'))->get();
+        // 3. Transform Izin & Deteksi Alpa (Berdasarkan Hari Kerja)
+        // HRD juga disertakan dalam laporan karena sekarang bisa melakukan presensi mandiri
+        $listKaryawanToScan = $karyawanId 
+            ? Karyawan::where('id', $karyawanId)->get() 
+            : Karyawan::where('status', 'aktif')
+                ->whereHas('user', fn($q) => $q->whereIn('role', ['karyawan', 'hrd']))
+                ->get();
+        
         $generatedData = new Collection();
         
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        if ($endOfMonth->isFuture()) $endOfMonth = now();
+        // Jangan scan melampaui hari ini
+        if ($endOfMonth->isFuture()) {
+            $endOfMonth = now();
+        }
 
         foreach ($listKaryawanToScan as $karyawan) {
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
                 
-                // Cek apakah ada presensi
+                // Cek apakah ada presensi (Selalu tampilkan jika ada data, meskipun hari libur/weekend)
                 $presensi = $dataPresensi->filter(function($item) use ($karyawan, $dateStr) {
                     return $item->karyawan_id == $karyawan->id && 
                            ($item->tanggal instanceof \Carbon\Carbon ? $item->tanggal->toDateString() : $item->tanggal) == $dateStr;
@@ -74,9 +84,11 @@ class LaporanController extends Controller
                     continue;
                 }
 
+                // Cek apakah ada izin
                 $izin = $dataIzin->where('karyawan_id', $karyawan->id)
                                  ->filter(fn($i) => $date->between($i->tanggal_mulai, $i->tanggal_selesai))
                                  ->first();
+                
                 if ($izin) {
                     $generatedData->push((object)[
                         'id' => 'izin-' . $izin->id . '-' . $date->format('Ymd'),
@@ -90,7 +102,8 @@ class LaporanController extends Controller
                         'status_pulang' => $izin->jenis_izin,
                         'status' => $izin->jenis_izin,
                         'keterangan' => 'Izin: ' . $izin->keterangan,
-                        'is_izin' => true
+                        'is_izin' => true,
+                        'is_alpa' => false
                     ]);
                     continue;
                 }
@@ -126,8 +139,8 @@ class LaporanController extends Controller
         );
 
         $listKaryawan = Karyawan::where('status', 'aktif')
-            ->whereHas('user', function($query) {
-                $query->where('role', '!=', 'operator');
+            ->whereHas('user', function($q) {
+                $q->whereIn('role', ['karyawan', 'hrd']);
             })
             ->orderBy('nama_lengkap')
             ->get();
@@ -136,7 +149,7 @@ class LaporanController extends Controller
             'total' => $laporanAll->count(),
             'tepat_waktu' => $laporanAll->where('status', 'tepat_waktu')->count(),
             'terlambat' => $laporanAll->where('status', 'terlambat')->count(),
-            'pulang_awal' => $laporanAll->where('status_pulang', 'pulang_awal')->count(),
+            'pulang_awal' => $laporanAll->where('status_pulang', 'lebih_awal')->count(),
             'izin' => $laporanAll->where('is_izin', true)->count(),
             'alpa' => $laporanAll->where('status', 'alpa')->count(),
         ];

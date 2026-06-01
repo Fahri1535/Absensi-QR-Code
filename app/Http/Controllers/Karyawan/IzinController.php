@@ -53,14 +53,15 @@ class IzinController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jenis_izin'      => 'required|in:izin,sakit,cuti,tugas_luar,alpa',
+            'jenis_izin'      => 'required|in:izin,sakit,cuti,pulang_cepat,lembur,tugas_luar',
             'tanggal_mulai'   => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'keterangan'      => 'required|string|max:1000',
             'lampiran'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $karyawan = auth()->user()->karyawan;
+        $user = auth()->user();
+        $karyawan = $user->karyawan;
 
         $sudahMengajuHariIni = Izin::where('karyawan_id', $karyawan->id)
             ->whereDate('created_at', today())
@@ -80,6 +81,11 @@ class IzinController extends Controller
         }
 
         $jenisLabel = ucfirst(str_replace('_', ' ', $validated['jenis_izin']));
+        
+        // Auto-approve logic
+        $isHrd = $user->role === 'hrd';
+        $autoApprovedTypes = ['lembur', 'tugas_luar'];
+        $isAutoApproved = $isHrd || in_array($validated['jenis_izin'], $autoApprovedTypes);
 
         $izin = Izin::create([
             'karyawan_id'     => $karyawan->id,
@@ -88,27 +94,33 @@ class IzinController extends Controller
             'tanggal_selesai' => $validated['tanggal_selesai'],
             'keterangan'      => $validated['keterangan'],
             'lampiran'        => $lampiranPath,
-            'status'          => 'pending',
+            'status'          => $isAutoApproved ? 'disetujui' : 'pending',
         ]);
 
-        foreach (User::whereIn('role', ['hrd', 'operator'])->get()->unique('id') as $admin) {
-            $link = match ($admin->role) {
-                'hrd'      => route('hrd.izin'),
-                'operator' => route('operator.dashboard'),
-                default    => route('login'),
-            };
+        // Only send notification if it's not auto-approved and user is not HRD
+        if (!$isAutoApproved) {
+            foreach (User::whereIn('role', ['hrd', 'operator'])->get()->unique('id') as $admin) {
+                $link = match ($admin->role) {
+                    'hrd'      => route('hrd.izin'),
+                    'operator' => route('operator.dashboard'),
+                    default    => route('login'),
+                };
 
-            Notifikasi::create([
-                'user_id' => $admin->id,
-                'judul'   => 'Pengajuan Izin Baru',
-                'pesan'   => "{$karyawan->nama_lengkap} mengajukan {$jenisLabel} · {$izin->tanggal_mulai->format('d M Y')} → {$izin->tanggal_selesai->format('d M Y')}",
-                'ikon'    => 'fa-file-circle-plus',
-                'warna'   => 'amber',
-                'link'    => $link,
-            ]);
+                Notifikasi::create([
+                    'user_id' => $admin->id,
+                    'judul'   => 'Pengajuan Izin Baru',
+                    'pesan'   => "{$karyawan->nama_lengkap} mengajukan {$jenisLabel} · {$izin->tanggal_mulai->format('d M Y')} → {$izin->tanggal_selesai->format('d M Y')}",
+                    'ikon'    => 'fa-file-circle-plus',
+                    'warna'   => 'amber',
+                    'link'    => $link,
+                ]);
+            }
+            $successMessage = 'Pengajuan izin berhasil dikirim, menunggu persetujuan HRD.';
+        } else {
+            $successMessage = 'Pengajuan izin berhasil diajukan dan otomatis disetujui!';
         }
 
-        return back()->with('success', 'Pengajuan izin berhasil dikirim.');
+        return back()->with('success', $successMessage);
     }
 
     public function cancel(int $id)

@@ -146,7 +146,7 @@ class PresensiController extends Controller
                 ], 422);
             }
 
-            $statusPulang = $now->lt($jamPulang) ? 'lebih_awal' : 'normal';
+            $statusPulang = $now->lt($jamPulang) ? 'pulang_awal' : 'normal';
 
             $fillData = ['jam_pulang' => $now->toTimeString()];
             

@@ -266,10 +266,10 @@
           <div id="scan-result" style="display:none; margin-top:16px;"></div>
 
           <div style="display:flex;gap:10px;margin-top:20px; justify-content:center;">
-            <button id="btn-start-scan" class="btn btn-primary btn-lg" onclick="startScanner()">
+            <button id="btn-start-scan" class="btn btn-primary btn-lg" onclick="startScanner()" touch-action="manipulation" style="min-height:48px;">
               <i class="fa-solid fa-camera"></i> Aktifkan Kamera
             </button>
-            <button id="btn-stop-scan" class="btn btn-outline" style="display:none;" onclick="stopScanner()">
+            <button id="btn-stop-scan" class="btn btn-outline" style="display:none;" onclick="stopScanner()" touch-action="manipulation" style="min-height:48px;">
               <i class="fa-solid fa-stop"></i> Berhenti
             </button>
           </div>
@@ -462,6 +462,13 @@ async function startScanner() {
   document.getElementById('scanner-error').style.display = 'none';
   document.getElementById('scan-result').style.display    = 'none';
 
+  // Check HTTPS (required for getUserMedia)
+  if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    showError('Akses kamera hanya tersedia di HTTPS. Pastikan Anda mengakses situs melalui HTTPS.');
+    isStarting = false;
+    return;
+  }
+
   // 1. Cleanup existing stream if any
   if (videoStream) {
     videoStream.getTracks().forEach(t => t.stop());
@@ -469,9 +476,17 @@ async function startScanner() {
   }
 
   try {
-    videoStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: {ideal:640}, height: {ideal:640} }
-    });
+    // First try back camera
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: {ideal:640}, height: {ideal:640} }
+      });
+    } catch (backErr) {
+      // If back camera fails, try front camera
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: {ideal:640}, height: {ideal:640} }
+      });
+    }
 
     const video = document.getElementById('qr-video');
     video.srcObject = videoStream;
@@ -493,6 +508,8 @@ async function startScanner() {
       msg = 'Kamera sedang digunakan oleh aplikasi lain. Tutup aplikasi kamera atau browser lain dan coba lagi.';
     } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
       msg = 'Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser Anda.';
+    } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+      msg = 'Perangkat kamera tidak ditemukan. Pastikan perangkat Anda memiliki kamera.';
     }
     showError(msg);
   } finally {
