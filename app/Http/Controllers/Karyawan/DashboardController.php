@@ -26,7 +26,7 @@ class DashboardController extends Controller
 
         $stat = (object)[
             'total_hadir' => $presensiBulanIni->count(),
-            'total_terlambat' => 0,
+            'total_terlambat' => $presensiBulanIni->where('status_masuk', 'terlambat')->count(),
             'total_lengkap' => $presensiBulanIni->whereNotNull('jam_pulang')->count()
         ];
 

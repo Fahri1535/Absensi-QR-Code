@@ -50,38 +50,42 @@ class LaporanController extends Controller
 
         $dataIzin = $queryIzin->get();
 
-        // 3. Transform Izin & Deteksi Alpa (Berdasarkan Hari Kerja)
-        // HRD juga disertakan dalam laporan karena sekarang bisa melakukan presensi mandiri
-        $generatedData = new Collection();
+        // 3. Get all karyawan to scan (all active karyawan & hrd)
+        $listKaryawanToScan = $karyawanId 
+            ? Karyawan::where('id', $karyawanId)->get() 
+            : Karyawan::where('status', 'aktif')
+                ->whereHas('user', function($q) {
+                    $q->whereIn('role', ['karyawan', 'hrd']);
+                })
+                ->get();
         
-        // 1. Add all presensi data first
-        foreach ($dataPresensi as $presensi) {
-            $presensi->is_izin = false;
-            $presensi->status = $presensi->status_masuk;
-            $generatedData->push($presensi);
-        }
-
-        // 2. Then add izin data
+        $generatedData = new Collection();
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         if ($endOfMonth->isFuture()) $endOfMonth = now();
-        
-        // Get all karyawan from presensi or izin for scanning izin
-        $karyawanIdsFromData = $dataPresensi->pluck('karyawan_id')->merge($dataIzin->pluck('karyawan_id'))->unique();
-        $listKaryawanToScan = Karyawan::whereIn('id', $karyawanIdsFromData)->get();
-        
-        // If karyawanId is set, only use that
-        if ($karyawanId) {
-            $listKaryawanToScan = Karyawan::where('id', $karyawanId)->get();
-        }
 
+        // Generate data for each karyawan and each day
         foreach ($listKaryawanToScan as $karyawan) {
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
                 
-                // Skip if there's already a presensi for this date & karyawan
-                $hasPresensi = $dataPresensi->filter(fn($p) => $p->karyawan_id == $karyawan->id && $p->tanggal->toDateString() === $dateStr)->count() > 0;
-                if ($hasPresensi) continue;
+                // Check if it's a weekend
+                $isWeekend = $date->isWeekend();
+                
+                // Skip weekends? Or include? Let's include but not mark as alpa
+                if ($isWeekend) {
+                    continue;
+                }
+                
+                // Check for presensi
+                $presensi = $dataPresensi->filter(fn($p) => $p->karyawan_id == $karyawan->id && $p->tanggal->toDateString() === $dateStr)->first();
+                if ($presensi) {
+                    $presensi->is_izin = false;
+                    $presensi->is_alpa = false;
+                    $presensi->status = $presensi->status_masuk;
+                    $generatedData->push($presensi);
+                    continue;
+                }
 
                 // Check for izin
                 $izin = $dataIzin->where('karyawan_id', $karyawan->id)
@@ -104,7 +108,25 @@ class LaporanController extends Controller
                         'is_izin' => true,
                         'is_alpa' => false
                     ]);
+                    continue;
                 }
+                
+                // If no presensi and no izin, mark as alpa
+                $generatedData->push((object)[
+                    'id' => 'alpa-' . $karyawan->id . '-' . $date->format('Ymd'),
+                    'karyawan_id' => $karyawan->id,
+                    'karyawan' => $karyawan,
+                    'tanggal' => $date->copy(),
+                    'hari' => $date->translatedFormat('l'),
+                    'jam_datang' => null,
+                    'jam_pulang' => null,
+                    'status_masuk' => 'alpa',
+                    'status_pulang' => 'alpa',
+                    'status' => 'alpa',
+                    'keterangan' => 'Tidak hadir tanpa keterangan',
+                    'is_izin' => false,
+                    'is_alpa' => true
+                ]);
             }
         }
 
@@ -122,6 +144,12 @@ class LaporanController extends Controller
         $statusFilter = $request->input('status');
         if ($statusFilter) {
             $laporanAll = $laporanAll->filter(function($item) use ($statusFilter) {
+                if ($statusFilter === 'izin') {
+                    return $item->is_izin ?? false;
+                }
+                if ($statusFilter === 'pulang_awal') {
+                    return ($item->status_pulang ?? null) === 'pulang_awal';
+                }
                 return ($item->status ?? $item->status_masuk) === $statusFilter;
             });
         }
@@ -134,19 +162,12 @@ class LaporanController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $listKaryawan = Karyawan::whereHas('presensi', function ($q) use ($year, $month) {
-                $q->whereYear('tanggal', $year)->whereMonth('tanggal', $month);
-            })->orWhereIn('id', $dataPresensi->pluck('karyawan_id'))->orderBy('nama_lengkap')->get();
-
-        // If empty, fallback
-        if ($listKaryawan->isEmpty()) {
-            $listKaryawan = Karyawan::where('status', 'aktif')
-                ->whereHas('user', function($q) {
-                    $q->whereIn('role', ['karyawan', 'hrd']);
-                })
-                ->orderBy('nama_lengkap')
-                ->get();
-        }
+        $listKaryawan = Karyawan::where('status', 'aktif')
+            ->whereHas('user', function($q) {
+                $q->whereIn('role', ['karyawan', 'hrd']);
+            })
+            ->orderBy('nama_lengkap')
+            ->get();
 
         $summary = [
             'total' => $laporanAll->count(),
@@ -154,7 +175,7 @@ class LaporanController extends Controller
             'terlambat' => $laporanAll->where('status', 'terlambat')->count(),
             'pulang_awal' => $laporanAll->where('status_pulang', 'pulang_awal')->count(),
             'izin' => $laporanAll->where('is_izin', true)->count(),
-            'alpa' => $laporanAll->where('status', 'alpa')->count(),
+            'alpa' => $laporanAll->where('is_alpa', true)->count(),
         ];
 
         return view('shared.laporan', compact(

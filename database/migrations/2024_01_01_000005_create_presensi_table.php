@@ -15,7 +15,7 @@ return new class extends Migration
             $table->time('jam_datang')->nullable();
             $table->time('jam_pulang')->nullable();
             $table->enum('status_masuk', ['tepat_waktu', 'terlambat'])->nullable();
-            $table->enum('status_pulang', ['normal', 'lebih_awal'])->nullable();
+            $table->enum('status_pulang', ['normal', 'pulang_awal'])->nullable();
             $table->timestamps();
 
             $table->unique(['karyawan_id', 'tanggal']);
