@@ -349,6 +349,11 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
 @media (max-width: 640px) {
   .stat-grid{grid-template-columns:1fr}
+  .page-content { padding: 16px; }
+  .card-body { padding: 16px; }
+  .card-header { padding: 14px 16px; }
+  .stat-card { padding: 16px; }
+  .mobile-cards { width: 100%; }
 }
 .stat-card{
   background:var(--bg-card);border:1px solid var(--border);
@@ -831,7 +836,7 @@ body.is-scrolling {
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: visible;
   position: relative;
   -webkit-overflow-scrolling: touch;
 }

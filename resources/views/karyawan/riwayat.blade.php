@@ -1,6 +1,6 @@
 {{-- ===================================================
-     RIWAYAT PRESENSI — resources/views/karyawan/riwayat.blade.php
-     =================================================== --}}
+   RIWAYAT PRESENSI — resources/views/karyawan/riwayat.blade.php
+   =================================================== --}}
 @extends('layouts.app')
 @section('title','Riwayat Presensi')
 @section('page-title','Riwayat Presensi')
@@ -45,7 +45,7 @@
           <option value="cuti" {{ request('status') === 'cuti' ? 'selected' : '' }}>Cuti</option>
         </select>
       </div>
-      <div style="display:flex;gap:8px;align-self:end;">
+      <div style="display:flex;gap:8px;align-self:end;flex-wrap:wrap;">
         @php 
           $exportParams = array_merge(request()->query(), ['format' => 'xlsx']);
           $exportRoute  = auth()->user()->role . '.riwayat.export';
@@ -124,8 +124,8 @@
               $sc = 'red';
               $sl = 'Alpa';
           } else {
-              $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
-              $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
+              $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
+              $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);
           }
 
           $durasi = ($p->jam_datang && $p->jam_pulang)
@@ -172,8 +172,8 @@
         $sc = 'red';
         $sl = 'Alpa';
     } else {
-        $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
-        $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
+        $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
+        $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);
     }
 
     $durasi = ($p->jam_datang && $p->jam_pulang)

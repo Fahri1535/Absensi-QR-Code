@@ -1,7 +1,7 @@
 {{-- ===================================================
-     LAPORAN PRESENSI — resources/views/shared/laporan.blade.php
-     Dipakai oleh HRD & Operator
-     =================================================== --}}
+   LAPORAN PRESENSI — resources/views/shared/laporan.blade.php
+   Dipakai oleh HRD & Operator
+   =================================================== --}}
 @extends('layouts.app')
 @section('title','Laporan Presensi')
 @section('page-title','Laporan Presensi')
@@ -46,7 +46,7 @@
         <div class="form-group" style="margin:0;">
           <label class="form-label">Karyawan</label>
           @if(auth()->user()->role === 'karyawan')
-            <input type="text" class="form-control" value="{{ auth()->user()->karyawan->nama_lengkap }}" readonly style="background-color: var(--bg-body); cursor: pointer;">
+            <input type="text" class="form-control" value="{{ auth()->user()->karyawan->nama_lengkap }}" readonly style="background:var(--bg-input);cursor: pointer;">
             <input type="hidden" name="karyawan_id" value="{{ auth()->user()->karyawan->id }}">
           @else
             <select name="karyawan_id" class="form-control" style="cursor: pointer;">
@@ -64,17 +64,17 @@
           <label class="form-label">Status</label>
           <select name="status" class="form-control" style="cursor: pointer;">
             <option value="">— Semua Status —</option>
-            <option value="tepat_waktu"  {{ request('status') === 'tepat_waktu'  ? 'selected' : '' }}>Tepat Waktu</option>
-            <option value="terlambat"    {{ request('status') === 'terlambat'    ? 'selected' : '' }}>Terlambat</option>
-            <option value="pulang_awal"  {{ request('status') === 'pulang_awal'  ? 'selected' : '' }}>Pulang Awal</option>
-            <option value="alpa"         {{ request('status') === 'alpa'         ? 'selected' : '' }}>Alpa</option>
-            <option value="izin"         {{ request('status') === 'izin'         ? 'selected' : '' }}>Izin</option>
-            <option value="sakit"        {{ request('status') === 'sakit'        ? 'selected' : '' }}>Sakit</option>
-            <option value="cuti"         {{ request('status') === 'cuti'         ? 'selected' : '' }}>Cuti</option>
+            <option value="tepat_waktu" {{ request('status') === 'tepat_waktu' ? 'selected' : '' }}>Tepat Waktu</option>
+            <option value="terlambat" {{ request('status') === 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+            <option value="pulang_awal" {{ request('status') === 'pulang_awal' ? 'selected' : '' }}>Pulang Awal</option>
+            <option value="alpa" {{ request('status') === 'alpa' ? 'selected' : '' }}>Alpa</option>
+            <option value="izin" {{ request('status') === 'izin' ? 'selected' : '' }}>Izin</option>
+            <option value="sakit" {{ request('status') === 'sakit' ? 'selected' : '' }}>Sakit</option>
+            <option value="cuti" {{ request('status') === 'cuti' ? 'selected' : '' }}>Cuti</option>
           </select>
         </div>
 
-        <div style="display:flex;gap:8px;align-self:end;">
+        <div style="display:flex;gap:8px;align-self:end;flex-wrap:wrap;">
           <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-magnifying-glass"></i> Filter
           </button>
@@ -92,13 +92,13 @@
   @php
     $exportRoute = auth()->user()->role . '.laporan.export';
   @endphp
-  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format'=>'xlsx'])) }}" class="btn btn-outline">
+  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format' => 'xlsx'])) }}" class="btn btn-outline">
     <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Export Excel
   </a>
-  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format'=>'pdf'])) }}" class="btn btn-outline">
+  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format' => 'pdf'])) }}" class="btn btn-outline">
     <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
   </a>
-  <div style="margin-left:auto;" class="text-muted text-sm">
+  <div style="margin-left:auto" class="text-muted text-sm">
     Menampilkan <strong>{{ $laporan->total() ?? 0 }}</strong> data
   </div>
 </div>
@@ -185,8 +185,8 @@
               $sc = 'red';
               $sl = 'Alpa';
           } else {
-              $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
-              $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
+              $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
+              $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);
           }
 
           $durasi = ($p->jam_datang && $p->jam_pulang)
@@ -243,8 +243,8 @@
         $sc = 'red';
         $sl = 'Alpa';
     } else {
-        $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
-        $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
+        $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
+        $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);
     }
 
     $durasi = ($p->jam_datang && $p->jam_pulang)
