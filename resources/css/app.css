@@ -145,7 +145,7 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
 }
 
 /* ══════ LAYOUT ══════ */
-.wrapper{position:relative;z-index:1;display:flex;min-height:100vh}
+.wrapper{position:relative;z-index:auto;display:flex;min-height:100vh}
 .container{width:100%;max-width:1280px;margin:0 auto;padding:0 24px}
 .container-sm{width:100%;max-width:540px;margin:0 auto;padding:0 20px}
 
