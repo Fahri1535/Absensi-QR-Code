@@ -143,12 +143,14 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   background:var(--bg-sidebar);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;z-index:9999999 !important;
+  position:fixed;top:0;left:0;z-index:9999999 !important;
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
   backdrop-filter: none !important;
-  /* No explicit height — top:0 + bottom:0 always spans the full visible viewport.
-     Avoids gaps when URL bar hides AND avoids profile "sinking" when it shows. */
+  /* Height is set precisely by JS (visualViewport API) to avoid
+     URL bar show/hide causing gaps or profile icon sinking.
+     CSS fallback before JS loads: */
+  height: 100vh;
 }
 
 /* Desktop: sidebar tertutup via class .collapsed di body */

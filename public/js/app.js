@@ -51,6 +51,28 @@ document.addEventListener('DOMContentLoaded', () => {
   updateClock();
   setInterval(updateClock, 30000);
 
+  /* ── Sidebar Height Fix (visualViewport API) ────────────── */
+  /* On mobile browsers, the URL bar shows/hides during scroll,
+     changing the visible viewport height. CSS-only solutions
+     (100vh, 100svh, 100dvh, top:0+bottom:0) all have issues:
+     - gap at bottom when URL bar hides
+     - profile icon "sinks" when URL bar shows
+     Using visualViewport API gives the EXACT visible height. */
+  const sidebarEl = document.getElementById('sidebar');
+  function updateSidebarHeight() {
+    if (!sidebarEl) return;
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    sidebarEl.style.height = h + 'px';
+  }
+  updateSidebarHeight();
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateSidebarHeight);
+  }
+  window.addEventListener('resize', updateSidebarHeight);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(updateSidebarHeight, 150);
+  });
+
   /* ── Sidebar Toggle ───────────────────────────────────────── */
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebar-overlay');
