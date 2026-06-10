@@ -18,7 +18,7 @@
 </div>
 
 <div class="animate-slideup">
-<div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
+<div class="izin-main-grid">
 
   {{-- LEFT: Form + Riwayat --}}
   <div>
@@ -65,7 +65,7 @@
                 <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
                   <i class="fa-solid fa-circle-check"></i> Membutuhkan Persetujuan
                 </div>
-                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                <div class="izin-type-grid">
                   @foreach([
                     ['izin',       '🏖', 'Izin',        'Keperluan pribadi'],
                     ['sakit',      '🤒', 'Sakit',       'Tidak masuk sakit'],
@@ -91,7 +91,7 @@
                 <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
                   <i class="fa-solid fa-circle-xmark"></i> Tidak Membutuhkan Persetujuan
                 </div>
-                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                <div class="izin-type-grid">
                   @foreach([
                     ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
                     ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
@@ -160,7 +160,7 @@
               </p>
             </div>
 
-            <div style="display:flex;gap:10px;margin-top:4px;">
+            <div class="izin-btn-row" style="display:flex;gap:10px;margin-top:4px;">
               <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                 <i class="fa-solid fa-paper-plane"></i> Ajukan Izin
               </button>
@@ -331,6 +331,21 @@
 
 @push('styles')
 <style>
+/* Main 2-column layout */
+.izin-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Izin type cards grid */
+.izin-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
 .izin-card {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 14px 10px;
@@ -342,6 +357,54 @@
   border-color: var(--teal);
   background: var(--teal-glow);
   box-shadow: 0 0 0 2px rgba(0,201,167,.2);
+}
+
+/* ── Mobile: stack everything vertically ── */
+@media (max-width: 1024px) {
+  .izin-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .izin-main-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .izin-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Tabs: allow horizontal scroll on small screens */
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex-shrink: 0;
+    font-size: .8rem;
+    padding: 8px 12px;
+  }
+  /* Buttons stack */
+  .izin-btn-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .izin-btn-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+@media (max-width: 480px) {
+  .izin-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .izin-card {
+    padding: 10px 6px;
+  }
+  .izin-card span[style*="font-size:1.4rem"] {
+    font-size: 1.2rem !important;
+  }
 }
 </style>
 @endpush

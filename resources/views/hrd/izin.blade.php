@@ -44,20 +44,20 @@
   @endphp
   <div class="card" style="border-color:rgba(255,171,64,.25);">
     <div style="padding:20px 24px;">
-      <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+      <div class="izin-pending-card">
 
-        <div style="width:52px;height:52px;border-radius:12px;background:rgba(255,171,64,.12);border:1px solid rgba(255,171,64,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">
+        <div class="izin-pending-icon">
           {{ $emoji }}
         </div>
 
-        <div style="flex:1;min-width:200px;">
+        <div class="izin-pending-body">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
             <h3 style="font-size:1rem;">{{ $izin->karyawan?->nama_lengkap }}</h3>
             <span class="badge badge-amber">Pending</span>
             <span class="text-xs text-muted">{{ $izin->created_at->diffForHumans() }}</span>
           </div>
 
-          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;">
+          <div class="izin-pending-meta">
             <div>
               <div class="text-xs text-muted">Jenis</div>
               <div style="font-weight:600;font-size:.88rem;">{{ ucfirst(str_replace('_',' ',$izin->jenis_izin)) }}</div>
@@ -95,7 +95,7 @@
           @endif
 
           {{-- FIXED: input name = 'status' (sesuai IzinController yang sudah difix) --}}
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="izin-pending-actions">
             <form method="POST" action="{{ route('hrd.izin.approve', $izin->id) }}">
               @csrf @method('PATCH')
               <input type="hidden" name="status" value="disetujui">
@@ -130,7 +130,8 @@
 {{-- Table view untuk status lain --}}
 @else
 
-<div class="card animate-slideup">
+{{-- Desktop: Table --}}
+<div class="card animate-slideup izin-table-cards">
   <div class="table-wrap">
     <table>
       <thead>
@@ -177,6 +178,54 @@
   @endif
 </div>
 
+{{-- Mobile: Cards --}}
+<div class="izin-mobile-cards animate-slideup">
+  @forelse($izinList as $izin)
+  @php
+    $emoji = ['izin'=>'🏖','sakit'=>'🤒','cuti'=>'🌴','tugas_luar'=>'💼','alpa'=>'❌'][$izin->jenis_izin] ?? '📄';
+    $sc    = ['pending'=>'amber','disetujui'=>'green','ditolak'=>'red'][$izin->status] ?? 'muted';
+  @endphp
+  <div class="izin-mobile-card">
+    <div class="mc-header">
+      <span class="mc-name">{{ $emoji }} {{ $izin->karyawan?->nama_lengkap }}</span>
+      <span class="badge badge-{{ $sc }}">{{ ucfirst($izin->status) }}</span>
+    </div>
+    <div class="mc-row">
+      <span class="mc-label">Jenis</span>
+      <span>{{ ucfirst(str_replace('_',' ',$izin->jenis_izin)) }}</span>
+    </div>
+    <div class="mc-row">
+      <span class="mc-label">Periode</span>
+      <span>
+        {{ \Carbon\Carbon::parse($izin->tanggal_mulai)->format('d M Y') }}
+        @if($izin->tanggal_mulai != $izin->tanggal_selesai)
+          — {{ \Carbon\Carbon::parse($izin->tanggal_selesai)->format('d M Y') }}
+        @endif
+      </span>
+    </div>
+    @if($izin->keterangan)
+    <div class="mc-row">
+      <span class="mc-label">Keterangan</span>
+      <span style="text-align:right;max-width:60%;word-break:break-word;white-space:normal;">{{ $izin->keterangan }}</span>
+    </div>
+    @endif
+    <div class="mc-row">
+      <span class="mc-label">Diproses</span>
+      <span class="text-muted text-sm">{{ $izin->updated_at->format('d M Y') }}</span>
+    </div>
+  </div>
+  @empty
+  <div style="text-align:center;padding:40px;color:var(--muted);">
+    <i class="fa-solid fa-clipboard-check" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4;"></i>
+    Tidak ada data
+  </div>
+  @endforelse
+
+  @if($izinList->hasPages())
+  <div style="margin-top:16px;">{{ $izinList->appends(request()->query())->links() }}</div>
+  @endif
+</div>
+
 @endif
 
 </div>
@@ -212,6 +261,125 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+/* Pending card inner layout */
+.izin-pending-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.izin-pending-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  background: rgba(255,171,64,.12);
+  border: 1px solid rgba(255,171,64,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0;
+}
+.izin-pending-body {
+  flex: 1;
+  min-width: 200px;
+}
+.izin-pending-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.izin-pending-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Table-based card for non-pending on mobile */
+.izin-table-cards { display: block; }
+.izin-mobile-cards { display: none; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .izin-pending-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .izin-pending-icon {
+    width: 44px; height: 44px; font-size: 1.3rem;
+  }
+  .izin-pending-body {
+    min-width: 0;
+    width: 100%;
+  }
+  .izin-pending-meta {
+    gap: 12px;
+    flex-direction: column;
+  }
+  .izin-pending-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .izin-pending-actions form {
+    width: 100%;
+  }
+  .izin-pending-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .izin-pending-actions .text-xs {
+    text-align: center;
+  }
+
+  /* Tabs: scroll horizontally */
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex-shrink: 0;
+    font-size: .8rem;
+    padding: 8px 12px;
+  }
+
+  /* Hide desktop table, show mobile cards */
+  .izin-table-cards { display: none; }
+  .izin-mobile-cards { display: flex; flex-direction: column; gap: 12px; }
+
+  .izin-mobile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .izin-mobile-card .mc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .izin-mobile-card .mc-name {
+    font-weight: 600;
+    font-size: .95rem;
+  }
+  .izin-mobile-card .mc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: .83rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .izin-mobile-card .mc-row:last-child {
+    border-bottom: none;
+  }
+  .izin-mobile-card .mc-label {
+    color: var(--text-secondary);
+    font-size: .75rem;
+  }
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
