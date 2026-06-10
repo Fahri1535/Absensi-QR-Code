@@ -146,8 +146,10 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
   backdrop-filter: none !important;
+  /* Use svh (small viewport) — stable height that ignores URL bar show/hide.
+     top:0 + bottom:0 already pins it; this ensures no dynamic recalculation. */
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
 }
 
 /* Desktop: sidebar tertutup via class .collapsed di body */
