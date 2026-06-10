@@ -11,14 +11,14 @@ class LoginController extends Controller
 {
     /* ─── Show form ──────────────────────────────────────────── */
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
         if (auth()->check()) {
             return redirect($this->redirectTo());
         }
 
         // Pre-fill username from "Remember me" cookie
-        $rememberedUsername = cookie()->get('remember_username') ?? '';
+        $rememberedUsername = $request->cookie('remember_username') ?? '';
 
         return view('auth.login', compact('rememberedUsername'));
     }

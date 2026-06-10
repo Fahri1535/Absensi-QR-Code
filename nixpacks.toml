@@ -3,7 +3,8 @@ nixPkgs = ["php", "phpExtensions.gd", "composer"]
 
 [phases.install]
 cmds = [
-  "composer install --no-dev --optimize-autoloader"
+  "composer install --no-dev --optimize-autoloader",
+  "php artisan storage:link || true"
 ]
 
 [start]

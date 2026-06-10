@@ -52,6 +52,11 @@ RUN php artisan view:clear || true
 RUN php artisan route:clear || true
 
 # =========================
+# CREATE STORAGE SYMLINK
+# =========================
+RUN php artisan storage:link || true
+
+# =========================
 # PERMISSION FIX
 # =========================
 RUN chmod -R 777 storage bootstrap/cache
