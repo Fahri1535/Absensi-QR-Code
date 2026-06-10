@@ -86,6 +86,7 @@ html{
   font-size:16px;
   scroll-behavior:smooth;
   background-color:#0F172A;
+  overscroll-behavior-y: none;
 }
 html.lm{
   background-color:#F8FAFC;
@@ -146,10 +147,8 @@ p, .text-muted, .info-desc, .left-desc, .text-secondary {
   transition:transform var(--transition),background var(--transition);
   overflow:hidden;
   backdrop-filter: none !important;
-  /* Use svh (small viewport) — stable height that ignores URL bar show/hide.
-     top:0 + bottom:0 already pins it; this ensures no dynamic recalculation. */
-  height: 100vh;
-  height: 100svh;
+  /* No explicit height — top:0 + bottom:0 always spans the full visible viewport.
+     Avoids gaps when URL bar hides AND avoids profile "sinking" when it shows. */
 }
 
 /* Desktop: sidebar tertutup via class .collapsed di body */
