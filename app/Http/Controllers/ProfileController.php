@@ -181,14 +181,16 @@ class ProfileController extends Controller
         $karyawan = auth()->user()->karyawan;
         if (!$karyawan) return abort(404);
 
-        $qrImage = QrCode::format('svg')
-            ->size(400)
-            ->errorCorrection('H')
-            ->generate($karyawan->kode_karyawan ?? $karyawan->id);
+        $qrData = $karyawan->kode_karyawan ?? (string) $karyawan->id;
 
-        return response($qrImage, 200, [
-            'Content-Type'        => 'image/svg+xml',
-            'Content-Disposition' => "attachment; filename=\"qr-{$karyawan->id}.svg\"",
+        $qrSvg = QrCode::format('svg')
+            ->size(512)
+            ->margin(2)
+            ->errorCorrection('H')
+            ->generate($qrData);
+
+        return response($qrSvg, 200, [
+            'Content-Type' => 'image/svg+xml',
         ]);
     }
 }

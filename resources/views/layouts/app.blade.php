@@ -392,7 +392,7 @@
   </div>{{-- /main-content --}}
 
   {{-- Sidebar Overlay (mobile) --}}
-  <div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:9999998; touch-action: manipulation;"></div>
+  <div id="sidebar-overlay" style="display:none; position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,.5); z-index:9999998; touch-action: manipulation;"></div>
 
 </div>{{-- /wrapper --}}
 

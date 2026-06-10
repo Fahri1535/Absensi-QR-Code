@@ -532,7 +532,7 @@
         <label class="form-label">Username</label>
         <div class="input-group">
           <span class="input-icon"><i class="fa-solid fa-user"></i></span>
-          <input type="text" name="username" class="form-control" placeholder="Masukkan username" value="{{ old('username') }}" autocomplete="username" required autofocus>
+          <input type="text" name="username" class="form-control" placeholder="Masukkan username" value="{{ old('username', $rememberedUsername ?? '') }}" autocomplete="username" required {{ empty(old('username', $rememberedUsername ?? '')) ? 'autofocus' : '' }}>
         </div>
       </div>
 
@@ -540,7 +540,7 @@
         <label class="form-label">Password</label>
         <div class="input-group">
           <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
-          <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Masukkan password" autocomplete="current-password" required>
+          <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Masukkan password" autocomplete="current-password" required {{ !empty(old('username', $rememberedUsername ?? '')) ? 'autofocus' : '' }}>
           <span class="input-toggle" onclick="togglePassword()">
             <i class="fa-solid fa-eye" id="eyeIcon"></i>
           </span>
@@ -549,7 +549,7 @@
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
         <label for="remember" style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-secondary);cursor:pointer;user-select:none;">
-          <input type="checkbox" name="remember" id="remember" value="1" @checked(old('remember')) style="accent-color:var(--blue-primary);width:1rem;height:1rem;cursor:pointer;">
+          <input type="checkbox" name="remember" id="remember" value="1" @checked(old('remember', !empty($rememberedUsername))) style="accent-color:var(--blue-primary);width:1rem;height:1rem;cursor:pointer;">
           Ingat saya
         </label>
       </div>

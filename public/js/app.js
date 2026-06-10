@@ -59,10 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
      - profile icon "sinks" when URL bar shows
      Using visualViewport API gives the EXACT visible height. */
   const sidebarEl = document.getElementById('sidebar');
+  const overlayEl = document.getElementById('sidebar-overlay');
   function updateSidebarHeight() {
-    if (!sidebarEl) return;
     const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    sidebarEl.style.height = h + 'px';
+    if (sidebarEl) sidebarEl.style.height = h + 'px';
+    if (overlayEl) overlayEl.style.height = h + 'px';
   }
   updateSidebarHeight();
   if (window.visualViewport) {

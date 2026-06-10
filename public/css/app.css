@@ -869,8 +869,10 @@ body {
 /* Overlay styles */
 #sidebar-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3) !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5) !important;
   z-index: 9999998 !important;
   pointer-events: auto !important;
   backdrop-filter: none !important;

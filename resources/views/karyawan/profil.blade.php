@@ -65,16 +65,16 @@
       </div>
       <div class="card-body" style="text-align:center;">
         @if($qrCode)
-          <div style="background:#fff;padding:12px;border-radius:10px;display:inline-block;margin-bottom:12px;box-shadow:var(--shadow-sm);">
+          <div id="qr-container" style="background:#fff;padding:12px;border-radius:10px;display:inline-block;margin-bottom:12px;box-shadow:var(--shadow-sm);">
             {!! $qrImage !!}
           </div>
           <div class="text-xs text-muted" style="margin-bottom:12px;">
             QR Code unik untuk identifikasi Anda
           </div>
           <div style="display:flex;gap:8px;justify-content:center;">
-            <a href="{{ route('karyawan.qrcode.download') }}" class="btn btn-primary btn-sm">
-              <i class="fa-solid fa-download"></i> Unduh
-            </a>
+            <button type="button" onclick="downloadQrPng()" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-download"></i> Unduh PNG
+            </button>
           </div>
         @else
           <div class="text-muted text-sm" style="padding:16px 0;">
@@ -291,6 +291,48 @@ document.getElementById('pw2')?.addEventListener('input', function() {
   bar.style.width = w; bar.style.background = color;
   label.textContent = text; label.style.color = color;
 });
+
+/* ── Download QR as PNG (converts inline SVG via Canvas) ── */
+function downloadQrPng() {
+  var container = document.getElementById('qr-container');
+  if (!container) return;
+  var svg = container.querySelector('svg');
+  if (!svg) { alert('QR Code tidak ditemukan.'); return; }
+
+  // Serialize SVG to string
+  var serializer = new XMLSerializer();
+  var svgString = serializer.serializeToString(svg);
+  var svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  var url = URL.createObjectURL(svgBlob);
+
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    var size = 512;
+    canvas.width = size;
+    canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+    URL.revokeObjectURL(url);
+
+    canvas.toBlob(function(blob) {
+      if (!blob) { alert('Gagal membuat PNG.'); return; }
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'qr-profil.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }, 'image/png');
+  };
+  img.onerror = function() {
+    URL.revokeObjectURL(url);
+    alert('Gagal memuat QR Code.');
+  };
+  img.src = url;
+}
 </script>
 @endpush
 

@@ -17,7 +17,10 @@ class LoginController extends Controller
             return redirect($this->redirectTo());
         }
 
-        return view('auth.login');
+        // Pre-fill username from "Remember me" cookie
+        $rememberedUsername = cookie()->get('remember_username') ?? '';
+
+        return view('auth.login', compact('rememberedUsername'));
     }
 
     /* ─── Process login ──────────────────────────────────────── */
@@ -35,6 +38,13 @@ class LoginController extends Controller
             return back()
                 ->withInput($request->only(['username', 'remember']))
                 ->withErrors(['username' => 'Username atau password salah.']);
+        }
+
+        // Set or clear "Remember username" cookie (1 year)
+        if ($remember) {
+            cookie()->queue('remember_username', $credentials['username'], 525600);
+        } else {
+            cookie()->queue(cookie()->forget('remember_username'));
         }
 
         if (in_array(Auth::user()->role, ['karyawan', 'hrd'])) {
