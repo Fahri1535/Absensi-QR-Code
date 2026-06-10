@@ -396,5 +396,115 @@
 </div>{{-- /wrapper --}}
 
 @stack('scripts')
+
+{{-- Auto Logout on Idle (10 minutes) --}}
+<div id="idle-modal" style="display:none;position:fixed;inset:0;z-index:99999999;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card,#1e293b);border:1px solid var(--border,#334155);border-radius:16px;padding:32px;text-align:center;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div style="font-size:2.5rem;margin-bottom:12px;">⏳</div>
+    <h3 style="margin:0 0 8px;font-weight:700;">Sesi Hampir Habis</h3>
+    <p style="color:var(--text-secondary,#94a3b8);font-size:.9rem;margin:0 0 6px;">Anda tidak aktif selama <strong id="idle-elapsed">9</strong> menit.</p>
+    <p style="color:var(--text-secondary,#94a3b8);font-size:.8rem;margin:0 0 20px;">Sesi akan berakhir dalam <strong id="idle-countdown" style="color:var(--amber,#f59e0b);">60</strong> detik.</p>
+    <button onclick="resetIdleTimer()" style="width:100%;padding:12px;border:none;border-radius:10px;background:var(--teal,#00c9a7);color:#0f172a;font-weight:700;font-size:.95rem;cursor:pointer;">
+      Tetap Masuk
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  const IDLE_LIMIT  = 10 * 60 * 1000; // 10 minutes in ms
+  const WARN_BEFORE = 60 * 1000;      // warn 1 minute before
+  const LOGIN_URL   = '{{ route("login") }}';
+  const LOGOUT_URL  = '{{ route("logout") }}';
+
+  let idleTimer  = null;
+  let warnTimer  = null;
+  let countdown  = null;
+  let lastActive = Date.now();
+
+  const modal      = document.getElementById('idle-modal');
+  const countdownEl = document.getElementById('idle-countdown');
+  const elapsedEl   = document.getElementById('idle-elapsed');
+
+  function resetIdleTimer() {
+    lastActive = Date.now();
+    modal.style.display = 'none';
+    if (idleTimer) clearTimeout(idleTimer);
+    if (warnTimer) clearTimeout(warnTimer);
+    if (countdown) clearInterval(countdown);
+    startIdleWatch();
+  }
+  window.resetIdleTimer = resetIdleTimer;
+
+  function onActivity() {
+    lastActive = Date.now();
+    if (modal.style.display === 'flex') {
+      resetIdleTimer();
+    }
+  }
+
+  function showWarning() {
+    const elapsedMin = Math.round((Date.now() - lastActive + IDLE_LIMIT - WARN_BEFORE) / 60000);
+    elapsedEl.textContent = elapsedMin;
+    modal.style.display = 'flex';
+    let remaining = Math.ceil(WARN_BEFORE / 1000);
+    countdownEl.textContent = remaining;
+    countdown = setInterval(() => {
+      remaining--;
+      countdownEl.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(countdown);
+        doLogout();
+      }
+    }, 1000);
+  }
+
+  function doLogout() {
+    // POST to logout route to destroy session, then redirect
+    fetch(LOGOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    }).finally(() => {
+      window.location.href = LOGIN_URL;
+    });
+  }
+
+  function startIdleWatch() {
+    // Set main idle timer
+    idleTimer = setTimeout(() => {
+      showWarning();
+    }, IDLE_LIMIT - WARN_BEFORE);
+
+    // Also set a hard limit — force logout even if warning is dismissed
+    warnTimer = setTimeout(() => {
+      doLogout();
+    }, IDLE_LIMIT);
+  }
+
+  // Track user activity
+  ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt => {
+    document.addEventListener(evt, onActivity, { passive: true });
+  });
+
+  // Start watching
+  startIdleWatch();
+
+  // Reset on page visibility change (user comes back to tab)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      // Check if session already expired
+      const elapsed = Date.now() - lastActive;
+      if (elapsed >= IDLE_LIMIT) {
+        doLogout();
+      } else {
+        onActivity();
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>
