@@ -21,7 +21,11 @@
           @if($karyawan?->foto)
             <img src="{{ asset('storage/'.$karyawan->foto) }}"
                  style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);"
-                 alt="Foto Profil">
+                 alt="Foto Profil"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--navy-light));display:none;align-items:center;justify-content:center;font-size:2.2rem;font-weight:700;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);">
+              {{ strtoupper(substr($karyawan?->nama_lengkap ?? auth()->user()->username, 0, 1)) }}
+            </div>
           @else
             <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--navy-light));display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:700;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);">
               {{ strtoupper(substr($karyawan?->nama_lengkap ?? auth()->user()->username, 0, 1)) }}

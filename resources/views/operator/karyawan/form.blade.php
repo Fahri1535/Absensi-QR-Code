@@ -2,6 +2,20 @@
 @section('title', isset($karyawan) ? 'Edit Karyawan' : 'Tambah Karyawan')
 @section('page-title', isset($karyawan) ? 'Edit Karyawan' : 'Tambah Karyawan')
 
+@push('styles')
+<style>
+  .pw-wrap { position: relative; }
+  .pw-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; padding: 4px; cursor: pointer;
+    color: var(--text-secondary); font-size: .9rem; transition: color .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pw-toggle:hover { color: var(--teal); }
+  .pw-wrap .form-control { padding-right: 42px; }
+</style>
+@endpush
+
 @section('content')
 @php $karyawan = $karyawan ?? null; @endphp
 <div class="page-header">
@@ -65,9 +79,14 @@
               <span style="color:var(--red);">*</span>
             @endif
           </label>
-          <input type="password" name="password" class="form-control"
+          <div class="pw-wrap">
+            <input type="password" id="pwInput" name="password" class="form-control"
                    placeholder="{{ isset($karyawan) ? 'Biarkan kosong...' : 'Min. 6 karakter' }}"
                    {{ isset($karyawan) ? '' : 'required' }} minlength="6">
+            <button type="button" class="pw-toggle" onclick="togglePw()" tabindex="-1" aria-label="Tampilkan password">
+              <i class="fa-solid fa-eye" id="pwEye"></i>
+            </button>
+          </div>
         </div>
 
         <hr class="divider">
@@ -132,4 +151,14 @@
     </div>
   </div>
 </div>
+
+<script>
+function togglePw() {
+  const inp = document.getElementById('pwInput');
+  const eye = document.getElementById('pwEye');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  eye.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+}
+</script>
 @endsection

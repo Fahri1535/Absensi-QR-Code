@@ -22,7 +22,11 @@
           @if($karyawan?->foto)
             <img src="{{ asset('storage/'.$karyawan->foto) }}"
                  style="width:100px;height:100px;border-radius:50%;object-fit:cover;aspect-ratio:1/1;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);display:block;"
-                 alt="Foto Profil">
+                 alt="Foto Profil"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--navy-light));display:none;align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);aspect-ratio:1/1;">
+              {{ strtoupper(substr($karyawan?->nama_lengkap ?? $user->username, 0, 1)) }}
+            </div>
             <form action="{{ route($user->role . '.profil.foto.delete') }}" method="POST" style="position:absolute;top:-5px;right:-5px;">
                 @csrf @method('DELETE')
                 <button type="submit" style="width:26px;height:26px;border-radius:50%;background:var(--red);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.65rem;color:white;box-shadow:var(--shadow-sm);" title="Hapus Foto">

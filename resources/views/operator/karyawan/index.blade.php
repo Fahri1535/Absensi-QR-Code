@@ -93,9 +93,6 @@
           </td>
           <td>
             <div style="display:flex;gap:6px;justify-content:flex-end;">
-              <a href="{{ route('operator.karyawan.show', $k->id) }}" class="btn btn-ghost btn-sm" title="Detail">
-                <i class="fa-solid fa-eye"></i>
-              </a>
               <a href="{{ route('operator.karyawan.edit', $k->id) }}" class="btn btn-outline btn-sm" title="Edit">
                 <i class="fa-solid fa-pen"></i>
               </a>
