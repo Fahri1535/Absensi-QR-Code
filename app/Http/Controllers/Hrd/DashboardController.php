@@ -64,6 +64,9 @@ class DashboardController extends Controller
         })->values();
         $belumPresensi = $belumPresensiList->count();
 
+        // Alpa = belum presensi, tapi hanya pada hari kerja (sama seperti page Data Presensi)
+        $totalAlpa = $today->isWeekend() ? 0 : $belumPresensiList->count();
+
         // Jadwal & Presensi Pribadi
         $jadwal = JadwalKerja::getSetting();
         $presensiPribadi = Presensi::where('karyawan_id', $karyawanPribadi->id)
@@ -84,6 +87,7 @@ class DashboardController extends Controller
             'izinPending',
             'hadirHariIni',
             'terlambatHariIni',
+            'totalAlpa',
             'belumPresensi',
             'jumlahIzinHariIni',
             'belumPresensiList',

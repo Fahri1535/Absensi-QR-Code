@@ -47,6 +47,9 @@ class DashboardController extends Controller
             return !in_array($k->id, $sudahPresensiIds)
                 && !in_array($k->id, $izinHariIniIds);
         })->values();
+
+        // Alpa = belum presensi, tapi hanya pada hari kerja (sama seperti page Data Presensi)
+        $totalAlpa = $today->isWeekend() ? 0 : $belumPresensiList->count();
         $belumPresensi = $belumPresensiList->count();
 
         // Grafik 7 hari terakhir
@@ -87,6 +90,7 @@ class DashboardController extends Controller
             'totalKaryawan',
             'hadirHariIni',
             'terlambatHariIni',
+            'totalAlpa',
             'belumPresensi',
             'jumlahIzinHariIni',
             'belumPresensiList',

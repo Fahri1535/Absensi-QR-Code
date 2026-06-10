@@ -170,12 +170,13 @@ class LaporanController extends Controller
             ->get();
 
         $summary = [
-            'total' => $laporanAll->count(),
+            'total'       => $laporanAll->count(),
+            'hadir'       => $laporanAll->where('is_izin', false)->where('is_alpa', false)->count(),
             'tepat_waktu' => $laporanAll->where('status', 'tepat_waktu')->count(),
-            'terlambat' => $laporanAll->where('status', 'terlambat')->count(),
+            'terlambat'   => $laporanAll->where('status', 'terlambat')->count(),
             'pulang_awal' => $laporanAll->where('status_pulang', 'pulang_awal')->count(),
-            'izin' => $laporanAll->where('is_izin', true)->count(),
-            'alpa' => $laporanAll->where('is_alpa', true)->count(),
+            'izin'        => $laporanAll->where('is_izin', true)->count(),
+            'alpa'        => $laporanAll->where('is_alpa', true)->count(),
         ];
 
         return view('shared.laporan', compact(

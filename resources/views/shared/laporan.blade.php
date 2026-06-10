@@ -108,8 +108,9 @@
   <div class="stat-card">
     <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
     <div class="stat-info">
-      <div class="stat-label">Tepat Waktu</div>
-      <div class="stat-value">{{ $summary['tepat_waktu'] ?? 0 }}</div>
+      <div class="stat-label">Hadir</div>
+      <div class="stat-value">{{ $summary['hadir'] ?? 0 }}</div>
+      <div class="stat-delta pos">presensi fisik</div>
     </div>
   </div>
   <div class="stat-card">
@@ -117,13 +118,7 @@
     <div class="stat-info">
       <div class="stat-label">Terlambat</div>
       <div class="stat-value">{{ $summary['terlambat'] ?? 0 }}</div>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon red"><i class="fa-solid fa-arrow-left"></i></div>
-    <div class="stat-info">
-      <div class="stat-label">Pulang Awal</div>
-      <div class="stat-value">{{ $summary['pulang_awal'] ?? 0 }}</div>
+      <div class="stat-delta">dari total hadir</div>
     </div>
   </div>
   <div class="stat-card">
@@ -131,6 +126,7 @@
     <div class="stat-info">
       <div class="stat-label">Izin</div>
       <div class="stat-value">{{ $summary['izin'] ?? 0 }}</div>
+      <div class="stat-delta">sudah disetujui</div>
     </div>
   </div>
   <div class="stat-card">
@@ -138,6 +134,15 @@
     <div class="stat-info">
       <div class="stat-label">Alpa</div>
       <div class="stat-value">{{ $summary['alpa'] ?? 0 }}</div>
+      <div class="stat-delta neg">tanpa keterangan</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red" style="opacity:.7;"><i class="fa-solid fa-arrow-left"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pulang Awal</div>
+      <div class="stat-value">{{ $summary['pulang_awal'] ?? 0 }}</div>
+      <div class="stat-delta">karyawan</div>
     </div>
   </div>
   <div class="stat-card">
@@ -145,6 +150,7 @@
     <div class="stat-info">
       <div class="stat-label">Total Catatan</div>
       <div class="stat-value">{{ $summary['total'] ?? 0 }}</div>
+      <div class="stat-delta">hari kerja</div>
     </div>
   </div>
 </div>

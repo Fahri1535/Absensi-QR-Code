@@ -120,12 +120,13 @@ class RiwayatController extends Controller
 
         // 4. Hitung Statistik bulan ini (Summary) sebelum filter (Agar summary tetap akurat)
         $summary = [
-            'total' => $generatedData->count(),
+            'total'       => $generatedData->count(),
+            'hadir'       => $generatedData->where('is_izin', false)->where('status', '!=', 'alpa')->count(),
             'tepat_waktu' => $generatedData->where('status', 'tepat_waktu')->count(),
-            'terlambat' => $generatedData->where('status', 'terlambat')->count(),
+            'terlambat'   => $generatedData->where('status', 'terlambat')->count(),
             'pulang_awal' => $generatedData->where('status_pulang', 'pulang_awal')->count(),
-            'izin' => $generatedData->where('is_izin', true)->count(),
-            'alpa' => $generatedData->where('status', 'alpa')->count(),
+            'izin'        => $generatedData->where('is_izin', true)->count(),
+            'alpa'        => $generatedData->where('status', 'alpa')->count(),
         ];
 
         // 5. Filter status jika ada (Fitur Laporan)

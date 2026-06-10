@@ -66,27 +66,51 @@
 <div class="stat-grid stagger mb-6">
   <div class="stat-card">
     <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
-    <div class="stat-info"><div class="stat-label">Tepat Waktu</div><div class="stat-value">{{ $summary['tepat_waktu'] ?? 0 }}</div></div>
+    <div class="stat-info">
+      <div class="stat-label">Hadir</div>
+      <div class="stat-value">{{ $summary['hadir'] ?? 0 }}</div>
+      <div class="stat-delta pos">presensi fisik</div>
+    </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
-    <div class="stat-info"><div class="stat-label">Terlambat</div><div class="stat-value">{{ $summary['terlambat'] ?? 0 }}</div></div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon red"><i class="fa-solid fa-arrow-left"></i></div>
-    <div class="stat-info"><div class="stat-label">Pulang Awal</div><div class="stat-value">{{ $summary['pulang_awal'] ?? 0 }}</div></div>
+    <div class="stat-info">
+      <div class="stat-label">Terlambat</div>
+      <div class="stat-value">{{ $summary['terlambat'] ?? 0 }}</div>
+      <div class="stat-delta">dari total hadir</div>
+    </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon blue"><i class="fa-solid fa-file-medical"></i></div>
-    <div class="stat-info"><div class="stat-label">Izin</div><div class="stat-value">{{ $summary['izin'] ?? 0 }}</div></div>
+    <div class="stat-info">
+      <div class="stat-label">Izin</div>
+      <div class="stat-value">{{ $summary['izin'] ?? 0 }}</div>
+      <div class="stat-delta">sudah disetujui</div>
+    </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon red"><i class="fa-solid fa-user-xmark"></i></div>
-    <div class="stat-info"><div class="stat-label">Alpa</div><div class="stat-value">{{ $summary['alpa'] ?? 0 }}</div></div>
+    <div class="stat-info">
+      <div class="stat-label">Alpa</div>
+      <div class="stat-value">{{ $summary['alpa'] ?? 0 }}</div>
+      <div class="stat-delta neg">tanpa keterangan</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red" style="opacity:.7;"><i class="fa-solid fa-arrow-left"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pulang Awal</div>
+      <div class="stat-value">{{ $summary['pulang_awal'] ?? 0 }}</div>
+      <div class="stat-delta">kali</div>
+    </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon teal"><i class="fa-solid fa-calendar-days"></i></div>
-    <div class="stat-info"><div class="stat-label">Total</div><div class="stat-value">{{ $summary['total'] ?? 0 }}</div><div class="stat-delta">hari</div></div>
+    <div class="stat-info">
+      <div class="stat-label">Total</div>
+      <div class="stat-value">{{ $summary['total'] ?? 0 }}</div>
+      <div class="stat-delta">hari kerja</div>
+    </div>
   </div>
 </div>
 
