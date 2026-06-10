@@ -58,25 +58,43 @@
     <div class="stat-info">
       <div class="stat-label">Hadir Hari Ini</div>
       <div class="stat-value">{{ $hadirHariIni ?? 0 }}</div>
-      <div class="stat-delta pos">karyawan</div>
+      <div class="stat-delta pos">sudah presensi</div>
     </div>
   </div>
 
   <div class="stat-card">
     <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
     <div class="stat-info">
-      <div class="stat-label">Terlambat Hari Ini</div>
+      <div class="stat-label">Terlambat</div>
       <div class="stat-value">{{ $terlambatHariIni ?? 0 }}</div>
       <div class="stat-delta neg">karyawan</div>
     </div>
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon red"><i class="fa-solid fa-file-medical"></i></div>
+    <div class="stat-icon" style="background:rgba(139,92,246,.12);color:#8B5CF6;"><i class="fa-solid fa-calendar-day"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Izin Hari Ini</div>
+      <div class="stat-value">{{ $jumlahIzinHariIni ?? 0 }}</div>
+      <div class="stat-delta" style="color:#8B5CF6;">disetujui</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="fa-solid fa-user-xmark"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Belum Presensi</div>
+      <div class="stat-value">{{ $belumPresensi ?? 0 }}</div>
+      <div class="stat-delta neg">karyawan</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(255,171,64,.12);color:#FFAB40;"><i class="fa-solid fa-file-medical"></i></div>
     <div class="stat-info">
       <div class="stat-label">Izin Pending</div>
       <div class="stat-value">{{ $izinPending ?? 0 }}</div>
-      <div class="stat-delta pos">menunggu</div>
+      <div class="stat-delta" style="color:#FFAB40;">menunggu</div>
     </div>
   </div>
 </div>
@@ -89,7 +107,6 @@
       <i class="fa-solid fa-calendar-check" style="color:var(--blue-light);"></i>
       <h3>Presensi Terbaru Hari Ini</h3>
       <div class="card-actions">
-        {{-- Karena tidak ada route presensi khusus untuk HRD, bisa ke laporan atau disable dulu --}}
         <a href="{{ route('hrd.laporan') }}" class="btn btn-ghost btn-sm">Lihat Laporan</a>
       </div>
     </div>
@@ -104,7 +121,7 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($presensiHariIni ?? [] as $p)
+          @forelse($presensiTerbaru ?? [] as $p)
           <tr>
             <td>{{ $p->karyawan?->nama_lengkap ?? '—' }}</td>
             <td>{{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '-' }}</td>
@@ -137,6 +154,30 @@
 
   {{-- Sidebar Kanan --}}
   <div style="display:flex; flex-direction:column; gap:16px;">
+
+    {{-- Belum Presensi --}}
+    <div class="card" style="border-left: 4px solid var(--red); background: linear-gradient(to right, rgba(255,71,87,0.05), transparent);">
+      <div class="card-header">
+        <i class="fa-solid fa-user-xmark" style="color:var(--red);"></i>
+        <h3>Belum Presensi ({{ $belumPresensi ?? 0 }})</h3>
+      </div>
+      <div class="card-body-sm" style="max-height:240px; overflow-y:auto;">
+        @forelse($belumPresensiList ?? [] as $k)
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+          <div>
+            <div style="font-weight:600; font-size:.85rem;">{{ $k->nama_lengkap }}</div>
+            <div style="font-size:.7rem; color:var(--text-secondary);">{{ $k->kode_karyawan ?? '-' }}</div>
+          </div>
+          <span class="badge badge-red" style="font-size:.65rem;">Belum</span>
+        </div>
+        @empty
+        <div style="text-align:center; padding:20px; color:var(--text-secondary);">
+          <i class="fa-solid fa-circle-check" style="font-size:1.2rem; color:var(--green);"></i>
+          <div style="margin-top:6px; font-size:.8rem;">Semua sudah presensi!</div>
+        </div>
+        @endforelse
+      </div>
+    </div>
 
     {{-- Izin Pending --}}
     <div class="card" style="border-left: 4px solid var(--amber); background: linear-gradient(to right, rgba(255,171,64,0.05), transparent);">

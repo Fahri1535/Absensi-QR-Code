@@ -47,7 +47,8 @@ class ProfileController extends Controller
 
         if ($karyawan && ($user->role === 'karyawan' || $user->role === 'hrd')) {
             $qrCode = $karyawan->kode_karyawan ?? $karyawan->id;
-            $qrImage = QrCode::format('svg')->size(150)->generate($qrCode);
+            $qrUrl  = route('karyawan.profile-public', ['kode_karyawan' => $qrCode]);
+            $qrImage = QrCode::format('svg')->size(150)->generate($qrUrl);
         }
 
         // Statistik singkat untuk dashboard profil
@@ -181,13 +182,14 @@ class ProfileController extends Controller
         $karyawan = auth()->user()->karyawan;
         if (!$karyawan) return abort(404);
 
-        $qrData = $karyawan->kode_karyawan ?? (string) $karyawan->id;
+        $qrCode = $karyawan->kode_karyawan ?? (string) $karyawan->id;
+        $qrUrl  = route('karyawan.profile-public', ['kode_karyawan' => $qrCode]);
 
         $qrSvg = QrCode::format('svg')
             ->size(512)
             ->margin(2)
             ->errorCorrection('H')
-            ->generate($qrData);
+            ->generate($qrUrl);
 
         return response($qrSvg, 200, [
             'Content-Type' => 'image/svg+xml',
