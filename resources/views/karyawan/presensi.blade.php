@@ -469,27 +469,28 @@ async function startScanner() {
     return;
   }
 
-  // 1. Cleanup existing stream if any
-  if (videoStream) {
-    videoStream.getTracks().forEach(t => t.stop());
-    videoStream = null;
-  }
+  // 1. Cleanup existing stream thoroughly
+  cleanupStream();
+
+  // Small delay to let OS fully release camera hardware
+  await new Promise(r => setTimeout(r, 300));
 
   try {
-    // First try back camera
+    // Try back camera first, fallback to front
+    let stream;
     try {
-      videoStream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' }, width: {ideal:640}, height: {ideal:640} }
       });
     } catch (backErr) {
-      // If back camera fails, try front camera
-      videoStream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: {ideal:640}, height: {ideal:640} }
       });
     }
 
+    videoStream = stream;
     const video = document.getElementById('qr-video');
-    video.srcObject = videoStream;
+    video.srcObject = stream;
     await video.play();
 
     document.getElementById('scanner-off').style.display  = 'none';
@@ -505,31 +506,64 @@ async function startScanner() {
   } catch(e) {
     let msg = e.message;
     if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
-      msg = 'Kamera sedang digunakan oleh aplikasi lain. Tutup aplikasi kamera atau browser lain dan coba lagi.';
+      // Retry once after delay — camera may still be releasing
+      try {
+        await new Promise(r => setTimeout(r, 800));
+        cleanupStream();
+        const retryStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: {ideal:640}, height: {ideal:640} }
+        });
+        videoStream = retryStream;
+        const video = document.getElementById('qr-video');
+        video.srcObject = retryStream;
+        await video.play();
+
+        document.getElementById('scanner-off').style.display  = 'none';
+        document.getElementById('scanner-on').style.display   = 'block';
+        document.getElementById('btn-start-scan').style.display = 'none';
+        document.getElementById('btn-stop-scan').style.display  = 'inline-flex';
+        document.getElementById('scanner-status').textContent = 'Scanning...';
+        document.getElementById('scanner-status').className   = 'badge badge-teal';
+
+        scanning = true;
+        scanFrame();
+      } catch (retryErr) {
+        msg = 'Kamera masih digunakan oleh proses lain. Tutup aplikasi kamera atau browser lain, lalu coba lagi.';
+        showError(msg);
+      }
     } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
       msg = 'Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser Anda.';
+      showError(msg);
     } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
       msg = 'Perangkat kamera tidak ditemukan. Pastikan perangkat Anda memiliki kamera.';
+      showError(msg);
+    } else {
+      showError(msg);
     }
-    showError(msg);
   } finally {
     isStarting = false;
   }
 }
 
-function stopScanner() {
-  scanning = false;
-  if(animFrame) cancelAnimationFrame(animFrame);
-  
-  if(videoStream) {
-    videoStream.getTracks().forEach(t => t.stop());
+/** Fully release camera stream and reset video element */
+function cleanupStream() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(t => { t.stop(); t.enabled = false; });
     videoStream = null;
   }
-
   const video = document.getElementById('qr-video');
   if (video) {
+    video.pause();
     video.srcObject = null;
+    video.removeAttribute('src');
+    video.load();
   }
+}
+
+function stopScanner() {
+  scanning = false;
+  if(animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  cleanupStream();
 
   document.getElementById('scanner-on').style.display   = 'none';
   document.getElementById('scanner-off').style.display  = 'flex';
