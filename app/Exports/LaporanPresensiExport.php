@@ -53,6 +53,11 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
                 
+                // Skip weekend
+                if ($date->isWeekend()) {
+                    continue;
+                }
+                
                 // Cek apakah ada presensi
                 $presensi = $dataPresensi->filter(function($item) use ($karyawan, $dateStr) {
                     return $item->karyawan_id == $karyawan->id && 
@@ -60,7 +65,10 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                 })->first();
 
                 if ($presensi) {
-                    $presensi->status_label = $presensi->status_masuk;
+                    $presensi->is_izin = false;
+                    $presensi->is_alpa = false;
+                    $presensi->status = $presensi->status_masuk;
+                    $presensi->hari = $date->translatedFormat('l');
                     $generatedData->push($presensi);
                     continue;
                 }
@@ -72,55 +80,88 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                     $generatedData->push((object)[
                         'karyawan' => $karyawan,
                         'tanggal' => $date->copy(),
+                        'hari' => $date->translatedFormat('l'),
                         'jam_datang' => null,
                         'jam_pulang' => null,
                         'status_masuk' => $izin->jenis_izin,
                         'status_pulang' => $izin->jenis_izin,
-                        'status_label' => $izin->jenis_izin
+                        'status' => $izin->jenis_izin,
+                        'keterangan' => 'Izin: ' . $izin->keterangan,
+                        'is_izin' => true,
+                        'is_alpa' => false
                     ]);
                     continue;
                 }
 
-                // Baris Alpa dihilangkan agar laporan hanya menampilkan yang benar-benar presensi atau izin
+                // Alpa
+                $generatedData->push((object)[
+                    'karyawan' => $karyawan,
+                    'tanggal' => $date->copy(),
+                    'hari' => $date->translatedFormat('l'),
+                    'jam_datang' => null,
+                    'jam_pulang' => null,
+                    'status_masuk' => 'alpa',
+                    'status_pulang' => 'alpa',
+                    'status' => 'alpa',
+                    'keterangan' => 'Tidak hadir tanpa keterangan',
+                    'is_izin' => false,
+                    'is_alpa' => true
+                ]);
             }
         }
 
         // Filter status jika ada
         if ($this->status) {
             $generatedData = $generatedData->filter(function($item) {
-                $statusVal = $item->status_label ?? ($item->status_masuk ?? null);
-                return $statusVal === $this->status;
+                if ($this->status === 'izin') {
+                    return $item->is_izin ?? false;
+                }
+                if ($this->status === 'pulang_awal') {
+                    return ($item->status_pulang ?? null) === 'pulang_awal';
+                }
+                return ($item->status ?? $item->status_masuk) === $this->status;
             });
         }
 
         return $generatedData->sortBy([
-            ['tanggal', 'asc'],
+            ['tanggal', 'desc'],
             ['karyawan.nama_lengkap', 'asc']
         ]);
     }
 
     public function headings(): array
     {
-        return ['Nama Karyawan', 'Jabatan', 'Tanggal', 'Jam Masuk', 'Jam Pulang', 'Status Masuk', 'Status Pulang'];
+        return ['Nama Karyawan', 'Tanggal', 'Hari', 'Jam Masuk', 'Jam Pulang', 'Durasi', 'Status', 'Keterangan'];
     }
 
     public function map($row): array
     {
         $tanggal = $row->tanggal instanceof Carbon ? $row->tanggal : Carbon::parse($row->tanggal);
         
+        // Hitung durasi
+        $durasi = '—';
+        if ($row->jam_datang && $row->jam_pulang) {
+            $durasi = Carbon::parse($row->jam_datang)->diff(Carbon::parse($row->jam_pulang))->format('%H:%I');
+        }
+        
+        // Format status
+        $status = $row->status ?? $row->status_masuk ?? '—';
+        $statusLabel = ucfirst(str_replace('_', ' ', $status));
+        
         return [
             $row->karyawan?->nama_lengkap ?? '—',
-            $row->karyawan?->jabatan ?? '—',
             $tanggal->format('d/m/Y'),
+            $row->hari ?? $tanggal->translatedFormat('l'),
             $row->jam_datang ? Carbon::parse($row->jam_datang)->format('H:i') : '—',
             $row->jam_pulang ? Carbon::parse($row->jam_pulang)->format('H:i') : '—',
-            ucfirst(str_replace('_', ' ', $row->status_masuk ?? '—')),
-            ucfirst(str_replace('_', ' ', $row->status_pulang ?? '—')),
+            $durasi,
+            $statusLabel,
+            $row->keterangan ?? '—',
         ];
     }
 
     public function title(): string
     {
-        return "Laporan {$this->bulan}";
+        return "Laporan Presensi {$this->bulan}";
     }
 }
