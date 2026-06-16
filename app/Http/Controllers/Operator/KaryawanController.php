@@ -36,14 +36,17 @@ class KaryawanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'username'      => 'required|string|unique:users,username|max:50',
-            'password'      => 'required|string|min:6',
-            'role'          => 'required|in:karyawan,hrd',
-            'nama_lengkap'  => 'required|string|max:100',
-            'jabatan'       => 'nullable|string|max:100',
-            'nomor_telepon' => 'nullable|string|max:20',
-            'status'        => 'required|in:aktif,nonaktif',
-            'foto'          => 'nullable|image|max:2048',
+            'username'         => 'required|string|unique:users,username|max:50',
+            'password'         => 'required|string|min:6',
+            'role'             => 'required|in:karyawan,hrd',
+            'nama_lengkap'     => 'required|string|max:100',
+            'jabatan'          => 'nullable|string|max:100',
+            'nomor_telepon'    => 'nullable|string|max:20',
+            'status'           => 'required|in:aktif,nonaktif',
+            'foto'             => 'nullable|image|max:2048',
+            'jam_masuk'        => 'nullable|date_format:H:i',
+            'jam_pulang'       => 'nullable|date_format:H:i',
+            'toleransi_menit'  => 'nullable|integer|min:0',
         ]);
 
         DB::transaction(function () use ($validated, $request) {
@@ -59,13 +62,16 @@ class KaryawanController extends Controller
             }
 
             Karyawan::create([
-                'user_id'        => $user->id,
-                'nama_lengkap'   => $validated['nama_lengkap'],
-                'jabatan'        => $validated['jabatan'] ?? null,
-                'nomor_telepon'  => $validated['nomor_telepon'] ?? null,
-                'foto'           => $fotoPath,
-                'status'         => $validated['status'],
-                'kode_karyawan'  => 'KRY-' . Str::upper(Str::random(12)),
+                'user_id'          => $user->id,
+                'nama_lengkap'     => $validated['nama_lengkap'],
+                'jabatan'          => $validated['jabatan'] ?? null,
+                'nomor_telepon'    => $validated['nomor_telepon'] ?? null,
+                'foto'             => $fotoPath,
+                'status'           => $validated['status'],
+                'kode_karyawan'    => 'KRY-' . Str::upper(Str::random(12)),
+                'jam_masuk'        => $validated['jam_masuk'] ?? null,
+                'jam_pulang'       => $validated['jam_pulang'] ?? null,
+                'toleransi_menit'  => $validated['toleransi_menit'] ?? null,
             ]);
         });
 
@@ -96,14 +102,17 @@ class KaryawanController extends Controller
         $karyawan = Karyawan::with('user')->findOrFail($id);
 
         $validated = $request->validate([
-            'username'      => "required|string|unique:users,username,{$karyawan->user_id}|max:50",
-            'password'      => 'nullable|string|min:6',
-            'role'          => 'required|in:karyawan,hrd',
-            'nama_lengkap'  => 'required|string|max:100',
-            'jabatan'       => 'nullable|string|max:100',
-            'nomor_telepon' => 'nullable|string|max:20',
-            'status'        => 'required|in:aktif,nonaktif',
-            'foto'          => 'nullable|image|max:2048',
+            'username'         => "required|string|unique:users,username,{$karyawan->user_id}|max:50",
+            'password'         => 'nullable|string|min:6',
+            'role'             => 'required|in:karyawan,hrd',
+            'nama_lengkap'     => 'required|string|max:100',
+            'jabatan'          => 'nullable|string|max:100',
+            'nomor_telepon'    => 'nullable|string|max:20',
+            'status'           => 'required|in:aktif,nonaktif',
+            'foto'             => 'nullable|image|max:2048',
+            'jam_masuk'        => 'nullable|date_format:H:i',
+            'jam_pulang'       => 'nullable|date_format:H:i',
+            'toleransi_menit'  => 'nullable|integer|min:0',
         ]);
 
         DB::transaction(function () use ($validated, $request, $karyawan) {
@@ -125,11 +134,14 @@ class KaryawanController extends Controller
             }
 
             $karyawan->update([
-                'nama_lengkap'  => $validated['nama_lengkap'],
-                'jabatan'       => $validated['jabatan'] ?? null,
-                'nomor_telepon' => $validated['nomor_telepon'] ?? null,
-                'status'        => $validated['status'],
-                'foto'          => $fotoPath,
+                'nama_lengkap'     => $validated['nama_lengkap'],
+                'jabatan'          => $validated['jabatan'] ?? null,
+                'nomor_telepon'    => $validated['nomor_telepon'] ?? null,
+                'status'           => $validated['status'],
+                'foto'             => $fotoPath,
+                'jam_masuk'        => $validated['jam_masuk'] ?? null,
+                'jam_pulang'       => $validated['jam_pulang'] ?? null,
+                'toleransi_menit'  => $validated['toleransi_menit'] ?? null,
             ]);
         });
 

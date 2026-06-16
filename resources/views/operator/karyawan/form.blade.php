@@ -137,6 +137,31 @@
           @endif
         </div>
 
+        <hr class="divider">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;
+                    color:var(--text-secondary);margin-bottom:16px;">
+          Jadwal Kerja (Kosongkan untuk menggunakan jadwal global)
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jam Masuk</label>
+            <input type="time" name="jam_masuk" class="form-control"
+                   value="{{ old('jam_masuk', $karyawan?->jam_masuk ? substr($karyawan->jam_masuk, 0, 5) : '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jam Pulang</label>
+            <input type="time" name="jam_pulang" class="form-control"
+                   value="{{ old('jam_pulang', $karyawan?->jam_pulang ? substr($karyawan->jam_pulang, 0, 5) : '') }}">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Toleransi Keterlambatan (Menit)</label>
+          <input type="number" name="toleransi_menit" class="form-control" min="0"
+                 value="{{ old('toleransi_menit', $karyawan?->toleransi_menit) }}">
+        </div>
+
         <div style="display:flex;gap:10px;margin-top:8px;">
           <button type="submit" class="btn btn-primary">
             <i class="fa-solid fa-floppy-disk"></i>

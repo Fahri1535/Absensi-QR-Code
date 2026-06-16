@@ -26,7 +26,7 @@ class PresensiController extends Controller
             );
         }
 
-        $jadwal          = JadwalKerja::getSetting();
+        $jadwal          = $karyawan->schedule;
         $presensiHariIni = Presensi::where('karyawan_id', $karyawan->id)
             ->whereDate('tanggal', today())
             ->first();
@@ -61,7 +61,7 @@ class PresensiController extends Controller
         $qrData = self::normalizeQrPayload($request->input('qr_data'));
 
         $karyawan = auth()->user()->karyawan;
-        $jadwal   = JadwalKerja::getSetting();
+        $jadwal   = $karyawan->schedule;
         $now      = Carbon::now();
 
         if ($err = $this->validateLokasiKantor($request, $jadwal)) {
