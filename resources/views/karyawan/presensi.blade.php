@@ -318,11 +318,11 @@
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="text-muted text-sm">Jam Masuk</span>
-            <span style="font-weight:600;color:var(--teal);">{{ $jadwal?->jam_masuk ?? '08:00' }}</span>
+            <span style="font-weight:600;color:var(--teal);">{{ $jadwal?->jam_masuk ? \Carbon\Carbon::parse($jadwal->jam_masuk)->format('H:i') : '08:00' }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="text-muted text-sm">Jam Pulang</span>
-            <span style="font-weight:600;color:var(--green);">{{ $jadwal?->jam_pulang ?? '17:00' }}</span>
+            <span style="font-weight:600;color:var(--green);">{{ $jadwal?->jam_pulang ? \Carbon\Carbon::parse($jadwal->jam_pulang)->format('H:i') : '17:00' }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span class="text-muted text-sm">Toleransi</span>
@@ -459,6 +459,7 @@ async function startScanner() {
   if (isStarting) return;
   isStarting = true;
 
+  console.log('[Scanner] Starting scanner...');
   document.getElementById('scanner-error').style.display = 'none';
   document.getElementById('scan-result').style.display    = 'none';
 
@@ -476,22 +477,27 @@ async function startScanner() {
   await new Promise(r => setTimeout(r, 300));
 
   try {
+    console.log('[Scanner] Requesting camera permission...');
     // Try back camera first, fallback to front
     let stream;
     try {
+      console.log('[Scanner] Trying back camera first...');
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' }, width: {ideal:640}, height: {ideal:640} }
       });
     } catch (backErr) {
+      console.log('[Scanner] Back camera failed, trying front camera...', backErr);
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: {ideal:640}, height: {ideal:640} }
       });
     }
 
+    console.log('[Scanner] Camera permission granted!');
     videoStream = stream;
     const video = document.getElementById('qr-video');
     video.srcObject = stream;
     await video.play();
+    console.log('[Scanner] Video playing!');
 
     document.getElementById('scanner-off').style.display  = 'none';
     document.getElementById('scanner-on').style.display   = 'block';
@@ -504,6 +510,7 @@ async function startScanner() {
     scanFrame();
 
   } catch(e) {
+    console.error('[Scanner] Error:', e);
     let msg = e.message;
     if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
       // Retry once after delay — camera may still be releasing

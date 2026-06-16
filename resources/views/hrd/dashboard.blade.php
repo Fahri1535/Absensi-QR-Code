@@ -21,9 +21,9 @@
       </h3>
       <p class="text-muted text-sm">
         @if(!$presensiPribadi?->jam_datang)
-          Waktu presensi masuk: <strong style="color:var(--teal);">{{ $jadwal?->jam_masuk ?? '08:00' }} – {{ \Carbon\Carbon::parse($jadwal?->jam_masuk ?? '08:00')->addMinutes($jadwal?->toleransi_menit ?? 5)->format('H:i') }}</strong>
+          Waktu presensi masuk: <strong style="color:var(--teal);">{{ $jadwal?->jam_masuk ? \Carbon\Carbon::parse($jadwal->jam_masuk)->format('H:i') : '08:00' }} – {{ \Carbon\Carbon::parse($jadwal?->jam_masuk ?? '08:00')->addMinutes($jadwal?->toleransi_menit ?? 5)->format('H:i') }}</strong>
         @elseif(!$presensiPribadi?->jam_pulang)
-          Waktu presensi pulang: <strong style="color:var(--green);">{{ $jadwal?->jam_pulang ?? '17:00' }}</strong>
+          Waktu presensi pulang: <strong style="color:var(--green);">{{ $jadwal?->jam_pulang ? \Carbon\Carbon::parse($jadwal->jam_pulang)->format('H:i') : '17:00' }}</strong>
         @else
           Presensi pribadi Anda hari ini sudah lengkap 🎉
         @endif
