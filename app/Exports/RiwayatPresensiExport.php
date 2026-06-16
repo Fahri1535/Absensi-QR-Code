@@ -45,7 +45,9 @@ class RiwayatPresensiExport implements FromCollection, WithHeadings, WithMapping
             if ($date->isWeekend()) continue;
 
             $dateStr = $date->toDateString();
-            $presensi = $dataPresensi->where('tanggal', $dateStr)->first();
+            $presensi = $dataPresensi->filter(function($item) use ($dateStr) {
+                return ($item->tanggal instanceof \Carbon\Carbon ? $item->tanggal->toDateString() : $item->tanggal) == $dateStr;
+            })->first();
             if ($presensi) {
                 $presensi->karyawan = $karyawan; // Pastikan relasi ada untuk mapping
                 $presensi->status_label = $presensi->status_masuk;
@@ -80,9 +82,10 @@ class RiwayatPresensiExport implements FromCollection, WithHeadings, WithMapping
 
         // Filter status jika ada
         if ($this->status) {
-            $generatedData = $generatedData->filter(function($item) {
+            $status = $this->status;
+            $generatedData = $generatedData->filter(function($item) use ($status) {
                 $statusVal = $item->status_label ?? ($item->status_masuk ?? null);
-                return $statusVal === $this->status;
+                return $statusVal === $status;
             });
         }
 
