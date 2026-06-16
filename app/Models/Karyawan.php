@@ -54,13 +54,16 @@ class Karyawan extends Model
     {
         $global = \App\Models\JadwalKerja::getSetting();
         
-        return (object)[
-            'jam_masuk' => $this->jam_masuk ?? $global->jam_masuk,
-            'jam_pulang' => $this->jam_pulang ?? $global->jam_pulang,
-            'toleransi_menit' => $this->toleransi_menit ?? $global->toleransi_menit,
-            'kantor_latitude' => $global->kantor_latitude,
-            'kantor_longitude' => $global->kantor_longitude,
-            'radius_meter' => $global->radius_meter,
-        ];
+        // Create a new JadwalKerja instance with the merged data
+        $schedule = new \App\Models\JadwalKerja();
+        $schedule->jam_masuk = $this->jam_masuk ?? $global->jam_masuk;
+        $schedule->jam_pulang = $this->jam_pulang ?? $global->jam_pulang;
+        $schedule->toleransi_menit = $this->toleransi_menit ?? $global->toleransi_menit;
+        $schedule->kantor_latitude = $global->kantor_latitude;
+        $schedule->kantor_longitude = $global->kantor_longitude;
+        $schedule->radius_meter = $global->radius_meter;
+        $schedule->hari_kerja = $global->hari_kerja;
+        
+        return $schedule;
     }
 }
