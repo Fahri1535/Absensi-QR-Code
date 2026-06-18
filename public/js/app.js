@@ -6,7 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // ── Auto dismiss flash alerts ─────────────────────────────────
   document.querySelectorAll('.alert').forEach(el => {
-    if (!el.closest('.modal') && !el.closest('form')) {
+    if (!el.closest('.modal') && !el.closest('form') && !el.classList.contains('alert-permanent')) {
       setTimeout(() => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(-8px)';

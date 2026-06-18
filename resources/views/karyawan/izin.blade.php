@@ -18,7 +18,7 @@
 </div>
 
 @if(isset($sedangIzin) && $sedangIzin)
-<div class="alert alert-info" style="margin-bottom:20px;">
+<div class="alert alert-info alert-permanent" style="margin-bottom:20px;">
   <div style="display:flex;align-items:center;gap:10px;">
     <i class="fa-solid fa-calendar-check" style="font-size:1.5rem;"></i>
     <div>
@@ -30,7 +30,7 @@
 @endif
 
 @if(isset($izinPending) && $izinPending)
-<div class="alert alert-warning" style="margin-bottom:20px;">
+<div class="alert alert-warning alert-permanent" style="margin-bottom:20px;">
   <div style="display:flex;align-items:center;gap:10px;">
     <i class="fa-solid fa-clock" style="font-size:1.5rem;"></i>
     <div>

@@ -131,6 +131,7 @@ Route::middleware(['auth', 'role:operator'])
 
         // Panduan Instalasi & Database
         Route::get('/setup',                      [OperatorSetup::class, 'index'])->name('setup');
+        Route::delete('/setup/hapus-presensi',    [OperatorSetup::class, 'deletePresensi'])->name('setup.delete-presensi');
 
         // Profil
         Route::get('/profil',                     [ProfileController::class, 'index'])->name('profil');
