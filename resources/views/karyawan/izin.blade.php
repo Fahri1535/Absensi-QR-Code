@@ -60,10 +60,10 @@
             <div class="form-group">
               <label class="form-label">Jenis Izin <span style="color:var(--red);">*</span></label>
               
-              {{-- Kategori 1: Membutuhkan Persetujuan --}}
+              {{-- Kategori 1: Membutuhkan Persetujuan (untuk Karyawan, tetap tampil untuk HRD tapi auto-approved) --}}
               <div style="margin-bottom:16px;">
                 <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                  <i class="fa-solid fa-circle-check"></i> Membutuhkan Persetujuan
+                  <i class="fa-solid fa-circle-check"></i> {{ $role === 'hrd' ? 'Otomatis Disetujui' : 'Membutuhkan Persetujuan' }}
                 </div>
                 <div class="izin-type-grid">
                   @foreach([
