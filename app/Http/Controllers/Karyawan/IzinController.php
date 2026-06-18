@@ -40,13 +40,27 @@ class IzinController extends Controller
 
         [$rekapBulan, $sisaCuti, $totalCuti] = $this->rekapUntukSidebar($karyawan->id);
 
+        // Cek apakah sedang dalam periode izin yang disetujui
+        $sedangIzin = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', today())
+            ->where('tanggal_selesai', '>=', today())
+            ->first();
+        
+        // Cek apakah memiliki izin yang masih pending
+        $izinPending = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'pending')
+            ->first();
+
         return view('karyawan.izin', compact(
             'karyawan',
             'riwayatIzin',
             'stats',
             'rekapBulan',
             'sisaCuti',
-            'totalCuti'
+            'totalCuti',
+            'sedangIzin',
+            'izinPending'
         ));
     }
 
@@ -73,6 +87,72 @@ class IzinController extends Controller
                     'izin_per_hari' => 'Anda sudah mengajukan izin hari ini. Maksimal satu pengajuan per hari kalender.',
                 ])
                 ->withInput();
+        }
+
+        // Cek apakah masih memiliki izin pending
+        $izinPending = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'pending')
+            ->first();
+        if ($izinPending) {
+            return back()
+                ->withErrors([
+                    'izin_pending' => "Anda masih memiliki izin yang menunggu persetujuan dari {$izinPending->tanggal_mulai->format('d M Y')} sampai {$izinPending->tanggal_selesai->format('d M Y')}. Silakan tunggu hingga izin tersebut diproses sebelum mengajukan izin baru.",
+                ])
+                ->withInput();
+        }
+
+        // Validasi tanggal izin tidak boleh bertumpang tindih dengan izin yang sudah disetujui
+        $tanggalMulai = \Carbon\Carbon::parse($validated['tanggal_mulai']);
+        $tanggalSelesai = \Carbon\Carbon::parse($validated['tanggal_selesai']);
+        
+        $izinBertumpangTindih = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $tanggalSelesai)
+            ->where('tanggal_selesai', '>=', $tanggalMulai)
+            ->first();
+
+        if ($izinBertumpangTindih) {
+            return back()
+                ->withErrors([
+                    'izin_bertumpang' => "Anda sudah memiliki izin yang berlaku dari {$izinBertumpangTindih->tanggal_mulai->format('d M Y')} sampai {$izinBertumpangTindih->tanggal_selesai->format('d M Y')}. Silakan pilih tanggal yang berbeda.",
+                ])
+                ->withInput();
+        }
+
+        // Validasi izin sakit lebih dari 2 hari harus menyertakan surat dokter
+        if ($validated['jenis_izin'] === 'sakit') {
+            $durasi = $tanggalMulai->diffInDays($tanggalSelesai) + 1;
+            if ($durasi > 2 && !$request->hasFile('lampiran')) {
+                return back()
+                    ->withErrors([
+                        'lampiran' => 'Izin sakit lebih dari 2 hari wajib menyertakan surat dokter (pdf/jpg/jpeg/png).',
+                    ])
+                    ->withInput();
+            }
+        }
+
+        // Validasi cuti tahunan maksimal 12 hari
+        if ($validated['jenis_izin'] === 'cuti') {
+            $totalCuti = 12;
+            $pakaiCutiTahun = Izin::where('karyawan_id', $karyawan->id)
+                ->where('jenis_izin', 'cuti')
+                ->where('status', 'disetujui')
+                ->whereYear('tanggal_mulai', now()->year)
+                ->get()
+                ->sum(fn ($i) => $i->tanggal_mulai->diffInDays($i->tanggal_selesai) + 1);
+
+            $tanggalMulai = \Carbon\Carbon::parse($validated['tanggal_mulai']);
+            $tanggalSelesai = \Carbon\Carbon::parse($validated['tanggal_selesai']);
+            $durasiBaru = $tanggalMulai->diffInDays($tanggalSelesai) + 1;
+
+            if (($pakaiCutiTahun + $durasiBaru) > $totalCuti) {
+                $sisaCuti = $totalCuti - $pakaiCutiTahun;
+                return back()
+                    ->withErrors([
+                        'cuti_limit' => "Anda hanya memiliki sisa {$sisaCuti} hari cuti tahun ini. Pengajuan cuti baru tidak boleh melebihi sisa cuti.",
+                    ])
+                    ->withInput();
+            }
         }
         $lampiranPath = null;
 

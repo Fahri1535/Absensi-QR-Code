@@ -17,6 +17,30 @@
   <p class="text-muted">Ajukan izin, cuti, atau sakit. Persetujuan dari HRD akan dikirim via notifikasi. Satu karyawan maksimal satu pengajuan per hari kalender.</p>
 </div>
 
+@if(isset($sedangIzin) && $sedangIzin)
+<div class="alert alert-info" style="margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-calendar-check" style="font-size:1.5rem;"></i>
+    <div>
+      <strong>Anda sedang dalam periode izin!</strong><br>
+      Izin {{ str_replace('_', ' ', $sedangIzin->jenis_izin) }} berlaku dari {{ $sedangIzin->tanggal_mulai->format('d M Y') }} sampai {{ $sedangIzin->tanggal_selesai->format('d M Y') }}.
+    </div>
+  </div>
+</div>
+@endif
+
+@if(isset($izinPending) && $izinPending)
+<div class="alert alert-warning" style="margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-clock" style="font-size:1.5rem;"></i>
+    <div>
+      <strong>Anda memiliki izin yang menunggu persetujuan!</strong><br>
+      Izin {{ str_replace('_', ' ', $izinPending->jenis_izin) }} dari {{ $izinPending->tanggal_mulai->format('d M Y') }} sampai {{ $izinPending->tanggal_selesai->format('d M Y') }} masih dalam proses. Silakan tunggu hingga izin tersebut diproses sebelum mengajukan izin baru.
+    </div>
+  </div>
+</div>
+@endif
+
 <div class="animate-slideup">
 <div class="izin-main-grid">
 
@@ -53,7 +77,10 @@
           </div>
           @endif
 
-          <form method="POST" action="{{ route($storeRoute) }}" enctype="multipart/form-data" id="izinForm">
+          @php
+            $formDisabled = (isset($izinPending) && $izinPending) || (isset($sedangIzin) && $sedangIzin);
+          @endphp
+          <form method="POST" action="{{ route($storeRoute) }}" enctype="multipart/form-data" id="izinForm" {{ $formDisabled ? 'style=pointer-events:none;opacity:0.6;' : '' }}>
             @csrf
 
             {{-- Jenis Izin --}}
@@ -75,10 +102,11 @@
                       ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
                       ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
                     ] as [$val, $emoji, $label, $sub])
-                    <label class="izin-option" style="cursor:pointer;">
+                    <label class="izin-option" style="{{ $formDisabled ? 'cursor:not-allowed;' : 'cursor:pointer;' }}">
                       <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
                         {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);"
+                        {{ $formDisabled ? 'disabled' : '' }}>
                       <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
                         <span style="font-size:1.4rem;">{{ $emoji }}</span>
                         <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
@@ -101,10 +129,11 @@
                       ['cuti',       '🌴', 'Cuti',        'Cuti tahunan'],
                       ['pulang_cepat','🏃', 'Pulang Cepat', 'Izin keluar awal'],
                     ] as [$val, $emoji, $label, $sub])
-                    <label class="izin-option" style="cursor:pointer;">
+                    <label class="izin-option" style="{{ $formDisabled ? 'cursor:not-allowed;' : 'cursor:pointer;' }}">
                       <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
                         {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);"
+                        {{ $formDisabled ? 'disabled' : '' }}>
                       <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
                         <span style="font-size:1.4rem;">{{ $emoji }}</span>
                         <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
@@ -124,10 +153,11 @@
                       ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
                       ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
                     ] as [$val, $emoji, $label, $sub])
-                    <label class="izin-option" style="cursor:pointer;">
+                    <label class="izin-option" style="{{ $formDisabled ? 'cursor:not-allowed;' : 'cursor:pointer;' }}">
                       <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
                         {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);"
+                        {{ $formDisabled ? 'disabled' : '' }}>
                       <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
                         <span style="font-size:1.4rem;">{{ $emoji }}</span>
                         <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
@@ -146,13 +176,15 @@
                 <label class="form-label">Tanggal Mulai <span style="color:var(--red);">*</span></label>
                 <input type="date" name="tanggal_mulai" class="form-control"
                        value="{{ old('tanggal_mulai', date('Y-m-d')) }}"
-                       min="{{ date('Y-m-d') }}" required>
+                       min="{{ date('Y-m-d') }}" required
+                       {{ $formDisabled ? 'disabled' : '' }}>
               </div>
               <div class="form-group">
                 <label class="form-label">Tanggal Selesai <span style="color:var(--red);">*</span></label>
                 <input type="date" name="tanggal_selesai" class="form-control"
                        value="{{ old('tanggal_selesai', date('Y-m-d')) }}"
-                       min="{{ date('Y-m-d') }}" required>
+                       min="{{ date('Y-m-d') }}" required
+                       {{ $formDisabled ? 'disabled' : '' }}>
               </div>
             </div>
 
@@ -160,17 +192,19 @@
             <div class="form-group">
               <label class="form-label">Keterangan / Alasan <span style="color:var(--red);">*</span></label>
               <textarea name="keterangan" class="form-control" rows="4"
-                        placeholder="Tuliskan alasan izin Anda..." required>{{ old('keterangan') }}</textarea>
+                        placeholder="Tuliskan alasan izin Anda..." required
+                        {{ $formDisabled ? 'disabled' : '' }}>{{ old('keterangan') }}</textarea>
             </div>
 
             {{-- Bukti (untuk sakit) --}}
             <div class="form-group" id="bukti-group" style="{{ old('jenis_izin') === 'sakit' ? '' : 'display:none;' }}">
-              <label class="form-label">Bukti Pendukung <span style="color:var(--muted);">(Opsional)</span></label>
+              <label class="form-label">Bukti Pendukung <span style="color:var(--red);" id="buktiLabelSpan">(Wajib untuk sakit > 2 hari)</span></label>
               <div style="position:relative;">
                 <input type="file" name="lampiran" id="buktiInput"
                        accept=".jpg,.jpeg,.png,.pdf"
                        style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;"
-                       onchange="previewFile(this)">
+                       onchange="previewFile(this)"
+                       {{ $formDisabled ? 'disabled' : '' }}>
                 <div id="bukti-placeholder" style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;color:var(--muted);">
                   <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>
                   <div style="font-size:.85rem;">Klik atau seret file ke sini</div>
@@ -179,21 +213,21 @@
                 <div id="bukti-preview" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:none;align-items:center;gap:12px;">
                   <i class="fa-solid fa-file-check" style="color:var(--teal);font-size:1.2rem;"></i>
                   <span id="bukti-filename" style="font-size:.85rem;"></span>
-                  <button type="button" onclick="clearFile()" class="btn btn-ghost btn-sm" style="margin-left:auto;">
+                  <button type="button" onclick="clearFile()" class="btn btn-ghost btn-sm" style="margin-left:auto;" {{ $formDisabled ? 'disabled' : '' }}>
                     <i class="fa-solid fa-xmark"></i>
                   </button>
                 </div>
               </div>
               <p class="text-xs text-muted" style="margin-top:6px;">
-                <i class="fa-solid fa-circle-info"></i> Untuk izin sakit, sertakan surat dokter jika ada.
+                <i class="fa-solid fa-circle-info"></i> Izin sakit lebih dari 2 hari wajib menyertakan surat dokter.
               </p>
             </div>
 
             <div class="izin-btn-row" style="display:flex;gap:10px;margin-top:4px;">
-              <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+              <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" {{ $formDisabled ? 'disabled' : '' }}>
                 <i class="fa-solid fa-paper-plane"></i> Ajukan Izin
               </button>
-              <button type="reset" class="btn btn-outline" onclick="resetForm()">
+              <button type="reset" class="btn btn-outline" onclick="resetForm()" {{ $formDisabled ? 'disabled' : '' }}>
                 <i class="fa-solid fa-rotate-left"></i> Reset
               </button>
             </div>
@@ -335,18 +369,33 @@
       </div>
       <div class="card-body-sm">
         <div style="display:flex;flex-direction:column;gap:10px;">
-          @foreach([
-            'Pengajuan minimal 1 hari sebelumnya (kecuali sakit mendadak)',
-            'Izin sakit dengan 2+ hari wajib menyertakan surat dokter',
-            'Cuti tahunan diberikan 12 hari per tahun',
-            'Persetujuan izin dilakukan oleh HRD',
-            'Notifikasi status pengajuan dikirim otomatis',
-          ] as $item)
-          <div style="display:flex;gap:8px;font-size:.82rem;color:var(--muted);">
-            <i class="fa-solid fa-circle-dot" style="color:var(--teal);margin-top:3px;flex-shrink:0;font-size:.65rem;"></i>
-            {{ $item }}
-          </div>
-          @endforeach
+          @if($role === 'hrd')
+            @foreach([
+              'Pengajuan minimal 1 hari sebelumnya (kecuali sakit mendadak)',
+              'Izin sakit dengan 2+ hari wajib menyertakan surat dokter',
+              'Cuti tahunan diberikan 12 hari per tahun',
+              'Semua pengajuan izin otomatis disetujui',
+              'Notifikasi status pengajuan dikirim otomatis',
+            ] as $item)
+              <div style="display:flex;gap:8px;font-size:.82rem;color:var(--muted);">
+                <i class="fa-solid fa-circle-dot" style="color:var(--teal);margin-top:3px;flex-shrink:0;font-size:.65rem;"></i>
+                {{ $item }}
+              </div>
+            @endforeach
+          @else
+            @foreach([
+              'Pengajuan minimal 1 hari sebelumnya (kecuali sakit mendadak)',
+              'Izin sakit dengan 2+ hari wajib menyertakan surat dokter',
+              'Cuti tahunan diberikan 12 hari per tahun',
+              'Persetujuan izin dilakukan oleh HRD',
+              'Notifikasi status pengajuan dikirim otomatis',
+            ] as $item)
+              <div style="display:flex;gap:8px;font-size:.82rem;color:var(--muted);">
+                <i class="fa-solid fa-circle-dot" style="color:var(--teal);margin-top:3px;flex-shrink:0;font-size:.65rem;"></i>
+                {{ $item }}
+              </div>
+            @endforeach
+          @endif
         </div>
       </div>
     </div>
@@ -449,6 +498,32 @@ function switchTab(tab, btn) {
 
 function toggleSakit(val) {
   document.getElementById('bukti-group').style.display = val === 'sakit' ? 'block' : 'none';
+  updateBuktiLabel();
+}
+
+function updateBuktiLabel() {
+  const jenisIzin = document.querySelector('input[name="jenis_izin"]:checked')?.value;
+  const tglMulai = document.querySelector('input[name="tanggal_mulai"]')?.value;
+  const tglSelesai = document.querySelector('input[name="tanggal_selesai"]')?.value;
+  const labelSpan = document.getElementById('buktiLabelSpan');
+  
+  if (jenisIzin === 'sakit' && tglMulai && tglSelesai) {
+    const mulai = new Date(tglMulai);
+    const selesai = new Date(tglSelesai);
+    const diffTime = Math.abs(selesai - mulai);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    
+    if (diffDays > 2) {
+      labelSpan.textContent = '(Wajib untuk sakit > 2 hari)';
+      labelSpan.style.color = 'var(--red)';
+    } else {
+      labelSpan.textContent = '(Opsional untuk sakit ≤ 2 hari)';
+      labelSpan.style.color = 'var(--muted)';
+    }
+  } else {
+    labelSpan.textContent = '(Wajib untuk sakit > 2 hari)';
+    labelSpan.style.color = 'var(--red)';
+  }
 }
 
 function previewFile(input) {
@@ -470,6 +545,7 @@ function resetForm() {
   document.querySelectorAll('.izin-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('bukti-group').style.display = 'none';
   clearFile();
+  updateBuktiLabel();
 }
 
 document.getElementById('izinForm').addEventListener('submit', function() {
@@ -488,6 +564,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var card = opt && opt.querySelector('.izin-card');
     if (card) card.classList.add('selected');
     toggleSakit(sel.value);
+  }
+  
+  // Add event listeners to date inputs to update the label
+  const tglMulaiInput = document.querySelector('input[name="tanggal_mulai"]');
+  const tglSelesaiInput = document.querySelector('input[name="tanggal_selesai"]');
+  if (tglMulaiInput) {
+    tglMulaiInput.addEventListener('change', updateBuktiLabel);
+  }
+  if (tglSelesaiInput) {
+    tglSelesaiInput.addEventListener('change', updateBuktiLabel);
   }
 });
 </script>
