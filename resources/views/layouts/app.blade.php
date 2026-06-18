@@ -80,7 +80,9 @@
     {{-- Logo --}}
     <div class="sidebar-logo">
       <div class="logo-mark">
-        <div class="logo-icon">📋</div>
+        <div class="logo-icon" style="width: 50px; height: auto; background: none; border-radius: 0; box-shadow: none;">
+          <img src="{{ asset('images/logo.png') }}" alt="Logo PT. Nugraha Tirta Sejati" style="width: 100%; height: auto; object-fit: contain;">
+        </div>
         <div>
           <div class="logo-text">Presensi<span>QR</span></div>
           <div class="logo-sub">PT. Nugraha Tirta Sejati</div>
