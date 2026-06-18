@@ -60,55 +60,84 @@
             <div class="form-group">
               <label class="form-label">Jenis Izin <span style="color:var(--red);">*</span></label>
               
-              {{-- Kategori 1: Membutuhkan Persetujuan (untuk Karyawan, tetap tampil untuk HRD tapi auto-approved) --}}
-              <div style="margin-bottom:16px;">
-                <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                  <i class="fa-solid fa-circle-check"></i> {{ $role === 'hrd' ? 'Otomatis Disetujui' : 'Membutuhkan Persetujuan' }}
+              @if($role === 'hrd')
+                {{-- HRD: Semua izin di satu kategori "Otomatis Disetujui" --}}
+                <div>
+                  <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-circle-check"></i> Otomatis Disetujui
+                  </div>
+                  <div class="izin-type-grid">
+                    @foreach([
+                      ['izin',       '🏖', 'Izin',        'Keperluan pribadi'],
+                      ['sakit',      '🤒', 'Sakit',       'Tidak masuk sakit'],
+                      ['cuti',       '🌴', 'Cuti',        'Cuti tahunan'],
+                      ['pulang_cepat','🏃', 'Pulang Cepat', 'Izin keluar awal'],
+                      ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
+                      ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
+                    ] as [$val, $emoji, $label, $sub])
+                    <label class="izin-option" style="cursor:pointer;">
+                      <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
+                        {{ old('jenis_izin') === $val ? 'checked' : '' }}
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                      <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
+                        <span style="font-size:1.4rem;">{{ $emoji }}</span>
+                        <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
+                        @if($sub)<div style="font-size:.72rem;color:var(--muted);">{{ $sub }}</div>@endif
+                      </div>
+                    </label>
+                    @endforeach
+                  </div>
                 </div>
-                <div class="izin-type-grid">
-                  @foreach([
-                    ['izin',       '🏖', 'Izin',        'Keperluan pribadi'],
-                    ['sakit',      '🤒', 'Sakit',       'Tidak masuk sakit'],
-                    ['cuti',       '🌴', 'Cuti',        'Cuti tahunan'],
-                    ['pulang_cepat','🏃', 'Pulang Cepat', 'Izin keluar awal'],
-                  ] as [$val, $emoji, $label, $sub])
-                  <label class="izin-option" style="cursor:pointer;">
-                    <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
-                      {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                      onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
-                    <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
-                      <span style="font-size:1.4rem;">{{ $emoji }}</span>
-                      <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
-                      @if($sub)<div style="font-size:.72rem;color:var(--muted);">{{ $sub }}</div>@endif
-                    </div>
-                  </label>
-                  @endforeach
+              @else
+                {{-- Karyawan: Tetap dua kategori --}}
+                <div style="margin-bottom:16px;">
+                  <div style="font-size:.85rem;color:var(--teal);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-circle-check"></i> Membutuhkan Persetujuan
+                  </div>
+                  <div class="izin-type-grid">
+                    @foreach([
+                      ['izin',       '🏖', 'Izin',        'Keperluan pribadi'],
+                      ['sakit',      '🤒', 'Sakit',       'Tidak masuk sakit'],
+                      ['cuti',       '🌴', 'Cuti',        'Cuti tahunan'],
+                      ['pulang_cepat','🏃', 'Pulang Cepat', 'Izin keluar awal'],
+                    ] as [$val, $emoji, $label, $sub])
+                    <label class="izin-option" style="cursor:pointer;">
+                      <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
+                        {{ old('jenis_izin') === $val ? 'checked' : '' }}
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                      <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
+                        <span style="font-size:1.4rem;">{{ $emoji }}</span>
+                        <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
+                        @if($sub)<div style="font-size:.72rem;color:var(--muted);">{{ $sub }}</div>@endif
+                      </div>
+                    </label>
+                    @endforeach
+                  </div>
                 </div>
-              </div>
-              
-              {{-- Kategori 2: Tidak Membutuhkan Persetujuan --}}
-              <div>
-                <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                  <i class="fa-solid fa-circle-xmark"></i> Tidak Membutuhkan Persetujuan
+                
+                <div>
+                  <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-circle-xmark"></i> Tidak Membutuhkan Persetujuan
+                  </div>
+                  <div class="izin-type-grid">
+                    @foreach([
+                      ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
+                      ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
+                    ] as [$val, $emoji, $label, $sub])
+                    <label class="izin-option" style="cursor:pointer;">
+                      <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
+                        {{ old('jenis_izin') === $val ? 'checked' : '' }}
+                        onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
+                      <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
+                        <span style="font-size:1.4rem;">{{ $emoji }}</span>
+                        <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
+                        @if($sub)<div style="font-size:.72rem;color:var(--muted);">{{ $sub }}</div>@endif
+                      </div>
+                    </label>
+                    @endforeach
+                  </div>
                 </div>
-                <div class="izin-type-grid">
-                  @foreach([
-                    ['lembur',     '⏰', 'Lembur',       'Kerja tambahan'],
-                    ['tugas_luar', '💼', 'Tugas Luar',  'Dinas luar kantor'],
-                  ] as [$val, $emoji, $label, $sub])
-                  <label class="izin-option" style="cursor:pointer;">
-                    <input type="radio" name="jenis_izin" value="{{ $val }}" style="display:none;"
-                      {{ old('jenis_izin') === $val ? 'checked' : '' }}
-                      onchange="document.querySelectorAll('.izin-card').forEach(function(c){c.classList.remove('selected');}); var card=this.closest('.izin-option')&&this.closest('.izin-option').querySelector('.izin-card'); if(card) card.classList.add('selected'); toggleSakit(this.value);">
-                    <div class="izin-card {{ old('jenis_izin') === $val ? 'selected' : '' }}">
-                      <span style="font-size:1.4rem;">{{ $emoji }}</span>
-                      <div style="font-weight:600;font-size:.85rem;">{{ $label }}</div>
-                      @if($sub)<div style="font-size:.72rem;color:var(--muted);">{{ $sub }}</div>@endif
-                    </div>
-                  </label>
-                  @endforeach
-                </div>
-              </div>
+              @endif
             </div>
 
             {{-- Tanggal --}}
