@@ -182,7 +182,7 @@
             <span class="nav-icon"><i class="fa-solid fa-headset"></i></span> Kelola Bantuan
           </a>
           <a href="{{ route('operator.setup') }}" class="nav-item {{ request()->routeIs('operator.setup') ? 'active' : '' }}">
-            <span class="nav-icon"><i class="fa-solid fa-gears"></i></span> Panduan Instalasi
+            <span class="nav-icon"><i class="fa-solid fa-database"></i></span> Format Presensi
           </a>
         </div>
       </div>
