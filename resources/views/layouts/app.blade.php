@@ -81,7 +81,23 @@
     <div class="sidebar-logo">
       <div class="logo-mark">
         <div class="logo-icon" style="width: 50px; height: auto; background: none; border-radius: 0; box-shadow: none;">
-          <img src="{{ asset('images/logo.png') }}" alt="Logo PT. Nugraha Tirta Sejati" style="width: 100%; height: auto; object-fit: contain;">
+          <!-- NTS SVG Logo -->
+          <svg width="50" height="35" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <defs>
+              <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="200" height="140" rx="15" fill="url(#bgGrad)"/>
+            <!-- N -->
+            <text x="30" y="95" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#FFFFFF">N</text>
+            <!-- T -->
+            <text x="78" y="95" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#FFFFFF">T</text>
+            <!-- S -->
+            <text x="126" y="95" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#FFFFFF">S</text>
+          </svg>
         </div>
         <div>
           <div class="logo-text">Presensi<span>QR</span></div>
