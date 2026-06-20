@@ -54,10 +54,23 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
 
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', database_path('ca.pem')),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? (function () {
+                $options = [
+                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                ];
+
+                // SSL CA hanya dipakai jika env diset ATAU file ada di disk.
+                // database/ca.pem di-gitignore — di Render/Aiven tanpa env ini koneksi gagal.
+                $sslCa = env('MYSQL_ATTR_SSL_CA');
+                if (! $sslCa && is_file($path = database_path('ca.pem'))) {
+                    $sslCa = $path;
+                }
+                if ($sslCa) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+                }
+
+                return $options;
+            })() : [],
         ],
 
         'mariadb' => [

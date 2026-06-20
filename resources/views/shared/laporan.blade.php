@@ -92,10 +92,10 @@
   @php
     $exportRoute = auth()->user()->role . '.laporan.export';
   @endphp
-  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format' => 'xlsx'])) }}" class="btn btn-outline">
+  <a href="#" onclick="doExport('xlsx'); return false;" class="btn btn-outline" id="btnExportXlsx">
     <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Export Excel
   </a>
-  <a href="{{ route($exportRoute, array_merge(request()->query(), ['format' => 'pdf'])) }}" class="btn btn-outline">
+  <a href="#" onclick="doExport('pdf'); return false;" class="btn btn-outline" id="btnExportPdf">
     <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
   </a>
   <div style="margin-left:auto" class="text-muted text-sm">
@@ -309,6 +309,29 @@
   @endif
 </div>
 </div>
+@push('scripts')
+<script>
+/**
+ * Export laporan dengan mengambil nilai form filter terkini,
+ * bukan dari URL query string. Jadi walaupun user ganti dropdown bulan
+ * tanpa klik "Filter" terlebih dahulu, export tetap pakai bulan yang dipilih.
+ */
+function doExport(format) {
+  var form = document.getElementById('filterForm');
+  var fd = new FormData(form);
+  var params = new URLSearchParams();
+
+  fd.forEach(function(value, key) {
+    if (value) params.append(key, value);
+  });
+  params.set('format', format);
+
+  var baseUrl = '{{ route($exportRoute) }}';
+  window.location.href = baseUrl + '?' + params.toString();
+}
+</script>
+@endpush
+
 @endsection
 
 <style>
