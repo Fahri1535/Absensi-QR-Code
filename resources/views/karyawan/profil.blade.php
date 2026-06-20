@@ -19,7 +19,7 @@
         {{-- Avatar --}}
         <div style="position:relative;display:inline-block;margin-bottom:16px;">
           @if($karyawan?->foto)
-            <img src="{{ asset('storage/'.$karyawan->foto) }}"
+            <img src="{{ $karyawan->foto_url }}"
                  style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--teal);box-shadow:0 0 24px rgba(0,201,167,.3);"
                  alt="Foto Profil"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">

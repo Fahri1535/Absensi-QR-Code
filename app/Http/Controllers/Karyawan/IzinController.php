@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Izin, Notifikasi, User};
+use App\Models\{Izin, Notifikasi, Presensi, User};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,6 +52,10 @@ class IzinController extends Controller
             ->where('status', 'pending')
             ->first();
 
+        // Cek apakah karyawan alpa hari ini (tidak hadir tanpa izin disetujui
+        // di hari kerja). Konsisten dengan cara sistem menghitung "alpa".
+        $sedangAlpaHariIni = $this->cekAlpaHariIni($karyawan->id);
+
         return view('karyawan.izin', compact(
             'karyawan',
             'riwayatIzin',
@@ -60,7 +64,8 @@ class IzinController extends Controller
             'sisaCuti',
             'totalCuti',
             'sedangIzin',
-            'izinPending'
+            'izinPending',
+            'sedangAlpaHariIni'
         ));
     }
 
@@ -99,6 +104,20 @@ class IzinController extends Controller
                     'izin_pending' => "Anda masih memiliki izin yang menunggu persetujuan dari {$izinPending->tanggal_mulai->format('d M Y')} sampai {$izinPending->tanggal_selesai->format('d M Y')}. Silakan tunggu hingga izin tersebut diproses sebelum mengajukan izin baru.",
                 ])
                 ->withInput();
+        }
+
+        // Validasi: karyawan yang sudah alpa hari ini tidak bisa mengajukan izin
+        // untuk hari ini (tidak bisa "menutupi" ketidakhadiran dengan izin
+        // setelah faktanya). Pengajuan untuk hari berikutnya tetap diperbolehkan.
+        if ($this->cekAlpaHariIni($karyawan->id)) {
+            $tanggalMulaiInput = \Carbon\Carbon::parse($validated['tanggal_mulai']);
+            if ($tanggalMulaiInput->isToday()) {
+                return back()
+                    ->withErrors([
+                        'alpa' => 'Anda tercatat alpa hari ini (tidak hadir tanpa keterangan). Pengajuan izin untuk hari ini tidak dapat diproses. Silakan hubungi HRD.',
+                    ])
+                    ->withInput();
+            }
         }
 
         // Validasi tanggal izin tidak boleh bertumpang tindih dengan izin yang sudah disetujui
@@ -264,5 +283,43 @@ class IzinController extends Controller
         }
 
         return (int) $start->diffInDays($end) + 1;
+    }
+
+    /**
+     * Cek apakah karyawan alpa pada hari ini.
+     *
+     * Alpa = hari kerja (bukan Sabtu/Minggu) DAN tidak ada baris presensi
+     * dengan jam_datang DAN tidak ada izin "disetujui" yang mencakup hari ini.
+     * Konsisten dengan cara sistem menghitung "alpa" di controller lain.
+     */
+    protected function cekAlpaHariIni(int $karyawanId): bool
+    {
+        $hariIni = today();
+
+        // Weekend tidak dihitung sebagai alpa
+        if ($hariIni->isWeekend()) {
+            return false;
+        }
+
+        // Sudah presensi (absen masuk) hari ini -> tidak alpa
+        $sudahPresensi = Presensi::where('karyawan_id', $karyawanId)
+            ->whereDate('tanggal', $hariIni)
+            ->whereNotNull('jam_datang')
+            ->exists();
+        if ($sudahPresensi) {
+            return false;
+        }
+
+        // Punya izin yang disetujui mencakup hari ini -> tidak alpa
+        $adaIzinDisetujui = Izin::where('karyawan_id', $karyawanId)
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $hariIni)
+            ->where('tanggal_selesai', '>=', $hariIni)
+            ->exists();
+        if ($adaIzinDisetujui) {
+            return false;
+        }
+
+        return true;
     }
 }

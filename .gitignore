@@ -13,6 +13,14 @@
 .env.backup
 .phpunit.result.cache
 
+# =====================
+# File rahasia / kredensial
+# =========================
+PANDUAN_IP_AIVEN.txt
+database/ca.pem
+database/export_*.sql
+database/*_error.log
+
 # =========================
 # Vite / Frontend
 # =========================

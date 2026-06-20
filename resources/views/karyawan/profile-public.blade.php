@@ -108,7 +108,7 @@
 <body>
   <div class="card">
     @if($karyawan->foto)
-      <img src="{{ asset('storage/'.$karyawan->foto) }}" class="avatar" alt="Foto {{ $karyawan->nama_lengkap }}">
+      <img src="{{ $karyawan->foto_url }}" class="avatar" alt="Foto {{ $karyawan->nama_lengkap }}">
     @else
       <div class="avatar-placeholder">
         {{ strtoupper(substr($karyawan->nama_lengkap, 0, 1)) }}

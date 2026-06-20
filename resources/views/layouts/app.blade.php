@@ -338,7 +338,7 @@
         <a href="{{ route(auth()->user()->role . '.profil') }}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; flex: 1;">
           <div class="user-avatar" style="overflow:hidden;">
             @if(auth()->user()->karyawan?->foto)
-              <img src="{{ asset('storage/'.auth()->user()->karyawan->foto) }}" style="width:100%;height:100%;object-fit:cover;aspect-ratio:1/1;" onerror="this.remove();">
+              <img src="{{ auth()->user()->karyawan->foto_url }}" style="width:100%;height:100%;object-fit:cover;aspect-ratio:1/1;" onerror="this.remove();">
             @endif
               {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
           </div>

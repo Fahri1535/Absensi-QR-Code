@@ -130,7 +130,7 @@
           <input type="file" name="foto" class="form-control" accept="image/*">
           @if($karyawan?->foto)
           <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-            <img src="{{ asset('storage/'.$karyawan->foto) }}"
+            <img src="{{ $karyawan->foto_url }}"
                  style="width:40px;height:40px;border-radius:50%;object-fit:cover;aspect-ratio:1/1;">
             <span class="text-xs text-muted">Foto saat ini · Upload baru untuk mengganti</span>
           </div>

@@ -17,6 +17,18 @@
   <p class="text-muted">Ajukan izin, cuti, atau sakit. Persetujuan dari HRD akan dikirim via notifikasi. Satu karyawan maksimal satu pengajuan per hari kalender.</p>
 </div>
 
+@if(isset($sedangAlpaHariIni) && $sedangAlpaHariIni)
+<div class="alert alert-danger alert-permanent" style="margin-bottom:20px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-user-xmark" style="font-size:1.5rem;"></i>
+    <div>
+      <strong>Anda tercatat alpa hari ini!</strong><br>
+      Anda tidak dapat mengajukan izin untuk hari ini. Silakan lakukan presensi atau hubungi HRD untuk klarifikasi ketidakhadiran Anda.
+    </div>
+  </div>
+</div>
+@endif
+
 @if(isset($sedangIzin) && $sedangIzin)
 <div class="alert alert-info alert-permanent" style="margin-bottom:20px;">
   <div style="display:flex;align-items:center;gap:10px;">
@@ -78,7 +90,9 @@
           @endif
 
           @php
-            $formDisabled = (isset($izinPending) && $izinPending) || (isset($sedangIzin) && $sedangIzin);
+            $formDisabled = (isset($izinPending) && $izinPending)
+                          || (isset($sedangIzin) && $sedangIzin)
+                          || (isset($sedangAlpaHariIni) && $sedangAlpaHariIni);
           @endphp
           <form method="POST" action="{{ route($storeRoute) }}" enctype="multipart/form-data" id="izinForm" {{ $formDisabled ? 'style=pointer-events:none;opacity:0.6;' : '' }}>
             @csrf

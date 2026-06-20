@@ -42,9 +42,15 @@ class Karyawan extends Model
 
     public function getFotoUrlAttribute(): string
     {
-        return $this->foto
-            ? asset('storage/' . $this->foto)
-            : 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap) . '&background=0D1B2A&color=00C9A7';
+        if ($this->foto) {
+            // Cache-busting: pakai updated_at (berubah tiap kali foto diubah)
+            // supaya browser selalu mengambil foto terbaru, bukan versi cache lama.
+            $version = $this->updated_at?->timestamp ?? now()->timestamp;
+            return asset('storage/' . $this->foto) . '?v=' . $version;
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap)
+            . '&background=0D1B2A&color=00C9A7';
     }
 
     /**
