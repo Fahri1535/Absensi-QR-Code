@@ -310,6 +310,28 @@ body.sidebar-collapsed .main-content{margin-left:0}
 .card-body{padding:22px} .card-body-sm{padding:14px}
 .card-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
+/* Kartu aksen — pola sama dashboard operator */
+.card-accent-red{
+  border-left:4px solid var(--red);
+  background:linear-gradient(to right,rgba(255,83,112,.06),transparent);
+}
+.card-accent-amber{
+  border-left:4px solid var(--amber);
+  background:linear-gradient(to right,rgba(255,171,64,.06),transparent);
+}
+body.light-mode .card-accent-red{background:linear-gradient(to right,rgba(255,83,112,.08),transparent)}
+body.light-mode .card-accent-amber{background:linear-gradient(to right,rgba(255,171,64,.08),transparent)}
+
+.card-icon{
+  width:40px;height:40px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+}
+.card-icon.red{background:rgba(255,83,112,.12);color:var(--red)}
+.card-icon.amber{background:rgba(255,171,64,.12);color:var(--amber)}
+.card-icon.teal{background:rgba(37,99,235,.12);color:var(--blue-light)}
+.card-icon.blue{background:var(--blue-glow);color:var(--blue-light)}
+
 /* Stat Cards */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
 .stat-card{
@@ -387,6 +409,39 @@ td{padding:13px 16px;vertical-align:middle;color:var(--text-primary)}
 .btn-ghost:hover{color:var(--text-primary);background:var(--bg-card)}
 .btn-danger{background:rgba(255,83,112,.12);color:var(--red);border:1px solid rgba(255,83,112,.2)}
 .btn-danger:hover{background:rgba(255,83,112,.22)}
+.btn-danger-solid{
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;border:none;
+  box-shadow:0 2px 10px rgba(239,68,68,.28);
+}
+.btn-danger-solid:hover{
+  background:linear-gradient(135deg,#f87171,#ef4444);
+  color:#fff;transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(239,68,68,.38);
+}
+.btn-warning-solid{
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  color:#fff;border:none;
+  box-shadow:0 2px 10px rgba(245,158,11,.28);
+}
+.btn-warning-solid:hover{
+  background:linear-gradient(135deg,#fbbf24,#f59e0b);
+  color:#fff;transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(245,158,11,.38);
+}
+.btn-danger-outline{
+  background:var(--bg-card);
+  color:var(--red);
+  border:1px solid rgba(255,83,112,.35);
+  box-shadow:none;
+}
+.btn-danger-outline:hover{
+  background:rgba(255,83,112,.1);
+  border-color:var(--red);
+  color:var(--red);
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(255,83,112,.15);
+}
 .btn-sm{padding:7px 14px;font-size:.8rem} .btn-lg{padding:14px 28px;font-size:1rem}
 .btn-full{width:100%;justify-content:center}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
@@ -584,8 +639,49 @@ h1, h2, h3, h4, h5,
   gap: 24px;
 }
 
+.setup-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.laporan-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.laporan-toolbar .laporan-toolbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.laporan-toolbar .laporan-toolbar-meta {
+  margin-left: auto;
+  font-size: .875rem;
+  color: var(--text-secondary);
+}
+
+.mobile-cards { display: none; }
+
 @media (max-width: 1024px) {
   .main-sidebar-grid { grid-template-columns: 1fr; }
+  .setup-actions-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .laporan-toolbar { flex-direction: column; align-items: stretch; }
+  .laporan-toolbar .laporan-toolbar-actions { width: 100%; }
+  .laporan-toolbar .laporan-toolbar-actions .btn { flex: 1; justify-content: center; }
+  .laporan-toolbar .laporan-toolbar-meta { margin-left: 0; text-align: center; width: 100%; }
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 14px;
+  }
+  .card-footer .pagination-nav { justify-content: center; }
 }
 
 @media (max-width: 768px) {
@@ -599,6 +695,13 @@ h1, h2, h3, h4, h5,
   
   .page-header h1 { font-size: 1.5rem; }
   .card-header h3 { font-size: 1rem; }
+
+  /* Laporan: tampilkan card, sembunyikan tabel */
+  .desktop-table { display: none !important; }
+  .mobile-cards { display: block !important; }
+}
+@media (min-width: 769px) {
+  .mobile-cards { display: none !important; }
 }
 @media (max-width: 480px) {
   .stat-grid{grid-template-columns:1fr}

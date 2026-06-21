@@ -74,13 +74,16 @@
           </select>
         </div>
 
-        <div style="display:flex;gap:8px;align-self:end;flex-wrap:wrap;">
-          <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-magnifying-glass"></i> Filter
-          </button>
-          <a href="{{ route(auth()->user()->role . '.laporan') }}" class="btn btn-outline">
-            <i class="fa-solid fa-xmark"></i>
-          </a>
+        <div class="form-group laporan-filter-actions" style="margin:0;">
+          <label class="form-label" style="visibility:hidden;">Aksi</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-magnifying-glass"></i> Filter
+            </button>
+            <a href="{{ route(auth()->user()->role . '.laporan') }}" class="btn btn-outline">
+              <i class="fa-solid fa-xmark"></i>
+            </a>
+          </div>
         </div>
       </div>
     </form>
@@ -88,17 +91,19 @@
 </div>
 
 {{-- Export Buttons --}}
-<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+<div class="laporan-toolbar">
   @php
     $exportRoute = auth()->user()->role . '.laporan.export';
   @endphp
-  <a href="#" onclick="doExport('xlsx'); return false;" class="btn btn-outline" id="btnExportXlsx">
-    <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Export Excel
-  </a>
-  <a href="#" onclick="doExport('pdf'); return false;" class="btn btn-outline" id="btnExportPdf">
-    <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
-  </a>
-  <div style="margin-left:auto" class="text-muted text-sm">
+  <div class="laporan-toolbar-actions">
+    <a href="#" onclick="doExport('xlsx'); return false;" class="btn btn-outline" id="btnExportXlsx">
+      <i class="fa-solid fa-file-excel" style="color:#1D6F42;"></i> Export Excel
+    </a>
+    <a href="#" onclick="doExport('pdf'); return false;" class="btn btn-outline" id="btnExportPdf">
+      <i class="fa-solid fa-file-pdf" style="color:#F40F02;"></i> Export PDF
+    </a>
+  </div>
+  <div class="laporan-toolbar-meta">
     Menampilkan <strong>{{ $laporan->total() ?? 0 }}</strong> data
   </div>
 </div>
@@ -334,13 +339,11 @@ function doExport(format) {
 
 @endsection
 
+@push('styles')
 <style>
-/* Desktop: show table, hide cards */
-@media (min-width: 769px) {
-  .mobile-cards { display: none; }
-}
-/* Mobile: show cards, hide table */
 @media (max-width: 768px) {
-  .desktop-table { display: none; }
+  .laporan-filter-actions .btn { flex: 1; justify-content: center; }
+  .laporan-filter-actions > div { width: 100%; }
 }
 </style>
+@endpush

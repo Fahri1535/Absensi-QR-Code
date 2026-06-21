@@ -10,19 +10,30 @@
     padding: 14px 16px; border-radius: var(--radius-sm);
     border: 1px solid var(--border); cursor: pointer;
     background: var(--bg-card);
-    transition: border-color var(--transition), background var(--transition);
+    transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
   }
-  .scope-option:hover,
-  .scope-option:has(input:checked) {
-    border-color: var(--teal);
-    background: var(--teal-glow);
-  }
-  .scope-option input { margin-top: 3px; accent-color: var(--teal); flex-shrink: 0; }
+  .scope-option:hover { border-color: var(--blue-light); background: var(--blue-glow); }
+  .scope-option input { margin-top: 3px; accent-color: var(--blue-primary); flex-shrink: 0; }
   .scope-option-title { font-weight: 600; font-size: .9rem; }
   .scope-option-desc { font-size: .8rem; color: var(--text-secondary); margin-top: 3px; line-height: 1.45; }
+
+  /* Aksen checked per kartu */
+  .setup-action-card--all .scope-option:has(input:checked) {
+    border-color: rgba(255, 83, 112, .45);
+    background: rgba(255, 83, 112, .06);
+    box-shadow: 0 0 0 1px rgba(255, 83, 112, .08);
+  }
+  .setup-action-card--all .scope-option input { accent-color: var(--red); }
+  .setup-action-card--month .scope-option:has(input:checked) {
+    border-color: rgba(255, 171, 64, .5);
+    background: rgba(255, 171, 64, .07);
+    box-shadow: 0 0 0 1px rgba(255, 171, 64, .1);
+  }
+  .setup-action-card--month .scope-option input { accent-color: var(--amber); }
+
   .setup-meta-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
   }
   .setup-meta-item {
@@ -33,6 +44,38 @@
   }
   .setup-meta-item .label { font-size: .75rem; color: var(--text-secondary); margin-bottom: 4px; }
   .setup-meta-item .value { font-size: 1.25rem; font-weight: 800; font-family: 'DM Sans', sans-serif; }
+
+  .setup-action-card .card-header h3 { flex: 1; min-width: 0; }
+  .setup-action-badge {
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; padding: 4px 10px; border-radius: 999px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .setup-action-badge--danger {
+    background: rgba(255, 83, 112, .12); color: var(--red);
+    border: 1px solid rgba(255, 83, 112, .2);
+  }
+  .setup-action-badge--warn {
+    background: rgba(255, 171, 64, .12); color: var(--amber);
+    border: 1px solid rgba(255, 171, 64, .25);
+  }
+
+  @media (max-width: 768px) {
+    .setup-meta-grid { grid-template-columns: 1fr; }
+    .setup-action-card .card-body { padding: 16px; }
+    .setup-action-card .card-header {
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      gap: 10px;
+    }
+    .setup-action-badge {
+      order: 3;
+      width: 100%;
+      text-align: center;
+    }
+    .scope-option { padding: 12px 14px; }
+    .scope-option-desc { font-size: .78rem; }
+  }
 </style>
 @endpush
 
@@ -52,7 +95,7 @@
   @endif
 
   @php
-    $totalHariKerja = $stats['hadir'] + $stats['terlambat'] + $stats['alpha'] + $stats['sakit'] + $stats['lainnya'];
+    $totalHariKerja = $ringkasan['hari_kerja'];
   @endphp
 
   {{-- Statistik Riwayat --}}
@@ -102,28 +145,33 @@
   {{-- Ringkasan Data --}}
   <div class="card mb-6">
     <div class="card-header">
-      <i class="fa-solid fa-database text-teal"></i>
+      <div class="card-icon teal"><i class="fa-solid fa-database"></i></div>
       <h3>Ringkasan Data (Karyawan &amp; HRD)</h3>
     </div>
     <div class="card-body">
       <div class="setup-meta-grid">
         <div class="setup-meta-item">
-          <div class="label">Record Presensi</div>
-          <div class="value" style="color:var(--green);">{{ number_format($presensiCount) }}</div>
+          <div class="label">Hari Hadir (tepat waktu + terlambat)</div>
+          <div class="value" style="color:var(--green);">{{ number_format($ringkasan['hari_hadir']) }}</div>
         </div>
         <div class="setup-meta-item">
-          <div class="label">Record Izin</div>
-          <div class="value" style="color:var(--blue-light);">{{ number_format($izinCount) }}</div>
+          <div class="label">Hari Izin (sakit + lainnya)</div>
+          <div class="value" style="color:var(--blue-light);">{{ number_format($ringkasan['hari_izin']) }}</div>
         </div>
         <div class="setup-meta-item">
-          <div class="label">Hari Kerja Tercatat</div>
-          <div class="value" style="color:var(--teal);">{{ number_format($totalHariKerja) }}</div>
+          <div class="label">Total Hari Kerja Tercatat</div>
+          <div class="value" style="color:var(--teal);">{{ number_format($ringkasan['hari_kerja']) }}</div>
         </div>
       </div>
       <p class="text-muted text-sm" style="margin:14px 0 0;">
         <i class="fa-solid fa-circle-info" style="color:var(--teal);"></i>
-        Alpha dihitung otomatis dari hari kerja tanpa presensi &amp; tanpa izin disetujui.
-        <strong>Lainnya</strong> = semua jenis izin disetujui kecuali sakit (izin, cuti, tugas luar, dll).
+        Statistik mengikuti <strong>karyawan &amp; HRD aktif</strong> — logika sama dengan Laporan Presensi.
+        Alpha dihitung otomatis. <strong>Lainnya</strong> = izin disetujui kecuali sakit.
+      </p>
+      <p class="text-muted text-xs" style="margin:8px 0 0;opacity:.85;">
+        Data mentah: {{ number_format($ringkasan['baris_presensi']) }} baris presensi
+        (≈ hadir + terlambat), {{ number_format($ringkasan['baris_izin']) }} pengajuan izin di database.
+        Hapus data menggunakan scope yang sama — hanya karyawan/HRD aktif.
       </p>
     </div>
   </div>
@@ -139,13 +187,14 @@
   </div>
 
   {{-- Form Hapus --}}
-  <div class="main-sidebar-grid stagger">
+  <div class="setup-actions-grid stagger">
 
     {{-- Hapus Semua --}}
-    <div class="card" style="border-left:4px solid var(--red);">
+    <div class="card card-accent-red setup-action-card setup-action-card--all">
       <div class="card-header">
-        <i class="fa-solid fa-trash-can" style="color:var(--red);"></i>
+        <div class="card-icon red"><i class="fa-solid fa-trash-can"></i></div>
         <h3>Hapus Semua Riwayat</h3>
+        <span class="setup-action-badge setup-action-badge--danger">Permanen</span>
       </div>
       <div class="card-body">
         <p class="text-muted text-sm" style="margin:0 0 18px;">
@@ -175,7 +224,7 @@
             </label>
           </div>
 
-          <button type="submit" class="btn btn-danger btn-lg" style="width:100%;">
+          <button type="submit" class="btn btn-danger-solid btn-lg btn-full">
             <i class="fa-solid fa-trash-can"></i> Hapus Semua Riwayat
           </button>
         </form>
@@ -183,10 +232,11 @@
     </div>
 
     {{-- Hapus Per Bulan --}}
-    <div class="card" style="border-left:4px solid var(--amber);">
+    <div class="card card-accent-amber setup-action-card setup-action-card--month">
       <div class="card-header">
-        <i class="fa-solid fa-calendar-xmark" style="color:var(--amber);"></i>
+        <div class="card-icon amber"><i class="fa-solid fa-calendar-xmark"></i></div>
         <h3>Hapus Per Bulan</h3>
+        <span class="setup-action-badge setup-action-badge--warn">Sebagian</span>
       </div>
       <div class="card-body">
         <p class="text-muted text-sm" style="margin:0 0 18px;">
@@ -222,7 +272,7 @@
             </label>
           </div>
 
-          <button type="submit" class="btn btn-danger btn-lg" style="width:100%;background:var(--amber);border-color:var(--amber);">
+          <button type="submit" class="btn btn-danger-outline btn-lg btn-full">
             <i class="fa-solid fa-trash-can"></i> Hapus Riwayat Bulan Tersebut
           </button>
         </form>
