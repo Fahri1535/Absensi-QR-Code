@@ -18,8 +18,8 @@ class AppServiceProvider extends ServiceProvider
         // Locale Indonesia untuk Carbon
         Carbon::setLocale('id');
 
-        // Paginator pakai Bootstrap 5
-        Paginator::useBootstrapFive();
+        // Paginator pakai template custom (bukan Bootstrap — app tidak load Bootstrap CSS)
+        Paginator::defaultView('pagination::default');
 
         // Paksa HTTPS di Production
         if ($this->app->environment('production')) {

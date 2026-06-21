@@ -224,7 +224,7 @@
   @if(isset($laporan) && $laporan->hasPages())
   <div class="card-footer">
     <div class="text-muted text-sm">{{ $laporan->firstItem() }}–{{ $laporan->lastItem() }} dari {{ $laporan->total() }}</div>
-    <div style="margin-left:auto;">{{ $laporan->appends(request()->query())->links() }}</div>
+    {{ $laporan->appends(request()->query())->links() }}
   </div>
   @endif
 </div>
@@ -303,7 +303,7 @@
   <div class="card" style="margin-top: 16px;">
     <div class="card-footer">
       <div class="text-muted text-sm">{{ $laporan->firstItem() }}–{{ $laporan->lastItem() }} dari {{ $laporan->total() }}</div>
-      <div style="margin-left:auto;">{{ $laporan->appends(request()->query())->links() }}</div>
+      {{ $laporan->appends(request()->query())->links() }}
     </div>
   </div>
   @endif

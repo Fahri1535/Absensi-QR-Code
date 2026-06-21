@@ -1,24 +1,23 @@
 @if ($paginator->hasPages())
     <nav class="pagination-nav" role="navigation" aria-label="{{ __('Pagination Navigation') }}">
-        {{-- Previous Page Link --}}
+
+        {{-- Sebelumnya --}}
         @if ($paginator->onFirstPage())
-            <span class="pagination-btn disabled" aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
-                <i class="fa-solid fa-chevron-left"></i>
+            <span class="pagination-btn pagination-btn--nav disabled" aria-disabled="true">
+                {!! __('pagination.previous') !!}
             </span>
         @else
-            <a href="{{ $paginator->previousPageUrl() }}" class="pagination-btn" rel="prev" aria-label="{{ __('pagination.previous') }}">
-                <i class="fa-solid fa-chevron-left"></i>
+            <a href="{{ $paginator->previousPageUrl() }}" class="pagination-btn pagination-btn--nav" rel="prev">
+                {!! __('pagination.previous') !!}
             </a>
         @endif
 
-        {{-- Pagination Elements --}}
+        {{-- Nomor Halaman --}}
         @foreach ($elements as $element)
-            {{-- "Three Dots" Separator --}}
             @if (is_string($element))
-                <span class="pagination-btn disabled" aria-disabled="true">{{ $element }}</span>
+                <span class="pagination-btn pagination-btn--dots disabled" aria-disabled="true">{{ $element }}</span>
             @endif
 
-            {{-- Array Of Links --}}
             @if (is_array($element))
                 @foreach ($element as $page => $url)
                     @if ($page == $paginator->currentPage())
@@ -30,15 +29,16 @@
             @endif
         @endforeach
 
-        {{-- Next Page Link --}}
+        {{-- Berikutnya --}}
         @if ($paginator->hasMorePages())
-            <a href="{{ $paginator->nextPageUrl() }}" class="pagination-btn" rel="next" aria-label="{{ __('pagination.next') }}">
-                <i class="fa-solid fa-chevron-right"></i>
+            <a href="{{ $paginator->nextPageUrl() }}" class="pagination-btn pagination-btn--nav" rel="next">
+                {!! __('pagination.next') !!}
             </a>
         @else
-            <span class="pagination-btn disabled" aria-disabled="true" aria-label="{{ __('pagination.next') }}">
-                <i class="fa-solid fa-chevron-right"></i>
+            <span class="pagination-btn pagination-btn--nav disabled" aria-disabled="true">
+                {!! __('pagination.next') !!}
             </span>
         @endif
+
     </nav>
 @endif

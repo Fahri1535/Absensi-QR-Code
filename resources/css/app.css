@@ -308,7 +308,7 @@ body.sidebar-collapsed .main-content{margin-left:0}
 }
 .card-header .card-actions{margin-left:auto;display:flex;gap:8px}
 .card-body{padding:22px} .card-body-sm{padding:14px}
-.card-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.card-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 /* Stat Cards */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
@@ -770,5 +770,81 @@ body {
   overflow-x: hidden;
   position: relative;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ══════ PAGINATION ══════ */
+.pagination-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: .875rem;
+  font-weight: 500;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition);
+  user-select: none;
+}
+
+.pagination-btn--nav {
+  min-width: auto;
+  padding: 0 14px;
+  font-size: .82rem;
+  gap: 4px;
+}
+
+.pagination-btn--dots {
+  min-width: 32px;
+  padding: 0 6px;
+  letter-spacing: .08em;
+  cursor: default;
+}
+
+.pagination-btn:hover:not(.disabled):not(.active) {
+  border-color: var(--blue-light);
+  background: var(--blue-glow);
+  color: var(--blue-light);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, .12);
+}
+
+.pagination-btn.active {
+  background: linear-gradient(135deg, var(--blue-primary), var(--blue-secondary));
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, .28);
+  cursor: default;
+}
+
+.pagination-btn.disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .pagination-nav { justify-content: center; width: 100%; }
+  .pagination-btn--nav { padding: 0 10px; font-size: .78rem; }
+  .pagination-btn { min-width: 34px; height: 34px; padding: 0 10px; font-size: .82rem; }
 }
 
