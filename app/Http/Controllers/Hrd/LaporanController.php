@@ -65,15 +65,16 @@ class LaporanController extends Controller
         if ($endOfMonth->isFuture()) $endOfMonth = now();
 
         // Generate data for each karyawan and each day
+        $jadwal = JadwalKerja::getSetting();
         foreach ($listKaryawanToScan as $karyawan) {
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
-                
-                // Check if it's a weekend
-                $isWeekend = $date->isWeekend();
-                
-                // Skip weekends? Or include? Let's include but not mark as alpa
-                if ($isWeekend) {
+
+                // Skip tanggal yang alpha-nya belum final (weekend atau jam
+                // masuk tanggal tsb. belum lewat). Konsisten dengan tempat lain
+                // — cegah "semua alpha" untuk tanggal hari ini yang jam masuknya
+                // (mis. shift malam) belum lewat.
+                if (! $jadwal->alphaFinalUntukTanggal($date)) {
                     continue;
                 }
                 

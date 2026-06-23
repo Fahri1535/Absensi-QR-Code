@@ -67,8 +67,11 @@ class DashboardController extends Controller
         })->values();
         $belumPresensi = $belumPresensiList->count();
 
-        // Alpa = belum presensi, tapi hanya pada hari kerja (sama seperti page Data Presensi)
-        $totalAlpa = $today->isWeekend() ? 0 : $belumPresensiList->count();
+        // Alpa = belum presensi, tapi hanya setelah jam masuk tanggal hari ini
+        // terlewati. Sebelum jam masuk lewat, karyawan masih dalam periode sah
+        // untuk presensi sehingga tidak boleh ditandai alpha (mencegah bug
+        // "semua alpha" tepat setelah pergantian tanggal pukul 00:00).
+        $totalAlpa = $jadwal->alphaFinalUntukTanggal($today) ? $belumPresensiList->count() : 0;
 
         // Jadwal & Presensi Pribadi
         $jadwal = JadwalKerja::getSetting();

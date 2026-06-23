@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Presensi, Izin};
+use App\Models\{Presensi, Izin, JadwalKerja};
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -64,12 +64,16 @@ class RiwayatController extends Controller
 
         // 3. Transform & Deteksi Alpa
         $generatedData = new Collection();
+        $jadwal = JadwalKerja::getSetting();
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         if ($endOfMonth->isFuture()) $endOfMonth = now();
 
         for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            if ($date->isWeekend()) continue;
+            // Skip tanggal yang alpha-nya belum final (weekend atau jam masuk
+            // tanggal tsb. belum lewat). Cegah "semua alpha" untuk tanggal hari
+            // ini yang jam masuknya (mis. shift malam) belum lewat.
+            if (! $jadwal->alphaFinalUntukTanggal($date)) continue;
 
             $dateStr = $date->toDateString();
             

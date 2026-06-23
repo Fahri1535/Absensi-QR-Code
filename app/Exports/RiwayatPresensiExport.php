@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\{Presensi, Izin, Karyawan};
+use App\Models\{Presensi, Izin, Karyawan, JadwalKerja};
 use Maatwebsite\Excel\Concerns\{FromCollection, WithHeadings, WithMapping, WithTitle, ShouldAutoSize};
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
@@ -37,12 +37,17 @@ class RiwayatPresensiExport implements FromCollection, WithHeadings, WithMapping
 
         // 3. Deteksi Alpa
         $generatedData = new Collection();
+        $jadwal = JadwalKerja::getSetting();
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         if ($endOfMonth->isFuture()) $endOfMonth = now();
 
         for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            if ($date->isWeekend()) continue;
+            // Skip tanggal yang alpha-nya belum final (weekend atau jam masuk
+            // tanggal tsb. belum lewat). Konsisten dengan riwayat di halaman —
+            // mencegah "semua alpha" untuk tanggal hari ini yang jam masuknya
+            // (mis. shift malam) belum lewat.
+            if (! $jadwal->alphaFinalUntukTanggal($date)) continue;
 
             $dateStr = $date->toDateString();
             $presensi = $dataPresensi->filter(function($item) use ($dateStr) {

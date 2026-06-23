@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Karyawan, Presensi, Bantuan};
+use App\Models\{Karyawan, Presensi, Bantuan, JadwalKerja};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Hash, Storage, DB};
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -74,9 +74,14 @@ class ProfileController extends Controller
             $alpaCount = 0;
             $startOfMonth = now()->startOfMonth();
             $endOfMonth = now(); // Sampai hari ini saja
+            $jadwal = JadwalKerja::getSetting();
 
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-                if ($date->isWeekend()) continue;
+                // Skip tanggal yang alpha-nya belum final (weekend atau jam
+                // masuk tanggal tsb. belum lewat). Cegah "semua alpha" untuk
+                // tanggal hari ini yang jam masuknya (mis. shift malam) belum
+                // lewat.
+                if (! $jadwal->alphaFinalUntukTanggal($date)) continue;
 
                 $dateStr = $date->toDateString();
                 $hasPresensi = $dataPresensi->where('tanggal', $dateStr)->isNotEmpty();

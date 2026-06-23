@@ -18,6 +18,7 @@ class PresensiController extends Controller
         $status     = $request->input('status'); // tepat_waktu, terlambat, alpa, atau jenis_izin
 
         $dateObj = Carbon::parse($tanggal);
+        $jadwal  = JadwalKerja::getSetting();
 
         // 1. Ambil Data Presensi Fisik
         $queryPresensi = Presensi::with('karyawan')
@@ -50,7 +51,12 @@ class PresensiController extends Controller
                 })
                 ->get();
         $generatedData = new Collection();
-        $isWeekend = $dateObj->isWeekend();
+        // Alpha hanya final setelah jam masuk tanggal tsb. terlewati. Tanggal
+        // masa lalu → final; tanggal hari ini → cek jam masuk; tanggal masa
+        // depan → tidak final. Ini mencegah tanggal hari ini yang jam masuknya
+        // belum lewat (mis. shift malam jam 19:00) langsung jadi alpha semua
+        // saat halaman dibuka lebih awal di hari itu.
+        $alphaFinal = $jadwal->alphaFinalUntukTanggal($dateObj);
 
         foreach ($listKaryawanToScan as $karyawan) {
             // Cek presensi fisik
@@ -86,8 +92,10 @@ class PresensiController extends Controller
                 continue;
             }
 
-            // Jika hari kerja tapi tidak ada data, maka Alpa
-            if (!$isWeekend) {
+            // Jika hari kerja tapi tidak ada data, maka Alpa — tapi hanya jika
+            // jam masuk tanggal tsb. sudah terlewati (alphaFinal). Selama jam
+            // masuk belum lewat, karyawan masih bisa presensi → tidak alpha.
+            if ($alphaFinal) {
                 $generatedData->push((object)[
                     'id' => 'alpa-' . $karyawan->id,
                     'karyawan_id' => $karyawan->id,

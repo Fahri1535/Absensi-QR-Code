@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\{Presensi, Izin, Karyawan};
+use App\Models\{Presensi, Izin, Karyawan, JadwalKerja};
 use Maatwebsite\Excel\Concerns\{FromCollection, WithHeadings, WithMapping, WithTitle, ShouldAutoSize};
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
@@ -44,7 +44,8 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                 ->get();
 
         $generatedData = new Collection();
-        
+        $jadwal = JadwalKerja::getSetting();
+
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
         if ($endOfMonth->isFuture()) $endOfMonth = now();
@@ -52,9 +53,12 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
         foreach ($listKaryawanToScan as $karyawan) {
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
-                
-                // Skip weekend
-                if ($date->isWeekend()) {
+
+                // Skip tanggal yang alpha-nya belum final (weekend atau jam
+                // masuk tanggal tsb. belum lewat). Konsisten dengan laporan di
+                // halaman — mencegah "semua alpha" untuk tanggal hari ini yang
+                // jam masuknya (mis. shift malam) belum lewat.
+                if (! $jadwal->alphaFinalUntukTanggal($date)) {
                     continue;
                 }
                 

@@ -81,4 +81,41 @@ class JadwalKerja extends Model
             'jam_pulang'  => $jamPulang,
         ];
     }
+
+    /**
+     * Apakah penentuan "alpha" untuk sebuah tanggal sudah final?
+     *
+     * Alpha baru dianggap final (boleh muncul) SETELAH window presensi
+     * masuk untuk tanggal tersebut benar-benar berakhir — yaitu setelah
+     * jam_masuk + toleransi + durasi_scan. Sebelum itu karyawan masih
+     * berada dalam periode yang sah untuk presensi, sehingga tidak boleh
+     * ditandai alpha.
+     *
+     * Inilah yang mencegah bug "semua jadi alpha" tepat setelah pergantian
+     * tanggal pukul 00:00: selama jam masuk tanggal D belum lewat, tanggal
+     * D tidak menghasilkan alpha. Konsisten untuk shift siang maupun malam
+     * (termasuk yang lintas hari), karena patokannya adalah jam_masuk yang
+     * diatur operator — bukan jam 00:00 kalender.
+     *
+     * Weekend tidak pernah dianggap alpha.
+     */
+    public function alphaFinalUntukTanggal(?Carbon $tanggal = null): bool
+    {
+        $tanggal ??= today();
+
+        // Weekend bukan hari kerja → tidak pernah alpha
+        if ($tanggal->isWeekend()) {
+            return false;
+        }
+
+        // Tanggal masa dean belum tiba waktunya dievaluasi
+        if ($tanggal->gt(today())) {
+            return false;
+        }
+
+        $windows = $this->presensiWindows($tanggal);
+
+        // Alpha final hanya setelah window scan masuk berakhir
+        return now()->gt($windows['masuk_tutup']);
+    }
 }

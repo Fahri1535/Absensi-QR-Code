@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\{Karyawan, Presensi, Izin};
+use App\Models\{JadwalKerja, Karyawan, Presensi, Izin};
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -48,6 +48,8 @@ class RiwayatPresensiService
             return $stats;
         }
 
+        $jadwal = JadwalKerja::getSetting();
+
         $karyawanIds = $listKaryawan->pluck('id');
 
         $dataPresensi = Presensi::whereIn('karyawan_id', $karyawanIds)
@@ -67,7 +69,13 @@ class RiwayatPresensiService
         }
 
         for ($date = $startDate->copy(); $date->lte($end); $date->addDay()) {
-            if ($date->isWeekend()) {
+            // Skip tanggal yang alpha-nya belum final. Untuk tanggal masa lalu
+            // selalu final; untuk tanggal HARI INI baru final setelah jam masuk
+            // terlewati; untuk tanggal masa depan tidak final. Mencegah bug
+            // "semua alpha" pada tanggal hari ini saat jam masuk (mis. shift
+            // malam 19:00) belum lewat. Weekend ikut tertangkap karena helper
+            // juga mengembalikan false untuk weekend.
+            if (! $jadwal->alphaFinalUntukTanggal($date)) {
                 continue;
             }
 

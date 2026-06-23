@@ -46,16 +46,21 @@ class DashboardController extends Controller
         
         $statsAlpha = 0;
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            if (!$date->isWeekend()) {
-                $hasPresensi = $presensiBulanIni->filter(fn($p) => $p->tanggal->toDateString() === $date->toDateString())->count() > 0;
-                if ($hasPresensi) continue;
-                
-                $hasIzin = $izinBulanIni->filter(fn($i) => $date->between($i->tanggal_mulai, $i->tanggal_selesai))->count() > 0;
-                if ($hasIzin) {
-                    $statsIzin++;
-                } else {
-                    $statsAlpha++;
-                }
+            // Skip tanggal yang alpha-nya belum final (weekend atau jam masuk
+            // tanggal tsb. belum lewat). Konsisten dengan tempat lain — cegah
+            // "semua alpha" untuk tanggal hari ini yang jam masuknya (mis. shift
+            // malam) belum lewat.
+            if (! $jadwal->alphaFinalUntukTanggal($date)) {
+                continue;
+            }
+            $hasPresensi = $presensiBulanIni->filter(fn($p) => $p->tanggal->toDateString() === $date->toDateString())->count() > 0;
+            if ($hasPresensi) continue;
+
+            $hasIzin = $izinBulanIni->filter(fn($i) => $date->between($i->tanggal_mulai, $i->tanggal_selesai))->count() > 0;
+            if ($hasIzin) {
+                $statsIzin++;
+            } else {
+                $statsAlpha++;
             }
         }
 
@@ -64,7 +69,8 @@ class DashboardController extends Controller
         $sevenDaysAgo = Carbon::now()->subDays(7);
         
         for ($date = $sevenDaysAgo->copy(); $date->lte(Carbon::now()); $date->addDay()) {
-            if ($date->isWeekend()) continue;
+            // Skip tanggal yang alpha-nya belum final — sama seperti statsAlpha.
+            if (! $jadwal->alphaFinalUntukTanggal($date)) continue;
             
             $dateStr = $date->toDateString();
             

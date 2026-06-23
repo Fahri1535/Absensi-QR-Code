@@ -69,11 +69,13 @@ class LaporanController extends Controller
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateStr = $date->toDateString();
                 
-                // Check if it's a weekend
-                $isWeekend = $date->isWeekend();
-                
-                // Skip weekends
-                if ($isWeekend) {
+                // Skip tanggal yang alpha-nya belum final. Untuk tanggal masa
+                // lalu selalu final. Untuk tanggal HARI INI, baru final setelah
+                // jam masuk terlewati. Untuk tanggal masa depan tidak final.
+                // Ini mencegah "semua alpha" pada tanggal hari ini saat jam
+                // masuk (mis. shift malam 19:00) belum lewat. Weekend ikut
+                // tertangkap karena helper juga mengembalikan false untuk weekend.
+                if (! $jadwal->alphaFinalUntukTanggal($date)) {
                     continue;
                 }
                 
