@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Karyawan;
 
 use App\Http\Controllers\Controller;
-use App\Models\{JadwalKerja, Notifikasi, Presensi, QrCode};
+use App\Models\{Izin, JadwalKerja, Notifikasi, Presensi, QrCode};
 use Carbon\Carbon;
 use Illuminate\Http\{JsonResponse, Request};
 
@@ -82,6 +82,21 @@ class PresensiController extends Controller
         if ($qr->tipe === 'masuk') {
             if ($presensi->jam_datang) {
                 return response()->json(['success' => false, 'message' => 'Anda sudah presensi masuk hari ini.'], 422);
+            }
+
+            // Tidak boleh presensi jika sedang izin/cuti/sakit yang disetujui untuk hari ini
+            $sedangIzin = Izin::where('karyawan_id', $karyawan->id)
+                ->where('status', 'disetujui')
+                ->whereDate('tanggal_mulai', '<=', $now->toDateString())
+                ->whereDate('tanggal_selesai', '>=', $now->toDateString())
+                ->first();
+
+            if ($sedangIzin) {
+                $jenisIzin = ucfirst(str_replace('_', ' ', $sedangIzin->jenis_izin));
+                return response()->json([
+                    'success' => false,
+                    'message' => "Anda tercatat {$jenisIzin} hari ini sehingga tidak dapat melakukan presensi.",
+                ], 422);
             }
 
             $windows = $jadwal->presensiWindows($now);
