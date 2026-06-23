@@ -34,6 +34,15 @@
   </div>
 
   <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fa-solid fa-hourglass-half"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ $totalPending ?? 0 }}</div>
+      <div class="stat-delta">belum absen pulang</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
     <div class="stat-icon blue"><i class="fa-solid fa-file-medical"></i></div>
     <div class="stat-info">
       <div class="stat-label">Izin</div>

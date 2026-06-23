@@ -30,6 +30,9 @@ class DashboardController extends Controller
         $hadirHariIni = $presensiHariIniCollection->count();
         $sudahPresensiIds = $presensiHariIniCollection->pluck('karyawan_id')->unique()->toArray();
 
+        // Sudah absen masuk tapi belum absen pulang -> Pending
+        $totalPending = $presensiHariIniCollection->whereNull('jam_pulang')->count();
+
         // Hitung terlambat
         $terlambatHariIni = $presensiHariIniCollection->where('status_masuk', 'terlambat')->count();
 
@@ -91,6 +94,7 @@ class DashboardController extends Controller
             'hadirHariIni',
             'terlambatHariIni',
             'totalAlpa',
+            'totalPending',
             'belumPresensi',
             'jumlahIzinHariIni',
             'belumPresensiList',
