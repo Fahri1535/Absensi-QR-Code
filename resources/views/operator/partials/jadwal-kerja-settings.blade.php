@@ -4,6 +4,8 @@
   $tol = $jadwal?->toleransi_menit ?? 5;
   $awalMasuk = $jadwal?->masuk_lebih_awal_menit ?? 15;
   $awalPulang = $jadwal?->pulang_lebih_awal_menit ?? 30;
+  $durasiMasuk = $jadwal?->durasi_scan_masuk_menit ?? \App\Models\JadwalKerja::MASUK_TUTUP_EXTRA_MENIT;
+  $durasiPulang = $jadwal?->durasi_scan_pulang_menit ?? \App\Models\JadwalKerja::PULANG_TUTUP_EXTRA_MENIT;
   $officeHasCoords = $jadwal?->kantor_latitude !== null && $jadwal?->kantor_longitude !== null;
 @endphp
 
@@ -26,6 +28,20 @@
           <div class="form-group">
             <label class="form-label">Jam Pulang</label>
             <input type="time" name="jam_pulang" class="form-control" value="{{ old('jam_pulang', $jadwal?->jam_pulang ? \Carbon\Carbon::parse($jadwal->jam_pulang)->format('H:i') : '17:00') }}" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Durasi Presensi QR Masuk (menit)</label>
+            <input type="number" name="durasi_scan_masuk_menit" class="form-control"
+                   value="{{ old('durasi_scan_masuk_menit', $durasiMasuk) }}" min="0" max="480" required>
+            <span class="form-hint">Berapa lama QR masuk tetap aktif (menit) setelah jam masuk + toleransi keterlambatan.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durasi Presensi QR Pulang (menit)</label>
+            <input type="number" name="durasi_scan_pulang_menit" class="form-control"
+                   value="{{ old('durasi_scan_pulang_menit', $durasiPulang) }}" min="0" max="480" required>
+            <span class="form-hint">Berapa lama QR pulang tetap aktif (menit) setelah jam pulang.</span>
           </div>
         </div>
         <div class="form-row">
@@ -82,7 +98,7 @@
             <div class="text-xs text-muted presensi-window-block__note">
               <i class="fa-solid fa-triangle-exclamation text-amber"></i>
               Toleransi keterlambatan: <strong class="text-amber">{{ $tol }} menit</strong>
-              · Tutup scan = jam masuk + toleransi + {{ \App\Models\JadwalKerja::MASUK_TUTUP_EXTRA_MENIT }} menit
+              · Tutup scan = jam masuk + toleransi + <strong>{{ $durasiMasuk }} menit</strong>
             </div>
           </div>
 
@@ -98,6 +114,10 @@
                 <div class="presensi-window-block__clock text-teal">{{ ($win['pulang_tutup'] ?? now())->format('H:i') }}</div>
                 <div class="text-xs text-muted">Tutup scan</div>
               </div>
+            </div>
+            <div class="text-xs text-muted presensi-window-block__note">
+              <i class="fa-solid fa-circle-info text-teal"></i>
+              Tutup scan = jam pulang + <strong>{{ $durasiPulang }} menit</strong>
             </div>
           </div>
         </div>

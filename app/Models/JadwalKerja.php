@@ -15,16 +15,18 @@ class JadwalKerja extends Model
         'toleransi_menit',
         'masuk_lebih_awal_menit',
         'pulang_lebih_awal_menit',
+        'durasi_scan_masuk_menit',
+        'durasi_scan_pulang_menit',
         'hari_kerja',
         'kantor_latitude',
         'kantor_longitude',
         'radius_meter',
     ];
 
-    /** Menit tambahan setelah jam masuk + toleransi — window scan masuk masih terbuka (sesuai README). */
+    /** Menit tambahan setelah jam masuk + toleransi — window scan masuk masih terbuka (fallback bila kolom belum ada). */
     public const MASUK_TUTUP_EXTRA_MENIT = 60;
 
-    /** Menit tambahan setelah jam pulang — window scan pulang masih terbuka. */
+    /** Menit tambahan setelah jam pulang — window scan pulang masih terbuka (fallback bila kolom belum ada). */
     public const PULANG_TUTUP_EXTRA_MENIT = 60;
 
     protected function casts(): array
@@ -40,12 +42,14 @@ class JadwalKerja extends Model
     public static function getSetting(): self
     {
         return static::firstOrCreate([], [
-            'jam_masuk'              => '08:00:00',
-            'jam_pulang'             => '17:00:00',
-            'toleransi_menit'        => 5,
-            'masuk_lebih_awal_menit' => 15,
-            'pulang_lebih_awal_menit'=> 30,
-            'hari_kerja'             => 'Senin - Jumat',
+            'jam_masuk'                => '08:00:00',
+            'jam_pulang'               => '17:00:00',
+            'toleransi_menit'          => 5,
+            'masuk_lebih_awal_menit'   => 15,
+            'pulang_lebih_awal_menit'  => 30,
+            'durasi_scan_masuk_menit'  => self::MASUK_TUTUP_EXTRA_MENIT,
+            'durasi_scan_pulang_menit' => self::PULANG_TUTUP_EXTRA_MENIT,
+            'hari_kerja'               => 'Senin - Jumat',
         ]);
     }
 
@@ -64,12 +68,15 @@ class JadwalKerja extends Model
         $tol = (int) ($this->toleransi_menit ?? 5);
         $awalMasuk = (int) ($this->masuk_lebih_awal_menit ?? 15);
         $awalPulang = (int) ($this->pulang_lebih_awal_menit ?? 30);
+        // Durasi tutup scan (bisa diatur di halaman Jadwal Kerja); fallback ke konstanta bila kolom belum ada.
+        $durasiMasuk = (int) ($this->durasi_scan_masuk_menit ?? self::MASUK_TUTUP_EXTRA_MENIT);
+        $durasiPulang = (int) ($this->durasi_scan_pulang_menit ?? self::PULANG_TUTUP_EXTRA_MENIT);
 
         return [
             'masuk_buka'  => $jamMasuk->copy()->subMinutes($awalMasuk),
-            'masuk_tutup' => $jamMasuk->copy()->addMinutes($tol + self::MASUK_TUTUP_EXTRA_MENIT),
+            'masuk_tutup' => $jamMasuk->copy()->addMinutes($tol + $durasiMasuk),
             'pulang_buka' => $jamPulang->copy()->subMinutes($awalPulang),
-            'pulang_tutup'=> $jamPulang->copy()->addMinutes(self::PULANG_TUTUP_EXTRA_MENIT),
+            'pulang_tutup'=> $jamPulang->copy()->addMinutes($durasiPulang),
             'jam_masuk'   => $jamMasuk,
             'jam_pulang'  => $jamPulang,
         ];

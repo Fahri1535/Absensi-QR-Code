@@ -18,15 +18,17 @@ class JadwalController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'jam_masuk'               => 'required|date_format:H:i',
-            'jam_pulang'              => 'required|date_format:H:i|after:jam_masuk',
-            'toleransi_menit'         => 'required|integer|min:0|max:120',
-            'masuk_lebih_awal_menit'  => 'required|integer|min:0|max:180',
-            'pulang_lebih_awal_menit' => 'required|integer|min:0|max:180',
-            'hari_kerja'              => 'nullable|string|max:100',
-            'kantor_latitude'         => 'nullable|numeric|between:-90,90',
-            'kantor_longitude'        => 'nullable|numeric|between:-180,180',
-            'radius_meter'            => 'nullable|integer|min:10|max:50000',
+            'jam_masuk'                => 'required|date_format:H:i',
+            'jam_pulang'               => 'required|date_format:H:i|after:jam_masuk',
+            'toleransi_menit'          => 'required|integer|min:0|max:120',
+            'masuk_lebih_awal_menit'   => 'required|integer|min:0|max:180',
+            'pulang_lebih_awal_menit'  => 'required|integer|min:0|max:180',
+            'durasi_scan_masuk_menit'  => 'required|integer|min:0|max:480',
+            'durasi_scan_pulang_menit' => 'required|integer|min:0|max:480',
+            'hari_kerja'               => 'nullable|string|max:100',
+            'kantor_latitude'          => 'nullable|numeric|between:-90,90',
+            'kantor_longitude'         => 'nullable|numeric|between:-180,180',
+            'radius_meter'             => 'nullable|integer|min:10|max:50000',
         ]);
 
         if (filled($validated['kantor_latitude'] ?? null) xor filled($validated['kantor_longitude'] ?? null)) {
