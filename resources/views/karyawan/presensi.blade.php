@@ -170,14 +170,38 @@
   <p class="text-muted">Anda bisa memindai QR dari aplikasi kamera atau Google Lens — tautan akan mengarahkan ke login jika belum masuk. Pastikan izin lokasi aktif jika Operator mengatur radius kantor.</p>
 </div>
 
+@if(!empty($sedangAlpaHariIni))
+<div class="alert alert-danger alert-permanent" style="margin-bottom:16px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-user-xmark" style="font-size:1.5rem;"></i>
+    <div>
+      <strong>Anda tercatat alpa hari ini!</strong><br>
+      Anda tidak hadir tanpa keterangan dan jam presensi masuk telah berakhir. Presensi untuk hari ini tidak dapat diproses. Silakan hubungi HRD untuk klarifikasi ketidakhadiran Anda.
+    </div>
+  </div>
+</div>
+@endif
+
+@if(!empty($izinPending))
+<div class="alert alert-warning alert-permanent" style="margin-bottom:16px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-clock" style="font-size:1.5rem;"></i>
+    <div>
+      <strong>Anda memiliki izin yang menunggu persetujuan!</strong><br>
+      Izin {{ str_replace('_', ' ', $izinPending->jenis_izin) }} dari {{ $izinPending->tanggal_mulai->format('d M Y') }} sampai {{ $izinPending->tanggal_selesai->format('d M Y') }} masih dalam proses. Presensi tetap dapat dilakukan selama izin belum disetujui.
+    </div>
+  </div>
+</div>
+@endif
+
 @if(!empty($geoRequired))
-<div class="alert alert-success" style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+<div class="alert alert-success alert-permanent" style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
   <i class="fa-solid fa-location-dot" style="margin-top:2px;"></i>
   <span><strong>Lokasi wajib:</strong> presensi hanya dapat dilakukan dalam radius kantor yang ditentukan di menu Operator → Jadwal Kerja &amp; Lokasi Kantor.</span>
 </div>
 @endif
 
-@if(!empty($pendingQrToken))
+@if(!empty($pendingQrToken) && empty($sedangAlpaHariIni) && empty($sedangIzin))
 <div class="alert alert-success" style="margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;">
   <span><i class="fa-solid fa-link"></i> Anda membuka halaman dari tautan QR. Izinkan lokasi jika diminta, lalu gunakan tombol di bawah atau aktifkan kamera untuk memindai ulang.</span>
   <button type="button" class="btn btn-primary btn-sm" onclick="processPendingQrFromLink()">
@@ -212,14 +236,16 @@
 
         <div class="window-bar">
           <div class="window-indicator">
-            <div class="window-dot {{ ($sedangIzin || !$windowMasukOpen) ? 'closed' : 'open' }}"></div>
+            <div class="window-dot {{ ($sedangAlpaHariIni || $sedangIzin || !$windowMasukOpen) ? 'closed' : 'open' }}"></div>
             <span>Presensi Masuk</span>
           </div>
           <div>
             <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $windowMasukBuka->format('H:i') }} – {{ $windowMasukTutup->format('H:i') }}
             </span>
-            @if($sedangIzin)
+            @if($sedangAlpaHariIni)
+              <span class="badge badge-red" style="margin-left:8px;">🚫 Alpa</span>
+            @elseif($sedangIzin)
               <span class="badge badge-amber" style="margin-left:8px;">🚫 {{ ucfirst(str_replace('_', ' ', $sedangIzin->jenis_izin)) }}</span>
             @elseif($sudahMasuk)
               <span class="badge badge-green" style="margin-left:8px;">✓ Selesai</span>
@@ -229,14 +255,16 @@
 
         <div class="window-bar" style="margin-bottom:0;">
           <div class="window-indicator">
-            <div class="window-dot {{ ($sedangIzin || !$windowPulangOpen) ? 'closed' : 'open' }}"></div>
+            <div class="window-dot {{ ($sedangAlpaHariIni || $sedangIzin || !$windowPulangOpen) ? 'closed' : 'open' }}"></div>
             <span>Presensi Pulang</span>
           </div>
           <div>
             <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $windowPulangBuka->format('H:i') }} – {{ $windowPulangTutup->format('H:i') }}
             </span>
-            @if($sedangIzin)
+            @if($sedangAlpaHariIni)
+              <span class="badge badge-red" style="margin-left:8px;">🚫 Tidak Tersedia</span>
+            @elseif($sedangIzin)
               <span class="badge badge-amber" style="margin-left:8px;">🚫 Tidak Tersedia</span>
             @elseif($sudahPulang)
               <span class="badge badge-green" style="margin-left:8px;">✓ Selesai</span>
@@ -248,11 +276,13 @@
     </div>
 
     {{-- Scanner Card --}}
-    <div class="card">
+    <div class="card" {{ ($sedangAlpaHariIni || $sedangIzin) ? 'style=pointer-events:none;opacity:0.7;' : '' }}>
       <div class="card-header">
         <i class="fa-solid fa-qrcode text-teal"></i>
         <h3>
-          @if($sedangIzin)
+          @if($sedangAlpaHariIni)
+            Presensi Tidak Tersedia
+          @elseif($sedangIzin)
             Presensi Tidak Tersedia
           @elseif(!$sudahMasuk)
             Scan QR — Presensi Masuk
@@ -268,15 +298,36 @@
       </div>
       <div class="card-body">
 
-        @if($sedangIzin)
+        @if($sedangAlpaHariIni)
+          {{-- Tercatat alpa hari ini — scanner diblokir total, tidak bisa diinteraksi --}}
+          <div style="text-align:center; padding:40px 24px;">
+            <div style="font-size:4rem; margin-bottom:16px;">🚫</div>
+            <h3 style="margin-bottom:8px;">Presensi Tidak Dapat Dilakukan</h3>
+            <p class="text-muted" style="margin-bottom:20px;">
+              Anda tercatat <strong>Alpa</strong> hari ini (tidak hadir tanpa keterangan) dan jam presensi masuk telah berakhir.
+              Sistem tidak dapat memproses presensi untuk hari ini.
+            </p>
+            <div class="alert alert-danger" style="text-align:left;max-width:380px;margin:0 auto;">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Hubungi HRD jika Anda merasa ini adalah kesalahan, misalnya karena kendala teknis saat presensi.</span>
+            </div>
+          </div>
+
+        @elseif($sedangIzin)
           {{-- Sedang izin — scanner diblokir --}}
           @php
             $jenisIzinLabel = ucfirst(str_replace('_', ' ', $sedangIzin->jenis_izin));
+            $jenisIzinEmoji = match($sedangIzin->jenis_izin) {
+              'sakit'       => '🤒',
+              'cuti'        => '🌴',
+              'tugas_luar'  => '💼',
+              default       => '🏖',
+            };
             $tglMulai  = \Carbon\Carbon::parse($sedangIzin->tanggal_mulai)->isoFormat('D MMM YYYY');
             $tglSelesai = \Carbon\Carbon::parse($sedangIzin->tanggal_selesai)->isoFormat('D MMM YYYY');
           @endphp
           <div style="text-align:center; padding:40px 24px;">
-            <div style="font-size:4rem; margin-bottom:16px;">🚫</div>
+            <div style="font-size:4rem; margin-bottom:16px;">{{ $jenisIzinEmoji }}</div>
             <h3 style="margin-bottom:8px;">Presensi Tidak Dapat Dilakukan</h3>
             <p class="text-muted" style="margin-bottom:20px;">
               Anda tercatat <strong>{{ $jenisIzinLabel }}</strong> hari ini
@@ -471,6 +522,7 @@
 <script>
 const GEO_REQUIRED = @json(!empty($geoRequired));
 const PENDING_QR_TOKEN = @json($pendingQrToken ?? null);
+const PRESENSI_BLOCKED = @json(!empty($sedangAlpaHariIni) || !empty($sedangIzin));
 
 let videoStream = null;
 let scanning    = false;
@@ -512,13 +564,13 @@ function getPositionOptional() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (PENDING_QR_TOKEN && !GEO_REQUIRED) {
+  if (PENDING_QR_TOKEN && !GEO_REQUIRED && !PRESENSI_BLOCKED) {
     processPendingQrFromLink();
   }
 });
 
 async function processPendingQrFromLink() {
-  if (!PENDING_QR_TOKEN) return;
+  if (!PENDING_QR_TOKEN || PRESENSI_BLOCKED) return;
   try {
     const loc = await getPositionOptional();
     await submitPresensiWithCoords(PENDING_QR_TOKEN, loc.latitude, loc.longitude);

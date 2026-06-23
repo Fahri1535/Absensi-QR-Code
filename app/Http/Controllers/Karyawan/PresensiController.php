@@ -38,6 +38,16 @@ class PresensiController extends Controller
             ->whereDate('tanggal_selesai', '>=', today())
             ->first();
 
+        // Cek apakah karyawan punya pengajuan izin yang masih menunggu persetujuan
+        $izinPending = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'pending')
+            ->first();
+
+        // Cek apakah karyawan tercatat alpa hari ini (tidak hadir tanpa izin
+        // disetujui di hari kerja). Konsisten dengan cara sistem menghitung "alpa"
+        // di Karyawan\IzinController.
+        $sedangAlpaHariIni = $this->cekAlpaHariIni($karyawan->id);
+
         $geoRequired = $jadwal->kantor_latitude !== null
             && $jadwal->kantor_longitude !== null
             && ! empty($jadwal->radius_meter);
@@ -53,6 +63,8 @@ class PresensiController extends Controller
             'jadwal',
             'presensiHariIni',
             'sedangIzin',
+            'izinPending',
+            'sedangAlpaHariIni',
             'geoRequired',
             'pendingQrToken'
         ));
@@ -315,5 +327,43 @@ class PresensiController extends Controller
         return "Waktu {$labelAksi} telah berakhir. "
             . "{$labelJam}: {$jamAcuanFmt}. "
             . "Scan ditutup pukul {$windowTutupFmt}{$terlambat}.";
+    }
+
+    /**
+     * Cek apakah karyawan alpa pada hari ini.
+     *
+     * Alpa = hari kerja (bukan Sabtu/Minggu) DAN tidak ada baris presensi
+     * dengan jam_datang DAN tidak ada izin "disetujui" yang mencakup hari ini.
+     * Konsisten dengan cara sistem menghitung "alpa" di Karyawan\IzinController.
+     */
+    protected function cekAlpaHariIni(int $karyawanId): bool
+    {
+        $hariIni = today();
+
+        // Weekend tidak dihitung sebagai alpa
+        if ($hariIni->isWeekend()) {
+            return false;
+        }
+
+        // Sudah presensi (absen masuk) hari ini -> tidak alpa
+        $sudahPresensi = Presensi::where('karyawan_id', $karyawanId)
+            ->whereDate('tanggal', $hariIni)
+            ->whereNotNull('jam_datang')
+            ->exists();
+        if ($sudahPresensi) {
+            return false;
+        }
+
+        // Punya izin yang disetujui mencakup hari ini -> tidak alpa
+        $adaIzinDisetujui = Izin::where('karyawan_id', $karyawanId)
+            ->where('status', 'disetujui')
+            ->where('tanggal_mulai', '<=', $hariIni)
+            ->where('tanggal_selesai', '>=', $hariIni)
+            ->exists();
+        if ($adaIzinDisetujui) {
+            return false;
+        }
+
+        return true;
     }
 }
