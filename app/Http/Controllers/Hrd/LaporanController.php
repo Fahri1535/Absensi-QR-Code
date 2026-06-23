@@ -82,7 +82,9 @@ class LaporanController extends Controller
                 if ($presensi) {
                     $presensi->is_izin = false;
                     $presensi->is_alpa = false;
-                    $presensi->status = $presensi->status_masuk;
+                    // Sudah absen masuk tapi belum absen pulang -> status Pending
+                    $presensi->is_pending = empty($presensi->jam_pulang);
+                    $presensi->status = $presensi->is_pending ? 'pending' : $presensi->status_masuk;
                     $generatedData->push($presensi);
                     continue;
                 }
@@ -106,7 +108,8 @@ class LaporanController extends Controller
                         'status' => $izin->jenis_izin,
                         'keterangan' => 'Izin: ' . $izin->keterangan,
                         'is_izin' => true,
-                        'is_alpa' => false
+                        'is_alpa' => false,
+                        'is_pending' => false
                     ]);
                     continue;
                 }
@@ -125,7 +128,8 @@ class LaporanController extends Controller
                     'status' => 'alpa',
                     'keterangan' => 'Tidak hadir tanpa keterangan',
                     'is_izin' => false,
-                    'is_alpa' => true
+                    'is_alpa' => true,
+                    'is_pending' => false
                 ]);
             }
         }
@@ -146,6 +150,9 @@ class LaporanController extends Controller
             $laporanAll = $laporanAll->filter(function($item) use ($statusFilter) {
                 if ($statusFilter === 'izin') {
                     return $item->is_izin ?? false;
+                }
+                if ($statusFilter === 'pending') {
+                    return $item->is_pending ?? false;
                 }
                 if ($statusFilter === 'pulang_awal') {
                     return ($item->status_pulang ?? null) === 'pulang_awal';
@@ -174,6 +181,7 @@ class LaporanController extends Controller
             'hadir'       => $laporanAll->where('is_izin', false)->where('is_alpa', false)->count(),
             'tepat_waktu' => $laporanAll->where('status', 'tepat_waktu')->count(),
             'terlambat'   => $laporanAll->where('status', 'terlambat')->count(),
+            'pending'     => $laporanAll->where('is_pending', true)->count(),
             'pulang_awal' => $laporanAll->where('status_pulang', 'pulang_awal')->count(),
             'izin'        => $laporanAll->where('is_izin', true)->count(),
             'alpa'        => $laporanAll->where('is_alpa', true)->count(),

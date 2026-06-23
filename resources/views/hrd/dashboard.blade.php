@@ -63,6 +63,15 @@
   </div>
 
   <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fa-solid fa-hourglass-half"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ $totalPending ?? 0 }}</div>
+      <div class="stat-delta">belum absen pulang</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
     <div class="stat-icon blue"><i class="fa-solid fa-file-medical"></i></div>
     <div class="stat-info">
       <div class="stat-label">Izin</div>
@@ -119,16 +128,22 @@
             <td>{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '-' }}</td>
             <td>
               @php
-                $statusColor = match($p->status_masuk ?? '') {
-                  'tepat_waktu' => 'green',
-                  'terlambat'   => 'amber',
-                  default       => 'muted'
-                };
-                $statusText = match($p->status_masuk ?? '') {
-                  'tepat_waktu' => 'Tepat Waktu',
-                  'terlambat'   => 'Terlambat',
-                  default       => '—'
-                };
+                $belumPulang = empty($p->jam_pulang);
+                if ($belumPulang) {
+                  $statusColor = 'yellow';
+                  $statusText  = 'Pending';
+                } else {
+                  $statusColor = match($p->status_masuk ?? '') {
+                    'tepat_waktu' => 'green',
+                    'terlambat'   => 'amber',
+                    default       => 'muted'
+                  };
+                  $statusText = match($p->status_masuk ?? '') {
+                    'tepat_waktu' => 'Tepat Waktu',
+                    'terlambat'   => 'Terlambat',
+                    default       => '—'
+                  };
+                }
               @endphp
               <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
             </td>

@@ -58,7 +58,9 @@ class PresensiController extends Controller
             if ($presensi) {
                 $presensi->is_izin = false;
                 $presensi->is_alpa = false;
-                $presensi->display_status = $presensi->status_masuk;
+                // Sudah absen masuk tapi belum absen pulang -> status Pending
+                $presensi->is_pending = empty($presensi->jam_pulang);
+                $presensi->display_status = $presensi->is_pending ? 'pending' : $presensi->status_masuk;
                 $generatedData->push($presensi);
                 continue;
             }
@@ -78,7 +80,8 @@ class PresensiController extends Controller
                     'display_status' => $izin->jenis_izin,
                     'keterangan' => 'Izin: ' . $izin->keterangan,
                     'is_izin' => true,
-                    'is_alpa' => false
+                    'is_alpa' => false,
+                    'is_pending' => false
                 ]);
                 continue;
             }
@@ -97,7 +100,8 @@ class PresensiController extends Controller
                     'display_status' => 'alpa',
                     'keterangan' => 'Tidak hadir tanpa keterangan',
                     'is_izin' => false,
-                    'is_alpa' => true
+                    'is_alpa' => true,
+                    'is_pending' => false
                 ]);
             }
         }
@@ -131,6 +135,7 @@ class PresensiController extends Controller
         $totalTerlambat = $allPresensi->where('display_status', 'terlambat')->count();
         $totalIzin      = $allPresensi->where('is_izin', true)->count();
         $totalAlpa      = $allPresensi->where('is_alpa', true)->count();
+        $totalPending   = $allPresensi->where('is_pending', true)->count();
 
         $listKaryawan = Karyawan::where('status', 'aktif')
             ->whereHas('user', function($query) {
@@ -148,6 +153,7 @@ class PresensiController extends Controller
             'totalTerlambat',
             'totalIzin',
             'totalAlpa',
+            'totalPending',
             'totalKaryawan',
             'listKaryawan'
         ));

@@ -25,6 +25,7 @@
   --red:    #FF5370;
   --green:  #00E096;
   --teal:   #00C9A7;
+  --yellow: #FFD60A;
 
   --border:        rgba(59,130,246,0.18);
   --border-strong: rgba(59,130,246,0.38);
@@ -66,6 +67,7 @@ body.light-mode {
   --red:    #DC2626;
   --green:  #16A34A;
   --teal:   #0D9488;
+  --yellow: #CA8A04;
 
   --border:        rgba(37,99,235,0.14);
   --border-strong: rgba(37,99,235,0.3);
@@ -393,6 +395,7 @@ body.light-mode .card-accent-amber{background:linear-gradient(to right,rgba(255,
 .stat-icon.red   {background:rgba(255,83,112,.12);color:var(--red)}
 .stat-icon.green {background:rgba(0,224,150,.12);color:var(--green)}
 .stat-icon.blue  {background:var(--blue-glow);color:var(--blue-light)}
+.stat-icon.yellow{background:rgba(255,214,10,.14);color:var(--yellow)}
 .stat-info{flex:1}
 .stat-label{
   font-size:.75rem;
@@ -460,6 +463,7 @@ td{padding:13px 16px;vertical-align:middle;color:var(--text-primary);white-space
 .badge-green {background:rgba(0,224,150,.12);color:var(--green)}
 .badge-amber {background:rgba(255,171,64,.12);color:var(--amber)}
 .badge-red   {background:rgba(255,83,112,.12);color:var(--red)}
+.badge-yellow{background:rgba(255,214,10,.16);color:var(--yellow)}
 .badge-muted {background:rgba(148,163,184,.10);color:var(--text-secondary)}
 
 /* ══════ BUTTONS — tambah gaya untuk button action ══════ */

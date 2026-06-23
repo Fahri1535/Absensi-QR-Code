@@ -83,16 +83,22 @@
             <td>{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '—' }}</td>
             <td>
               @php
-                $statusColor = match($p->status_masuk ?? '') {
-                  'tepat_waktu' => 'green',
-                  'terlambat'   => 'amber',
-                  default       => 'muted'
-                };
-                $statusLabel = match($p->status_masuk ?? '') {
-                  'tepat_waktu' => 'Tepat Waktu',
-                  'terlambat'   => 'Terlambat',
-                  default       => '—'
-                };
+                $belumPulang = empty($p->jam_pulang);
+                if ($belumPulang) {
+                  $statusColor = 'yellow';
+                  $statusLabel = 'Pending';
+                } else {
+                  $statusColor = match($p->status_masuk ?? '') {
+                    'tepat_waktu' => 'green',
+                    'terlambat'   => 'amber',
+                    default       => 'muted'
+                  };
+                  $statusLabel = match($p->status_masuk ?? '') {
+                    'tepat_waktu' => 'Tepat Waktu',
+                    'terlambat'   => 'Terlambat',
+                    default       => '—'
+                  };
+                }
               @endphp
               <span class="badge badge-{{ $statusColor }}">{{ $statusLabel }}</span>
             </td>

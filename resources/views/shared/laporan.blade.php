@@ -66,6 +66,7 @@
             <option value="">— Semua Status —</option>
             <option value="tepat_waktu" {{ request('status') === 'tepat_waktu' ? 'selected' : '' }}>Tepat Waktu</option>
             <option value="terlambat" {{ request('status') === 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
             <option value="pulang_awal" {{ request('status') === 'pulang_awal' ? 'selected' : '' }}>Pulang Awal</option>
             <option value="alpa" {{ request('status') === 'alpa' ? 'selected' : '' }}>Alpa</option>
             <option value="izin" {{ request('status') === 'izin' ? 'selected' : '' }}>Izin</option>
@@ -124,6 +125,14 @@
       <div class="stat-label">Terlambat</div>
       <div class="stat-value">{{ $summary['terlambat'] ?? 0 }}</div>
       <div class="stat-delta">dari total hadir</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fa-solid fa-hourglass-half"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ $summary['pending'] ?? 0 }}</div>
+      <div class="stat-delta">belum absen pulang</div>
     </div>
   </div>
   <div class="stat-card">
@@ -195,6 +204,9 @@
           } elseif ($status === 'alpa') {
               $sc = 'red';
               $sl = 'Alpa';
+          } elseif ($status === 'pending') {
+              $sc = 'yellow';
+              $sl = 'Pending';
           } else {
               $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
               $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);
@@ -253,6 +265,9 @@
     } elseif ($status === 'alpa') {
         $sc = 'red';
         $sl = 'Alpa';
+    } elseif ($status === 'pending') {
+        $sc = 'yellow';
+        $sl = 'Pending';
     } else {
         $sc = ['tepat_waktu' => 'green', 'terlambat' => 'amber', 'pulang_awal' => 'red'][$status] ?? 'muted';
         $sl = ['tepat_waktu' => 'Tepat Waktu', 'terlambat' => 'Terlambat', 'pulang_awal' => 'Pulang Awal'][$status] ?? ucfirst($status);

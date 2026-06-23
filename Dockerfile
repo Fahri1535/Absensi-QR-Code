@@ -1,6 +1,6 @@
-FROM php:8.2-cli
+FROM php:8.2-apache
 
-WORKDIR /app
+WORKDIR /var/www/html
 
 # =========================
 # SYSTEM DEPENDENCIES
@@ -20,12 +20,19 @@ RUN apt-get update && apt-get install -y \
         gd \
         zip \
         pdo \
-        pdo_mysql
+        pdo_mysql \
+        mysqli
 
 # =========================
 # COMPOSER
 # =========================
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# =========================
+# APACHE CONFIG
+# =========================
+RUN a2enmod rewrite
+COPY .docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
 # =========================
 # COPY COMPOSER FILES FIRST (CACHE LAYER)
@@ -41,32 +48,33 @@ COPY . .
 # =========================
 # RUN POST-INSTALL SCRIPTS
 # =========================
-RUN composer run post-autoload-dump
+RUN composer run post-autoload-dump --no-interaction
 
 # =========================
 # LARAVEL CACHE CLEAR (SAFE)
 # =========================
-RUN php artisan config:clear || true
-RUN php artisan cache:clear || true
-RUN php artisan view:clear || true
-RUN php artisan route:clear || true
+RUN php artisan config:clear --no-interaction || true
+RUN php artisan cache:clear --no-interaction || true
+RUN php artisan view:clear --no-interaction || true
+RUN php artisan route:clear --no-interaction || true
 
 # =========================
 # CREATE STORAGE SYMLINK
 # =========================
-RUN php artisan storage:link || true
+RUN php artisan storage:link --no-interaction || true
 
 # =========================
 # PERMISSION FIX
 # =========================
-RUN chmod -R 777 storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 # =========================
-# PORT RAILWAY
+# PORT
 # =========================
-EXPOSE 8000
+EXPOSE 80
 
 # =========================
-# START APP
+# START APACHE
 # =========================
-CMD php -S 0.0.0.0:8000 -t public
+CMD ["apache2-foreground"]

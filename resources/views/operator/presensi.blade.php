@@ -30,6 +30,14 @@
     </div>
   </div>
   <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fa-solid fa-hourglass-half"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ $totalPending }}</div>
+      <div class="stat-delta">belum absen pulang</div>
+    </div>
+  </div>
+  <div class="stat-card">
     <div class="stat-icon blue"><i class="fa-solid fa-file-medical"></i></div>
     <div class="stat-info">
       <div class="stat-label">Izin</div>
@@ -76,6 +84,7 @@
           <option value="">— Semua Status —</option>
           <option value="tepat_waktu" {{ $status === 'tepat_waktu' ? 'selected' : '' }}>Tepat Waktu</option>
           <option value="terlambat"   {{ $status === 'terlambat'   ? 'selected' : '' }}>Terlambat</option>
+          <option value="pending"     {{ $status === 'pending'     ? 'selected' : '' }}>Pending</option>
           <option value="alpa"        {{ $status === 'alpa'        ? 'selected' : '' }}>Alpa</option>
           <option value="izin"        {{ $status === 'izin'        ? 'selected' : '' }}>Izin</option>
           <option value="sakit"       {{ $status === 'sakit'       ? 'selected' : '' }}>Sakit</option>
@@ -127,6 +136,7 @@
         @php
           $isIzin = $p->is_izin ?? false;
           $isAlpa = $p->is_alpa ?? false;
+          $isPending = $p->is_pending ?? false;
           $status = $p->display_status ?? '—';
           
           if ($isIzin) {
@@ -141,6 +151,9 @@
           } elseif ($isAlpa) {
               $sc = 'red';
               $sl = 'Alpa';
+          } elseif ($isPending) {
+              $sc = 'yellow';
+              $sl = 'Pending';
           } else {
               $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
               $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);

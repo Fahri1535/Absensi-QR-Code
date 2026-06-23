@@ -68,11 +68,15 @@
           <td>{{ $p->jam_pulang ? \Carbon\Carbon::parse($p->jam_pulang)->format('H:i') : '—' }}</td>
           <td>
             @php
-              $st = match($p->status_masuk ?? '') {
-                'tepat_waktu' => ['green', 'Tepat Waktu'],
-                'terlambat' => ['amber', 'Terlambat'],
-                default => ['muted', '—'],
-              };
+              if (empty($p->jam_pulang) && !empty($p->jam_datang)) {
+                $st = ['yellow', 'Pending'];
+              } else {
+                $st = match($p->status_masuk ?? '') {
+                  'tepat_waktu' => ['green', 'Tepat Waktu'],
+                  'terlambat' => ['amber', 'Terlambat'],
+                  default => ['muted', '—'],
+                };
+              }
             @endphp
             <span class="badge badge-{{ $st[0] }}">{{ $st[1] }}</span>
           </td>

@@ -67,7 +67,9 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                 if ($presensi) {
                     $presensi->is_izin = false;
                     $presensi->is_alpa = false;
-                    $presensi->status = $presensi->status_masuk;
+                    // Sudah absen masuk tapi belum absen pulang -> status Pending
+                    $presensi->is_pending = empty($presensi->jam_pulang);
+                    $presensi->status = $presensi->is_pending ? 'pending' : $presensi->status_masuk;
                     $presensi->hari = $date->translatedFormat('l');
                     $generatedData->push($presensi);
                     continue;
@@ -88,7 +90,8 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                         'status' => $izin->jenis_izin,
                         'keterangan' => 'Izin: ' . $izin->keterangan,
                         'is_izin' => true,
-                        'is_alpa' => false
+                        'is_alpa' => false,
+                        'is_pending' => false
                     ]);
                     continue;
                 }
@@ -105,7 +108,8 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
                     'status' => 'alpa',
                     'keterangan' => 'Tidak hadir tanpa keterangan',
                     'is_izin' => false,
-                    'is_alpa' => true
+                    'is_alpa' => true,
+                    'is_pending' => false
                 ]);
             }
         }
@@ -115,6 +119,9 @@ class LaporanPresensiExport implements FromCollection, WithHeadings, WithMapping
             $generatedData = $generatedData->filter(function($item) {
                 if ($this->status === 'izin') {
                     return $item->is_izin ?? false;
+                }
+                if ($this->status === 'pending') {
+                    return $item->is_pending ?? false;
                 }
                 if ($this->status === 'pulang_awal') {
                     return ($item->status_pulang ?? null) === 'pulang_awal';
