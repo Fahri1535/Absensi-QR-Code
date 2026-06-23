@@ -212,14 +212,16 @@
 
         <div class="window-bar">
           <div class="window-indicator">
-            <div class="window-dot {{ $windowMasukOpen ? 'open' : ($sudahMasuk ? 'closed' : 'closed') }}"></div>
+            <div class="window-dot {{ ($sedangIzin || !$windowMasukOpen) ? 'closed' : 'open' }}"></div>
             <span>Presensi Masuk</span>
           </div>
           <div>
             <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $windowMasukBuka->format('H:i') }} – {{ $windowMasukTutup->format('H:i') }}
             </span>
-            @if($sudahMasuk)
+            @if($sedangIzin)
+              <span class="badge badge-amber" style="margin-left:8px;">🚫 {{ ucfirst(str_replace('_', ' ', $sedangIzin->jenis_izin)) }}</span>
+            @elseif($sudahMasuk)
               <span class="badge badge-green" style="margin-left:8px;">✓ Selesai</span>
             @endif
           </div>
@@ -227,14 +229,16 @@
 
         <div class="window-bar" style="margin-bottom:0;">
           <div class="window-indicator">
-            <div class="window-dot {{ $windowPulangOpen ? 'open' : ($sudahPulang ? 'closed' : 'closed') }}"></div>
+            <div class="window-dot {{ ($sedangIzin || !$windowPulangOpen) ? 'closed' : 'open' }}"></div>
             <span>Presensi Pulang</span>
           </div>
           <div>
             <span style="font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--teal);">
               {{ $windowPulangBuka->format('H:i') }} – {{ $windowPulangTutup->format('H:i') }}
             </span>
-            @if($sudahPulang)
+            @if($sedangIzin)
+              <span class="badge badge-amber" style="margin-left:8px;">🚫 Tidak Tersedia</span>
+            @elseif($sudahPulang)
               <span class="badge badge-green" style="margin-left:8px;">✓ Selesai</span>
             @endif
           </div>
@@ -248,7 +252,9 @@
       <div class="card-header">
         <i class="fa-solid fa-qrcode text-teal"></i>
         <h3>
-          @if(!$sudahMasuk)
+          @if($sedangIzin)
+            Presensi Tidak Tersedia
+          @elseif(!$sudahMasuk)
             Scan QR — Presensi Masuk
           @elseif(!$sudahPulang)
             Scan QR — Presensi Pulang
@@ -262,7 +268,33 @@
       </div>
       <div class="card-body">
 
-        @if($sudahMasuk && $sudahPulang)
+        @if($sedangIzin)
+          {{-- Sedang izin — scanner diblokir --}}
+          @php
+            $jenisIzinLabel = ucfirst(str_replace('_', ' ', $sedangIzin->jenis_izin));
+            $tglMulai  = \Carbon\Carbon::parse($sedangIzin->tanggal_mulai)->isoFormat('D MMM YYYY');
+            $tglSelesai = \Carbon\Carbon::parse($sedangIzin->tanggal_selesai)->isoFormat('D MMM YYYY');
+          @endphp
+          <div style="text-align:center; padding:40px 24px;">
+            <div style="font-size:4rem; margin-bottom:16px;">🚫</div>
+            <h3 style="margin-bottom:8px;">Presensi Tidak Dapat Dilakukan</h3>
+            <p class="text-muted" style="margin-bottom:20px;">
+              Anda tercatat <strong>{{ $jenisIzinLabel }}</strong> hari ini
+              ({{ $tglMulai }}
+              @if($tglMulai !== $tglSelesai)
+                – {{ $tglSelesai }}
+              @endif
+              ), sehingga tidak dapat melakukan presensi.
+            </p>
+            @if($sedangIzin->keterangan)
+              <div class="alert alert-info" style="text-align:left;max-width:340px;margin:0 auto;">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>{{ $sedangIzin->keterangan }}</span>
+              </div>
+            @endif
+          </div>
+
+        @elseif($sudahMasuk && $sudahPulang)
           {{-- All done --}}
           <div style="text-align:center; padding:40px;">
             <div style="font-size:4rem; margin-bottom:16px;">🎉</div>

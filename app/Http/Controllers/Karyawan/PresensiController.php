@@ -31,6 +31,13 @@ class PresensiController extends Controller
             ->whereDate('tanggal', today())
             ->first();
 
+        // Cek apakah karyawan sedang izin/cuti/sakit yang disetujui untuk hari ini
+        $sedangIzin = Izin::where('karyawan_id', $karyawan->id)
+            ->where('status', 'disetujui')
+            ->whereDate('tanggal_mulai', '<=', today())
+            ->whereDate('tanggal_selesai', '>=', today())
+            ->first();
+
         $geoRequired = $jadwal->kantor_latitude !== null
             && $jadwal->kantor_longitude !== null
             && ! empty($jadwal->radius_meter);
@@ -45,6 +52,7 @@ class PresensiController extends Controller
             'karyawan',
             'jadwal',
             'presensiHariIni',
+            'sedangIzin',
             'geoRequired',
             'pendingQrToken'
         ));
