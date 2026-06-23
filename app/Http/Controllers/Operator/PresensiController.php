@@ -15,7 +15,7 @@ class PresensiController extends Controller
         // Filter
         $tanggal    = $request->input('tanggal', today()->toDateString());
         $karyawanId = $request->input('karyawan_id');
-        $status     = $request->input('status'); // tepat_waktu, terlambat, alpa, atau jenis_izin
+        $status     = $request->input('status'); // tepat_waktu, terlambat, alpa, belum_presensi, atau jenis_izin
 
         $dateObj = Carbon::parse($tanggal);
         $jadwal  = JadwalKerja::getSetting();
@@ -42,7 +42,7 @@ class PresensiController extends Controller
 
         $dataIzin = $queryIzin->get();
 
-        // 3. Gabungkan dan Deteksi Alpa (Berdasarkan Hari Kerja)
+        // 3. Gabungkan dan Deteksi Alpa / Belum Presensi
         $listKaryawanToScan = $karyawanId 
             ? Karyawan::where('id', $karyawanId)->get() 
             : Karyawan::where('status', 'aktif')
@@ -51,12 +51,16 @@ class PresensiController extends Controller
                 })
                 ->get();
         $generatedData = new Collection();
-        // Alpha hanya final setelah jam masuk tanggal tsb. terlewati. Tanggal
-        // masa lalu → final; tanggal hari ini → cek jam masuk; tanggal masa
-        // depan → tidak final. Ini mencegah tanggal hari ini yang jam masuknya
-        // belum lewat (mis. shift malam jam 19:00) langsung jadi alpha semua
-        // saat halaman dibuka lebih awal di hari itu.
-        $alphaFinal = $jadwal->alphaFinalUntukTanggal($dateObj);
+
+        // Alpha final hanya setelah jam masuk + toleransi + durasi_scan terlewati.
+        // Selama window masih terbuka → status "Belum Presensi".
+        //
+        // Untuk tanggal HARI INI: alpha TIDAK PERNAH final selama hari masih
+        // berjalan — selalu tampilkan "Belum Presensi" jika belum presensi,
+        // agar operator bisa mengubah pengaturan jam kerja kapan saja tanpa
+        // membuat karyawan terkunci sebagai alpha. Alpha hanya muncul untuk
+        // tanggal yang sudah lewat (kemarin atau sebelumnya).
+        $alphaFinal = $dateObj->isToday() ? false : $jadwal->alphaFinalUntukTanggal($dateObj);
 
         foreach ($listKaryawanToScan as $karyawan) {
             // Cek presensi fisik
@@ -64,6 +68,7 @@ class PresensiController extends Controller
             if ($presensi) {
                 $presensi->is_izin = false;
                 $presensi->is_alpa = false;
+                $presensi->is_belum = false;
                 // Sudah absen masuk tapi belum absen pulang -> status Pending
                 $presensi->is_pending = empty($presensi->jam_pulang);
                 $presensi->display_status = $presensi->is_pending ? 'pending' : $presensi->status_masuk;
@@ -87,15 +92,15 @@ class PresensiController extends Controller
                     'keterangan' => 'Izin: ' . $izin->keterangan,
                     'is_izin' => true,
                     'is_alpa' => false,
-                    'is_pending' => false
+                    'is_belum' => false,
+                    'is_pending' => false,
                 ]);
                 continue;
             }
 
-            // Jika hari kerja tapi tidak ada data, maka Alpa — tapi hanya jika
-            // jam masuk tanggal tsb. sudah terlewati (alphaFinal). Selama jam
-            // masuk belum lewat, karyawan masih bisa presensi → tidak alpha.
+            // Tidak ada presensi dan tidak ada izin
             if ($alphaFinal) {
+                // Window sudah lewat (hanya untuk tanggal LAMPAU) — tandai sebagai Alpa
                 $generatedData->push((object)[
                     'id' => 'alpa-' . $karyawan->id,
                     'karyawan_id' => $karyawan->id,
@@ -109,7 +114,26 @@ class PresensiController extends Controller
                     'keterangan' => 'Tidak hadir tanpa keterangan',
                     'is_izin' => false,
                     'is_alpa' => true,
-                    'is_pending' => false
+                    'is_belum' => false,
+                    'is_pending' => false,
+                ]);
+            } else {
+                // Hari ini — tampilkan sebagai "Belum Presensi" (selalu)
+                $generatedData->push((object)[
+                    'id' => 'belum-' . $karyawan->id,
+                    'karyawan_id' => $karyawan->id,
+                    'karyawan' => $karyawan,
+                    'tanggal' => $dateObj->copy(),
+                    'jam_datang' => null,
+                    'jam_pulang' => null,
+                    'status_masuk' => null,
+                    'status_pulang' => null,
+                    'display_status' => 'belum_presensi',
+                    'keterangan' => 'Belum melakukan presensi',
+                    'is_izin' => false,
+                    'is_alpa' => false,
+                    'is_belum' => true,
+                    'is_pending' => false,
                 ]);
             }
         }
@@ -139,11 +163,12 @@ class PresensiController extends Controller
                 $query->where('role', '!=', 'operator');
             })
             ->count();
-        $totalHadir     = $allPresensi->where('is_izin', false)->where('is_alpa', false)->count();
+        $totalHadir     = $allPresensi->where('is_izin', false)->where('is_alpa', false)->where('is_belum', false)->count();
         $totalTerlambat = $allPresensi->where('display_status', 'terlambat')->count();
         $totalIzin      = $allPresensi->where('is_izin', true)->count();
         $totalAlpa      = $allPresensi->where('is_alpa', true)->count();
         $totalPending   = $allPresensi->where('is_pending', true)->count();
+        $totalBelumPresensi = $allPresensi->where('is_belum', true)->count();
 
         $listKaryawan = Karyawan::where('status', 'aktif')
             ->whereHas('user', function($query) {
@@ -162,6 +187,7 @@ class PresensiController extends Controller
             'totalIzin',
             'totalAlpa',
             'totalPending',
+            'totalBelumPresensi',
             'totalKaryawan',
             'listKaryawan'
         ));

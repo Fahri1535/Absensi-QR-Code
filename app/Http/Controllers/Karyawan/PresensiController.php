@@ -332,20 +332,24 @@ class PresensiController extends Controller
     /**
      * Cek apakah karyawan alpa pada hari ini.
      *
-     * Alpa = hari kerja (bukan Sabtu/Minggu) DAN sudah lewat window presensi
-     * masuk (jam_masuk + toleransi + durasi_scan) DAN tidak ada baris presensi
-     * dengan jam_datang DAN tidak ada izin "disetujui" yang mencakup hari ini.
+     * Alpa hanya muncul untuk tanggal KEMARIN atau sebelumnya. Untuk HARI INI,
+     * alpha TIDAK PERNAH final — selalu kembalikan false, agar operator bisa
+     * mengubah pengaturan jam kerja (mis. memperpanjang durasi_scan) kapan
+     * saja tanpa membuat karyawan terkunci sebagai alpha.
      *
-     * Catatan penting: alpha baru muncul SETELAH jam masuk terlewati. Inilah
-     * yang mencegah bug "semua alpha tepat setelah jam 00:00" — selama jam
-     * masuk tanggal hari ini belum lewat, tidak ada yang alpha, termasuk
-     * untuk shift malam yang jam masuknya ditaruh malem. Konsisten dengan
-     * cara sistem menghitung "alpa" di Karyawan\IzinController.
+     * Konsisten dengan cara Operator\PresensiController menampilkan data:
+     * hari ini → "Belum Presensi", bukan "Alpa".
+     * Kemarin/lampau → "Alpa" jika window sudah lewat & tidak ada presensi/izin.
      */
     protected function cekAlpaHariIni(int $karyawanId): bool
     {
         $hariIni = today();
         $jadwal  = JadwalKerja::getSetting();
+
+        // Hari ini: TIDAK PERNAH alpha — operator bisa kapan saja ubah jam kerja
+        if ($hariIni->isToday()) {
+            return false;
+        }
 
         // Selama jam masuk tanggal hari ini belum lewat, belum waktunya
         // menandai siapa pun sebagai alpha.

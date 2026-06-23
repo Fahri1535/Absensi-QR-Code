@@ -46,11 +46,19 @@
     </div>
   </div>
   <div class="stat-card">
+    <div class="stat-icon yellow"><i class="fa-solid fa-clock"></i></div>
+    <div class="stat-info">
+      <div class="stat-label">Belum Presensi</div>
+      <div class="stat-value">{{ $totalBelumPresensi }}</div>
+      <div class="stat-delta">window masih terbuka</div>
+    </div>
+  </div>
+  <div class="stat-card">
     <div class="stat-icon red"><i class="fa-solid fa-user-xmark"></i></div>
     <div class="stat-info">
       <div class="stat-label">Alpa</div>
       <div class="stat-value">{{ $totalAlpa }}</div>
-      <div class="stat-delta neg">hari ini</div>
+      <div class="stat-delta neg">telah lewat window</div>
     </div>
   </div>
 </div>
@@ -89,6 +97,7 @@
           <option value="izin"        {{ $status === 'izin'        ? 'selected' : '' }}>Izin</option>
           <option value="sakit"       {{ $status === 'sakit'       ? 'selected' : '' }}>Sakit</option>
           <option value="cuti"        {{ $status === 'cuti'        ? 'selected' : '' }}>Cuti</option>
+          <option value="belum_presensi" {{ $status === 'belum_presensi' ? 'selected' : '' }}>Belum Presensi</option>
         </select>
       </div>
 
@@ -137,6 +146,7 @@
           $isIzin = $p->is_izin ?? false;
           $isAlpa = $p->is_alpa ?? false;
           $isPending = $p->is_pending ?? false;
+          $isBelum = $p->is_belum ?? false;
           $status = $p->display_status ?? '—';
           
           if ($isIzin) {
@@ -154,6 +164,9 @@
           } elseif ($isPending) {
               $sc = 'yellow';
               $sl = 'Pending';
+          } elseif ($isBelum) {
+              $sc = 'muted';
+              $sl = 'Belum Presensi';
           } else {
               $sc = ['tepat_waktu'=>'green','terlambat'=>'amber','pulang_awal'=>'red'][$status] ?? 'muted';
               $sl = ['tepat_waktu'=>'Tepat Waktu','terlambat'=>'Terlambat','pulang_awal'=>'Pulang Awal'][$status] ?? ucfirst($status);
@@ -222,4 +235,3 @@
 </div>
 
 @endsection
-
