@@ -92,7 +92,13 @@ class PresensiController extends Controller
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Window presensi masuk: {$windowBuka->format('H:i')} – {$windowTutup->format('H:i')}",
+                    'message' => $this->buildWindowMessage(
+                        'masuk',
+                        $jamMasuk,
+                        $windowBuka,
+                        $windowTutup,
+                        $now
+                    ),
                 ], 422);
             }
 
@@ -142,7 +148,13 @@ class PresensiController extends Controller
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Window presensi pulang: {$windowBuka->format('H:i')} – {$windowTutup->format('H:i')}",
+                    'message' => $this->buildWindowMessage(
+                        'pulang',
+                        $jamPulang,
+                        $windowBuka,
+                        $windowTutup,
+                        $now
+                    ),
                 ], 422);
             }
 
@@ -236,5 +248,49 @@ class PresensiController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Susun pesan error saat scan dilakukan di luar window presensi.
+     *
+     * Pesan dibuat context-aware (terlalu awal vs sudah lewat batas) dan
+     * selalu menyebutkan jam masuk/jam pulang + jam buka-tutup scan, agar
+     * karyawan tahu kapan harus mencoba lagi — konsisten dengan tampilan
+     * di halaman Kelola QR Code & Lokasi/Waktu Kerja.
+     */
+    protected function buildWindowMessage(
+        string $tipe,
+        Carbon $jamAcuan,
+        Carbon $windowBuka,
+        Carbon $windowTutup,
+        Carbon $now
+    ): string {
+        $isMasuk   = $tipe === 'masuk';
+        $labelJam  = $isMasuk ? 'Jam masuk' : 'Jam pulang';
+        $labelAksi = $isMasuk ? 'presensi masuk' : 'presensi pulang';
+
+        $jamAcuanFmt   = $jamAcuan->format('H:i');
+        $windowBukaFmt = $windowBuka->format('H:i');
+        $windowTutupFmt= $windowTutup->format('H:i');
+
+        if ($now->lt($windowBuka)) {
+            // Terlalu awal — window belum dibuka
+            $menit = $now->diffInMinutes($windowBuka, false); // positif = masih tunggu
+            $tunggu = $menit > 0
+                ? " (baru bisa ~{$menit} menit lagi)"
+                : '';
+            return "Belum waktunya {$labelAksi}. "
+                . "{$labelJam}: {$jamAcuanFmt}. "
+                . "Scan dibuka pukul {$windowBukaFmt}{$tunggu}.";
+        }
+
+        // Sudah lewat window tutup
+        $menit = $now->diffInMinutes($windowTutup, false); // negatif = sudah lewat
+        $terlambat = $menit < 0
+            ? " (telah berakhir ~" . abs($menit) . " menit lalu)"
+            : '';
+        return "Waktu {$labelAksi} telah berakhir. "
+            . "{$labelJam}: {$jamAcuanFmt}. "
+            . "Scan ditutup pukul {$windowTutupFmt}{$terlambat}.";
     }
 }

@@ -12,10 +12,6 @@
   align-items: start;
 }
 
-@media (max-width: 900px) {
-  .presensi-grid { grid-template-columns: 1fr; }
-}
-
 /* QR Scanner Styles */
 .scanner-container {
   position: relative;
@@ -103,6 +99,66 @@
 .window-dot.open  { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .window-dot.closed { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
 .window-dot.soon  { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+
+/* ── Mobile (tablet & phone) ───────────────────────────────── */
+/* Hasil scan & window-bar harus tetap nyaman dibaca di layar sempit.
+   Termasuk pesan error dinamis (jam masuk/pulang) yang bisa panjang. */
+@media (max-width: 900px) {
+  .presensi-grid { grid-template-columns: 1fr; gap: 16px; }
+  .scanner-container,
+  .scanner-placeholder { max-width: 100%; }
+}
+
+@media (max-width: 640px) {
+  /* Window-bar: tumpuk vertikal, jam di bawah label agar tidak terpotong */
+  .window-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 14px;
+  }
+  .window-bar > div:last-child {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  /* Waktu window: kecilkan sedikit agar muat "15:15 – 16:40" + badge */
+  .window-bar span[style*="font-weight:700"] { font-size: .85rem; }
+
+  /* Hasil scan (alert dinamis): pastikan teks panjang terbungkus rapi */
+  #scan-result {
+    font-size: .82rem;
+    line-height: 1.5;
+    align-items: flex-start;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  #scan-result i { margin-top: 2px; }
+
+  /* Tombol scan: minimal 48px (rekomendasi touch target a11y) & full-width */
+  #btn-start-scan,
+  #btn-stop-scan {
+    min-height: 48px !important;
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* Layar sangat sempit (≤400px) — paksa tombol presensi full-width bertumpuk */
+@media (max-width: 400px) {
+  #btn-start-scan,
+  #btn-stop-scan { flex: 1 1 100%; }
+}
+
+/* Sukses modal: pastikan tidak overflow di ponsel kecil */
+@media (max-width: 480px) {
+  .success-box { padding: 28px 20px; max-width: 92%; }
+  .success-icon { width: 64px; height: 64px; font-size: 2rem; }
+  .success-box h2 { font-size: 1.25rem; }
+}
 </style>
 @endpush
 
@@ -259,11 +315,11 @@
           {{-- Scan result container (class alert ditambahkan dinamis agar tidak kena auto-dismiss app.js) --}}
           <div id="scan-result" style="display:none; margin-top:16px;"></div>
 
-          <div style="display:flex;gap:10px;margin-top:20px; justify-content:center;">
+          <div style="display:flex;gap:10px;margin-top:20px; justify-content:center; flex-wrap:wrap;">
             <button id="btn-start-scan" class="btn btn-primary btn-lg" onclick="startScanner()" touch-action="manipulation" style="min-height:48px;">
               <i class="fa-solid fa-camera"></i> Aktifkan Kamera
             </button>
-            <button id="btn-stop-scan" class="btn btn-outline" style="display:none;" onclick="stopScanner()" touch-action="manipulation" style="min-height:48px;">
+            <button id="btn-stop-scan" class="btn btn-outline" onclick="stopScanner()" touch-action="manipulation" style="display:none;min-height:48px;">
               <i class="fa-solid fa-stop"></i> Berhenti
             </button>
           </div>
@@ -659,8 +715,23 @@ function showScanResult(type, msg) {
   const el = document.getElementById('scan-result');
   if (!el) return;
 
+  const icon = type === 'success' ? 'circle-check' : 'circle-xmark';
+  // Escape teks dari server (msg) sebelum disisipkan via innerHTML
+  const safe = String(msg || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
   el.className = 'alert alert-' + type;
-  el.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-xmark'}"></i> ${msg}`;
+  // Jadikan dua baris: baris pertama ringkas, baris kedua detail jam.
+  // Pesan server memakai pola "<Kalimat>. <Jam masuk/pulang>: HH:MM. <Scan ...>."
+  // sehingga dibagi per kalimat untuk keterbacaan.
+  const lines = safe.split('. ').filter(Boolean).map(s => s.trim()).filter(Boolean);
+  const body = lines.length > 1
+    ? `<strong>${lines[0]}.</strong><br><span style="font-size:.82rem;opacity:.9;">${lines.slice(1).join('. ')}.</span>`
+    : safe;
+
+  el.innerHTML = `<i class="fa-solid fa-${icon}" style="margin-top:2px;"></i> <span style="line-height:1.45;">${body}</span>`;
   el.style.display = 'flex';
   el.style.opacity = '1';
   el.style.transform = 'none';
