@@ -65,6 +65,11 @@ class Karyawan extends Model
         $schedule->jam_masuk = $this->jam_masuk ?? $global->jam_masuk;
         $schedule->jam_pulang = $this->jam_pulang ?? $global->jam_pulang;
         $schedule->toleransi_menit = $this->toleransi_menit ?? $global->toleransi_menit;
+        // Propagasi window presensi dari jadwal global — tanpa ini, scan QR memakai
+        // fallback default (15/30) alih-alih nilai yang disimpan operator, sehingga
+        // jam buka window di validasi scan tidak sama dengan yang ditampilkan di UI.
+        $schedule->masuk_lebih_awal_menit = $global->masuk_lebih_awal_menit ?? 15;
+        $schedule->pulang_lebih_awal_menit = $global->pulang_lebih_awal_menit ?? 30;
         $schedule->kantor_latitude = $global->kantor_latitude;
         $schedule->kantor_longitude = $global->kantor_longitude;
         $schedule->radius_meter = $global->radius_meter;

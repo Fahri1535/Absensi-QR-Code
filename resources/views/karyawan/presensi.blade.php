@@ -139,18 +139,12 @@
     <div class="card mb-4">
       <div class="card-body-sm">
         @php
-          $now        = now();
-          $jamMasuk   = \Carbon\Carbon::parse($jadwal->jam_masuk ?? '08:00');
-          $toleransi  = $jadwal->toleransi_menit ?? 5;
-          
-          // Window Masuk: 1 jam sebelum s/d 4 jam setelah
-          $windowMasukBuka  = $jamMasuk->copy()->subHours(1);
-          $windowMasukTutup = $jamMasuk->copy()->addHours(4);
-
-          $jamPulang  = \Carbon\Carbon::parse($jadwal->jam_pulang ?? '17:00');
-          // Window Pulang: 1 jam sebelum s/d 6 jam setelah
-          $windowPulangBuka  = $jamPulang->copy()->subHours(1);
-          $windowPulangTutup = $jamPulang->copy()->addHours(6);
+          $now   = now();
+          $win   = $jadwal->presensiWindows($now);
+          $windowMasukBuka  = $win['masuk_buka'];
+          $windowMasukTutup = $win['masuk_tutup'];
+          $windowPulangBuka  = $win['pulang_buka'];
+          $windowPulangTutup = $win['pulang_tutup'];
 
           // Determine active window
           $sudahMasuk  = (bool)($presensiHariIni?->jam_datang);

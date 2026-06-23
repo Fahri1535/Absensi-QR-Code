@@ -951,3 +951,138 @@ body {
   .pagination-btn { min-width: 34px; height: 34px; padding: 0 10px; font-size: .82rem; }
 }
 
+/* ══════ JADWAL / LOKASI KANTOR ══════ */
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: .75rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.presensi-window-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.presensi-window-block {
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.presensi-window-block--masuk {
+  background: rgba(0, 201, 167, .06);
+  border: 1px solid rgba(0, 201, 167, .15);
+}
+
+.presensi-window-block--pulang {
+  background: rgba(0, 224, 150, .06);
+  border: 1px solid rgba(0, 224, 150, .15);
+}
+
+.presensi-window-block__label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.presensi-window-block__times {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.presensi-window-block__time { text-align: center; flex-shrink: 0; }
+
+.presensi-window-block__clock {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.presensi-window-block__line {
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.presensi-window-block__line--masuk {
+  background: linear-gradient(90deg, var(--teal), var(--amber));
+}
+
+.presensi-window-block__line--pulang {
+  background: linear-gradient(90deg, var(--green), var(--teal));
+}
+
+.presensi-window-block__note { margin-top: 8px; line-height: 1.45; }
+
+.office-location-intro { margin-bottom: 16px; line-height: 1.5; }
+
+.maps-paste-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.maps-paste-row .form-control { flex: 1; min-width: 0; }
+
+.office-map-placeholder {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: .82rem;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  margin-bottom: 10px;
+}
+
+.office-map-frame-wrap {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 16 / 10;
+  max-height: 280px;
+  background: var(--bg-input);
+  margin-bottom: 10px;
+}
+
+.office-map-frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.office-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jadwal-form-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.jadwal-form-actions .btn { min-height: 44px; }
+
+@media (max-width: 640px) {
+  .maps-paste-row { flex-direction: column; }
+  .maps-paste-row .btn { width: 100%; justify-content: center; }
+  .office-map-actions .btn { flex: 1 1 100%; justify-content: center; min-height: 44px; }
+  .presensi-window-block__times { flex-wrap: wrap; justify-content: center; }
+  .presensi-window-block__line { flex: 1 1 100%; min-width: 80px; max-width: 120px; margin: 0 auto; }
+  .jadwal-form-actions .btn { width: 100%; justify-content: center; }
+}
+

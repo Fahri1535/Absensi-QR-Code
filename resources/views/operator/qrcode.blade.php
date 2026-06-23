@@ -62,17 +62,14 @@
       </div>
 
       <div class="time-window-grid">
+        @php $winMasuk = $jadwal?->presensiWindows() ?? []; @endphp
         <div class="time-win-item">
-          @php $bukaMasuk = \Carbon\Carbon::parse($jadwal?->jam_masuk ?? '08:00')->subMinutes(15); @endphp
-          <div class="tw-time">{{ $bukaMasuk->format('H:i') }}</div>
-          <div class="tw-label">Jam Buka</div>
+          <div class="tw-time">{{ ($winMasuk['masuk_buka'] ?? now())->format('H:i') }}</div>
+          <div class="tw-label">Jam Buka ({{ $jadwal?->masuk_lebih_awal_menit ?? 15 }} min awal)</div>
         </div>
         <div class="time-win-item">
-          @php
-            $batas = \Carbon\Carbon::parse($jadwal?->jam_masuk ?? '08:00')->addMinutes($jadwal?->toleransi_menit ?? 5);
-          @endphp
-          <div class="tw-time">{{ $batas->format('H:i') }}</div>
-          <div class="tw-label">Jam Tutup</div>
+          <div class="tw-time">{{ ($winMasuk['masuk_tutup'] ?? now())->format('H:i') }}</div>
+          <div class="tw-label">Jam Tutup Scan</div>
         </div>
       </div>
 
@@ -116,15 +113,14 @@
       </div>
 
       <div class="time-window-grid">
+        @php $winPulang = $jadwal?->presensiWindows() ?? []; @endphp
         <div class="time-win-item" style="border-color:rgba(0,224,150,.15);">
-          @php $bukaPulang = \Carbon\Carbon::parse($jadwal?->jam_pulang ?? '17:00')->subMinutes(30); @endphp
-          <div class="tw-time" style="color:var(--green);">{{ $bukaPulang->format('H:i') }}</div>
-          <div class="tw-label">Jam Buka</div>
+          <div class="tw-time" style="color:var(--green);">{{ ($winPulang['pulang_buka'] ?? now())->format('H:i') }}</div>
+          <div class="tw-label">Jam Buka ({{ $jadwal?->pulang_lebih_awal_menit ?? 30 }} min awal)</div>
         </div>
         <div class="time-win-item" style="border-color:rgba(0,224,150,.15);">
-          @php $tutupPulang = \Carbon\Carbon::parse($jadwal?->jam_pulang ?? '17:00'); @endphp
-          <div class="tw-time" style="color:var(--green);">{{ $tutupPulang->format('H:i') }}</div>
-          <div class="tw-label">Jam Tutup</div>
+          <div class="tw-time" style="color:var(--green);">{{ ($winPulang['pulang_tutup'] ?? now())->format('H:i') }}</div>
+          <div class="tw-label">Jam Tutup Scan</div>
         </div>
       </div>
 

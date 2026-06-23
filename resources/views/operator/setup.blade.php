@@ -12,7 +12,7 @@
     background: var(--bg-card);
     transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
   }
-  .scope-option:hover { border-color: var(--blue-light); background: var(--blue-glow); }
+  .scope-option:hover { border-color: var(--white-light); background: var(--blue-glow); }
   .scope-option input { margin-top: 3px; accent-color: var(--blue-primary); flex-shrink: 0; }
   .scope-option-title { font-weight: 600; font-size: .9rem; }
   .scope-option-desc { font-size: .8rem; color: var(--text-secondary); margin-top: 3px; line-height: 1.45; }

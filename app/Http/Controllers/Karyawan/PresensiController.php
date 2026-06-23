@@ -84,10 +84,10 @@ class PresensiController extends Controller
                 return response()->json(['success' => false, 'message' => 'Anda sudah presensi masuk hari ini.'], 422);
             }
 
-            $jamMasuk    = Carbon::parse($jadwal->jam_masuk);
-            // Window Masuk: 1 jam sebelum jam masuk s/d 4 jam setelah jam masuk
-            $windowBuka  = $jamMasuk->copy()->subHours(1);
-            $windowTutup = $jamMasuk->copy()->addHours(4);
+            $windows = $jadwal->presensiWindows($now);
+            $windowBuka  = $windows['masuk_buka'];
+            $windowTutup = $windows['masuk_tutup'];
+            $jamMasuk    = $windows['jam_masuk'];
 
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([
@@ -134,10 +134,10 @@ class PresensiController extends Controller
                 return response()->json(['success' => false, 'message' => 'Anda sudah presensi pulang hari ini.'], 422);
             }
 
-            $jamPulang   = Carbon::parse($jadwal->jam_pulang);
-            // Window Pulang: 1 jam sebelum jam pulang s/d 6 jam setelah jam pulang
-            $windowBuka  = $jamPulang->copy()->subHours(1);
-            $windowTutup = $jamPulang->copy()->addHours(6);
+            $windows = $jadwal->presensiWindows($now);
+            $windowBuka  = $windows['pulang_buka'];
+            $windowTutup = $windows['pulang_tutup'];
+            $jamPulang   = $windows['jam_pulang'];
 
             if ($now->lt($windowBuka) || $now->gt($windowTutup)) {
                 return response()->json([

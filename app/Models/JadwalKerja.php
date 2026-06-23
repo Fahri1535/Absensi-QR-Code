@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class JadwalKerja extends Model
@@ -12,11 +13,19 @@ class JadwalKerja extends Model
         'jam_masuk',
         'jam_pulang',
         'toleransi_menit',
+        'masuk_lebih_awal_menit',
+        'pulang_lebih_awal_menit',
         'hari_kerja',
         'kantor_latitude',
         'kantor_longitude',
         'radius_meter',
     ];
+
+    /** Menit tambahan setelah jam masuk + toleransi — window scan masuk masih terbuka (sesuai README). */
+    public const MASUK_TUTUP_EXTRA_MENIT = 60;
+
+    /** Menit tambahan setelah jam pulang — window scan pulang masih terbuka. */
+    public const PULANG_TUTUP_EXTRA_MENIT = 60;
 
     protected function casts(): array
     {
@@ -31,10 +40,38 @@ class JadwalKerja extends Model
     public static function getSetting(): self
     {
         return static::firstOrCreate([], [
-            'jam_masuk'       => '08:00:00',
-            'jam_pulang'      => '17:00:00',
-            'toleransi_menit' => 5,
-            'hari_kerja'      => 'Senin - Jumat',
+            'jam_masuk'              => '08:00:00',
+            'jam_pulang'             => '17:00:00',
+            'toleransi_menit'        => 5,
+            'masuk_lebih_awal_menit' => 15,
+            'pulang_lebih_awal_menit'=> 30,
+            'hari_kerja'             => 'Senin - Jumat',
         ]);
+    }
+
+    /** Window presensi masuk/pulang — satu sumber untuk QR, jadwal, dan scan API. */
+    public function presensiWindows(?Carbon $onDate = null): array
+    {
+        $base = $onDate ? $onDate->copy()->startOfDay() : now()->startOfDay();
+
+        $jamMasuk = $base->copy()->setTimeFromTimeString(
+            Carbon::parse($this->jam_masuk)->format('H:i:s')
+        );
+        $jamPulang = $base->copy()->setTimeFromTimeString(
+            Carbon::parse($this->jam_pulang)->format('H:i:s')
+        );
+
+        $tol = (int) ($this->toleransi_menit ?? 5);
+        $awalMasuk = (int) ($this->masuk_lebih_awal_menit ?? 15);
+        $awalPulang = (int) ($this->pulang_lebih_awal_menit ?? 30);
+
+        return [
+            'masuk_buka'  => $jamMasuk->copy()->subMinutes($awalMasuk),
+            'masuk_tutup' => $jamMasuk->copy()->addMinutes($tol + self::MASUK_TUTUP_EXTRA_MENIT),
+            'pulang_buka' => $jamPulang->copy()->subMinutes($awalPulang),
+            'pulang_tutup'=> $jamPulang->copy()->addMinutes(self::PULANG_TUTUP_EXTRA_MENIT),
+            'jam_masuk'   => $jamMasuk,
+            'jam_pulang'  => $jamPulang,
+        ];
     }
 }
