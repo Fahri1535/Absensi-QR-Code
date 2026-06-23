@@ -55,7 +55,12 @@ class DashboardController extends Controller
         // terlewati. Sebelum jam masuk lewat, karyawan masih dalam periode sah
         // untuk presensi sehingga tidak boleh ditandai alpha (mencegah bug
         // "semua alpha" tepat setelah pergantian tanggal pukul 00:00).
-        $totalAlpa = $jadwal->alphaFinalUntukTanggal($today) ? $belumPresensiList->count() : 0;
+        //
+        // Untuk hari ini, alpha TIDAK PERNAH final — selalu 0, agar operator
+        // bisa mengubah pengaturan jam kerja kapan saja tanpa membuat karyawan
+        // terkunci sebagai alpha.
+        $totalAlpa = 0;
+
         $belumPresensi = $belumPresensiList->count();
 
         // Grafik 7 hari terakhir

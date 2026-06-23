@@ -26,6 +26,7 @@ class DashboardController extends Controller
         }
 
         $today = today();
+        $jadwal = JadwalKerja::getSetting();
 
         // Semua karyawan aktif (role karyawan)
         $karyawanAktif = Karyawan::where('status', 'aktif')
@@ -67,14 +68,12 @@ class DashboardController extends Controller
         })->values();
         $belumPresensi = $belumPresensiList->count();
 
-        // Alpa = belum presensi, tapi hanya setelah jam masuk tanggal hari ini
-        // terlewati. Sebelum jam masuk lewat, karyawan masih dalam periode sah
-        // untuk presensi sehingga tidak boleh ditandai alpha (mencegah bug
-        // "semua alpha" tepat setelah pergantian tanggal pukul 00:00).
-        $totalAlpa = $jadwal->alphaFinalUntukTanggal($today) ? $belumPresensiList->count() : 0;
+        // Untuk hari ini, alpha TIDAK PERNAH final — selalu 0, agar operator
+        // bisa mengubah pengaturan jam kerja kapan saja tanpa membuat karyawan
+        // terkunci sebagai alpha.
+        $totalAlpa = 0;
 
-        // Jadwal & Presensi Pribadi
-        $jadwal = JadwalKerja::getSetting();
+        // Presensi Pribadi
         $presensiPribadi = Presensi::where('karyawan_id', $karyawanPribadi->id)
             ->whereDate('tanggal', $today)
             ->first();

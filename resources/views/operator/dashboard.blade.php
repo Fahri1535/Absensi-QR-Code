@@ -132,20 +132,22 @@
         <h3>Alpa ({{ $totalAlpa ?? 0 }})</h3>
       </div>
       <div class="card-body-sm" style="max-height:240px; overflow-y:auto;">
-        @forelse($belumPresensiList ?? [] as $k)
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
-          <div>
-            <div style="font-weight:600; font-size:.85rem;">{{ $k->nama_lengkap }}</div>
-            <div style="font-size:.7rem; color:var(--text-secondary);">{{ $k->kode_karyawan ?? '-' }}</div>
+        @if(($totalAlpa ?? 0) > 0)
+          @foreach($belumPresensiList ?? [] as $k)
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+            <div>
+              <div style="font-weight:600; font-size:.85rem;">{{ $k->nama_lengkap }}</div>
+              <div style="font-size:.7rem; color:var(--text-secondary);">{{ $k->kode_karyawan ?? '-' }}</div>
+            </div>
+            <span class="badge badge-red" style="font-size:.65rem;">Alpa</span>
           </div>
-          <span class="badge badge-red" style="font-size:.65rem;">Alpa</span>
-        </div>
-        @empty
+          @endforeach
+        @else
         <div style="text-align:center; padding:20px; color:var(--text-secondary);">
           <i class="fa-solid fa-circle-check" style="font-size:1.2rem; color:var(--green);"></i>
           <div style="margin-top:6px; font-size:.8rem;">Tidak ada yang alpa!</div>
         </div>
-        @endforelse
+        @endif
       </div>
     </div>
 

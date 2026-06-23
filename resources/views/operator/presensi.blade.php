@@ -179,6 +179,9 @@
         <tr>
           <td class="text-muted text-xs">{{ $presensiList->firstItem() + $i }}</td>
           <td>
+            @if($isBelum)
+              <span class="text-muted">—</span>
+            @else
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue-light),#1e40af);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;color:#fff;">
                 {{ strtoupper(substr($p->karyawan?->nama_lengkap ?? '?', 0, 1)) }}
@@ -188,6 +191,7 @@
                 <div class="text-xs text-muted">{{ $p->karyawan?->jabatan ?? '—' }}</div>
               </div>
             </div>
+            @endif
           </td>
           <td>
             {{ $p->jam_datang ? \Carbon\Carbon::parse($p->jam_datang)->format('H:i') : '—' }}
